@@ -45,18 +45,11 @@ npm install @brushy/localstorage
 npm install @brushy/di @brushy/localstorage
 ```
 
-## 📚 Documentation
-
-- [Full Documentation](https://brushy.dev/docs)
-- [Guides & Tutorials](https://brushy.dev/guides)
-- [API Reference](https://brushy.dev/api)
-- [Examples](https://brushy.dev/examples)
-
 ## 🛠 Development
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/brushy.git
+git clone https://github.com/brushysuite/brushy-librarys.git
 
 # Install dependencies
 npm install
