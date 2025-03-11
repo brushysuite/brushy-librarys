@@ -1,0 +1,39 @@
+{
+  "name": "brushy",
+  "private": true,
+  "author": "Gustavo Franco <contact@gfrancodev.com>",
+  "license": "MIT",
+  "homepage": "https://gfrancodev.com",
+  "scripts": {
+    "build": "turbo run build --filter=./packages/*",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "check-types": "turbo run check-types",
+    "test": "turbo run test --filter=./packages/*",
+    "test:coverage": "turbo run test:coverage --filter=./packages/*",
+    "publish-packages": "turbo run build --filter=@brushy/* && changeset publish",
+    "version-packages": "changeset version",
+    "prepublish": "turbo run build --filter=./packages/*",
+    "publish:npm": "npm run prepublish && pnpm -r publish --access public",
+    "publish:yarn": "npm run prepublish && yarn workspaces foreach npm publish --access public",
+    "publish:pnpm": "npm run prepublish && pnpm -r publish --access public"
+  },
+  "devDependencies": {
+    "jsdom": "^26.0.0",
+    "prettier": "^3.5.3",
+    "turbo": "^2.4.4",
+    "typescript": "5.8.2"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "packageManager": "npm@11.0.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "dependencies": {
+    "@testing-library/dom": "^10.4.0"
+  }
+}

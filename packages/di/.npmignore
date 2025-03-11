@@ -1,0 +1,18 @@
+# Source
+src/
+tests/
+coverage/
+.turbo/
+
+# Config files
+tsconfig.json
+jest.config.js
+.eslintrc
+.prettierrc
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log 

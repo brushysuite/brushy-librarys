@@ -1,0 +1,41 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "ui": "tui",
+  "globalDependencies": ["tsconfig.json"],
+  "pipeline": {
+    "build": {
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "outputs": ["dist/**"],
+      "filter": {
+        "include": ["packages/*"],
+        "exclude": ["apps/**"]
+      }
+    },
+    "test:coverage": {
+      "outputs": ["coverage/**"],
+      "filter": {
+        "include": ["packages/*"],
+        "exclude": ["apps/**"]
+      }
+    },
+    "lint": {
+      "dependsOn": ["^lint"],
+      "filter": {
+        "include": ["packages/*"],
+        "exclude": ["apps/**"]
+      }
+    },
+    "check-types": {
+      "dependsOn": ["^check-types"],
+      "filter": {
+        "include": ["packages/*"],
+        "exclude": ["apps/**"]
+      }
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    }
+  }
+}
