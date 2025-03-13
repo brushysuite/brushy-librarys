@@ -1,6 +1,6 @@
 {
   "name": "@brushy/localstorage",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Powerful abstraction for local state management",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -21,7 +21,9 @@
     "./package.json": "./package.json"
   },
   "files": [
-    "dist/**"
+    "dist/**",
+    "docs",
+    "README.md"
   ],
   "sideEffects": false,
   "scripts": {
@@ -34,7 +36,10 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "prepublishOnly": "npm run build",
+    "publish:yarn": "yarn npm publish --access public",
+    "publish:npm": "npm publish --access public"
   },
   "keywords": [
     "localstorage",
@@ -53,7 +58,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/brushysuite/brushy-librarys"
+    "url": "git+https://github.com/brushysuite/brushy-librarys.git"
+  },
+  "bugs": {
+    "url": "https://github.com/brushysuite/brushy-librarys/issues"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.1.4",
@@ -78,7 +86,7 @@
     "vitest": "^0.34.6"
   },
   "peerDependencies": {
-    "react": "^18.2.0"
+    "react": "*"
   },
   "dependencies": {
     "lz-string": "^1.5.0"

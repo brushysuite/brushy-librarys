@@ -1,6 +1,6 @@
 {
   "name": "@brushy/di",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Advanced dependency injection library with special support for React",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -53,7 +53,8 @@
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "publish:all": "npm run build && npm publish -w @brushy/* --access public"
   },
   "keywords": [
     "dependency-injection",
@@ -88,7 +89,7 @@
     "vitest": "^3.0.8"
   },
   "peerDependencies": {
-    "react": "^19.0.0"
+    "react": "*"
   },
   "publishConfig": {
     "access": "public",
