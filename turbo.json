@@ -36,6 +36,13 @@
     "dev": {
       "cache": false,
       "persistent": true
+    },
+    "publish:npm": {
+      "dependsOn": ["build"],
+      "filter": {
+        "include": ["packages/*"],
+        "exclude": ["apps/**"]
+      }
     }
   }
 }
