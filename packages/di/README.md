@@ -6,15 +6,18 @@
 [![Coverage - Branches](https://img.shields.io/badge/Coverage%20Branches-98.73%25-brightgreen.svg)](coverage)
 [![Coverage - Functions](https://img.shields.io/badge/Coverage%20Functions-100%25-brightgreen.svg)](coverage)
 [![Coverage - Lines](https://img.shields.io/badge/Coverage%20Lines-99.5%25-brightgreen.svg)](coverage)
+
 <!-- Package Stats -->
+
 [![npm downloads](https://img.shields.io/npm/dm/@brushy/di.svg)](https://www.npmjs.com/package/@brushy/di)
 [![npm bundle size](https://img.shields.io/bundlephobia/minzip/@brushy/di)](https://bundlephobia.com/package/@brushy/di)
 [![npm version](https://img.shields.io/npm/v/@brushy/di.svg)](https://www.npmjs.com/package/@brushy/di)
+
 </div>
 
 A powerful and flexible dependency injection system for JavaScript/TypeScript applications, with special support for React.
 
-[🇧🇷 Documentação em Português](./docs/pt-br/README.md) | [🇺🇸 English Documentation](./docs/en/README.md)
+[🇧🇷 Documentação em Português](https://github.com/brushysuite/brushy-librarys/blob/main/packages/di/docs/pt-br/README.md) | [🇺🇸 English Documentation](https://github.com/brushysuite/brushy-librarys/blob/main/packages/di/docs/en/README.md)
 
 ## Features
 
@@ -39,15 +42,15 @@ pnpm add @brushy/di
 
 Here's how @brushy/di compares to other solutions in solving common real-world problems:
 
-| Problem                 | @brushy/di                                  | tsyringe                 | InversifyJS              | Angular DI                  |
-| ----------------------- | ------------------------------------------- | ------------------------ | ------------------------ | --------------------------- |
-| **React Integration**   | ✅ Native support with hooks and components | ⚠️ Requires manual setup | ❌ Limited React support | ❌ Not designed for React   |
-| **Server Components**   | ✅ Full RSC compatibility                   | ❌ Not compatible        | ❌ Not compatible        | ❌ Not applicable           |
-| **Promise Caching**     | ✅ Automatic smart caching                  | ⚠️ Manual implementation | ⚠️ Manual implementation | ⚠️ Manual implementation    |
-| **Component Injection** | ✅ Built-in UI component system             | ❌ No UI support         | ❌ No UI support         | ⚠️ Different paradigm       |
-| **Learning Curve**      | ✅ Moderate                                 | ✅ Moderate              | ❌ Steep                 | ❌ Steep                    |
-| **Scope Management**    | ✅ Built-in request/session scopes          | ❌ No scope support      | ⚠️ Basic scopes          | ✅ Built-in scopes          |
-| **Performance**         | ✅ Optimized resolution                     | ✅ Fast resolution       | ⚠️ Moderate              | ❌ Heavy runtime            |
+| Problem                 | @brushy/di                                  | tsyringe                 | InversifyJS              | Angular DI                |
+| ----------------------- | ------------------------------------------- | ------------------------ | ------------------------ | ------------------------- |
+| **React Integration**   | ✅ Native support with hooks and components | ⚠️ Requires manual setup | ❌ Limited React support | ❌ Not designed for React |
+| **Server Components**   | ✅ Full RSC compatibility                   | ❌ Not compatible        | ❌ Not compatible        | ❌ Not applicable         |
+| **Promise Caching**     | ✅ Automatic smart caching                  | ⚠️ Manual implementation | ⚠️ Manual implementation | ⚠️ Manual implementation  |
+| **Component Injection** | ✅ Built-in UI component system             | ❌ No UI support         | ❌ No UI support         | ⚠️ Different paradigm     |
+| **Learning Curve**      | ✅ Moderate                                 | ✅ Moderate              | ❌ Steep                 | ❌ Steep                  |
+| **Scope Management**    | ✅ Built-in request/session scopes          | ❌ No scope support      | ⚠️ Basic scopes          | ✅ Built-in scopes        |
+| **Performance**         | ✅ Optimized resolution                     | ✅ Fast resolution       | ⚠️ Moderate              | ❌ Heavy runtime          |
 
 Legend:
 
@@ -259,21 +262,21 @@ Complete documentation is available in multiple languages:
 
 ### English
 
-- [Introduction and Basic Concepts](./docs/en/README.md)
-- [Container](./docs/en/container.md)
-- [React Hooks](./docs/en/react-hooks.md)
-- [Component Injection](./docs/en/component-injection.md)
-- [Utility Functions](./docs/en/utilities.md)
-- [Best Practices](./docs/en/best-practices.md)
+- [Introduction and Basic Concepts](https://github.com/brushysuite/brushy-librarys/blob/main/packages/di/docs/en/README.md)
+- [Container](https://github.com/brushysuite/brushy-librarys/blob/main/packages/di/docs/en/container.md)
+- [React Hooks](https://github.com/brushysuite/brushy-librarys/blob/main/packages/di/docs/en/react-hooks.md)
+- [Component Injection](https://github.com/brushysuite/brushy-librarys/blob/main/packages/di/docs/en/component-injection.md)
+- [Utility Functions](https://github.com/brushysuite/brushy-librarys/blob/main/packages/di/docs/en/utilities.md)
+- [Best Practices](https://github.com/brushysuite/brushy-librarys/blob/main/packages/di/docs/en/best-practices.md)
 
 ### Portuguese (Brasil)
 
-- [Introdução e Conceitos Básicos](./docs/pt-br/README.md)
-- [Container](./docs/pt-br/container.md)
-- [Hooks React](./docs/pt-br/react-hooks.md)
-- [Injeção de Componentes](./docs/pt-br/component-injection.md)
-- [Funções Utilitárias](./docs/pt-br/utilities.md)
-- [Boas Práticas](./docs/pt-br/best-practices.md)
+- [Introdução e Conceitos Básicos](https://github.com/brushysuite/brushy-librarys/blob/main/packages/di/docs/pt-br/README.md)
+- [Container](https://github.com/brushysuite/brushy-librarys/blob/main/packages/di/docs/container.md)
+- [Hooks React](https://github.com/brushysuite/brushy-librarys/blob/main/packages/di/docs/react-hooks.md)
+- [Injeção de Componentes](https://github.com/brushysuite/brushy-librarys/blob/main/packages/di/docs/component-injection.md)
+- [Funções Utilitárias](https://github.com/brushysuite/brushy-librarys/blob/main/packages/di/docs/utilities.md)
+- [Boas Práticas](https://github.com/brushysuite/brushy-librarys/blob/main/packages/di/docs/best-practices.md)
 
 To view the documentation locally:
 

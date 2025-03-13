@@ -8,6 +8,7 @@
 [![Coverage - Lines](https://img.shields.io/badge/Coverage%20Lines-96.87%25-brightgreen.svg)](coverage)
 
 <!-- Package Stats -->
+
 [![npm downloads](https://img.shields.io/npm/dm/@brushy/localstorage.svg)](https://www.npmjs.com/package/@brushy/localstorage)
 [![npm bundle size](https://img.shields.io/bundlephobia/minzip/@brushy/localstorage)](https://bundlephobia.com/package/@brushy/localstorage)
 [![npm version](https://img.shields.io/npm/v/@brushy/localstorage.svg)](https://www.npmjs.com/package/@brushy/localstorage)
@@ -20,17 +21,18 @@ A robust and efficient TypeScript library for local storage management in browse
 
 Here's how @brushy/localstorage compares to other solutions in solving common real-world problems:
 
-| Problem | @brushy/localstorage | localStorage | localforage | Other Solutions |
-|---------|---------------------|--------------|-------------|-----------------|
-| **Type Safety** | ✅ Full TypeScript support | ❌ No types | ⚠️ Basic types | ⚠️ Varies |
-| **Compression** | ✅ Automatic compression | ❌ None | ❌ None | ⚠️ Manual |
-| **TTL Support** | ✅ Built-in expiration | ❌ None | ❌ None | ⚠️ Manual |
-| **Large Data** | ✅ Lazy loading & chunks | ❌ Size limits | ✅ IndexedDB | ⚠️ Varies |
-| **Performance** | ✅ Optimized caching | ✅ Native API | ⚠️ Async only | ⚠️ Varies |
-| **Events** | ✅ Fine-grained control | ⚠️ Limited | ✅ Good support | ⚠️ Basic |
-| **Serialization** | ✅ Smart JSON handling | ⚠️ Basic | ✅ Good support | ⚠️ Manual |
+| Problem           | @brushy/localstorage       | localStorage   | localforage     | Other Solutions |
+| ----------------- | -------------------------- | -------------- | --------------- | --------------- |
+| **Type Safety**   | ✅ Full TypeScript support | ❌ No types    | ⚠️ Basic types  | ⚠️ Varies       |
+| **Compression**   | ✅ Automatic compression   | ❌ None        | ❌ None         | ⚠️ Manual       |
+| **TTL Support**   | ✅ Built-in expiration     | ❌ None        | ❌ None         | ⚠️ Manual       |
+| **Large Data**    | ✅ Lazy loading & chunks   | ❌ Size limits | ✅ IndexedDB    | ⚠️ Varies       |
+| **Performance**   | ✅ Optimized caching       | ✅ Native API  | ⚠️ Async only   | ⚠️ Varies       |
+| **Events**        | ✅ Fine-grained control    | ⚠️ Limited     | ✅ Good support | ⚠️ Basic        |
+| **Serialization** | ✅ Smart JSON handling     | ⚠️ Basic       | ✅ Good support | ⚠️ Manual       |
 
 Legend:
+
 - ✅ Fully Supported/Optimal
 - ⚠️ Partial/Varies
 - ❌ Limited/Problematic
@@ -222,17 +224,16 @@ function App() {
 
 ## Detailed Documentation
 
-For more detailed information about the API and advanced examples, see the [complete documentation](./docs/en/README.md).
+For more detailed information about the API and advanced examples, see the [complete documentation](https://github.com/brushysuite/brushy-librarys/blob/main/packages/localstorage/docs/README.md).
 
 ### Additional Documentation
 
-- [Benefits and Use Cases](./docs/en/benefits-and-use-cases.md) - Explore the problems the library solves and use cases by industry
-- [Advanced Examples](./docs/en/advanced-examples.md) - Patterns and techniques for complex use cases
-- [React Hooks](./docs/en/react-hooks.md) - Complete guide for React integration
+- [Benefits and Use Cases](https://github.com/brushysuite/brushy-librarys/blob/main/packages/localstorage/docs/en/benefits-and-use-cases.md) - Explore the problems the library solves and use cases by industry
+- [React Hooks](https://github.com/brushysuite/brushy-librarys/blob/main/packages/localstorage/docs/en/react-hooks.md) - Complete guide for React integration
 
 ### Other Languages
 
-- [Documentação em Português (BR)](./docs/pt-br/README.md)
+- [Documentação em Português (BR)](https://github.com/brushysuite/brushy-librarys/blob/main/packages/localstorage/docs/pt-br/README.md)
 
 ## License
 
