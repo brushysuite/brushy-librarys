@@ -4,17 +4,17 @@ import type { CompressionOptions } from "../core/types";
 
 /**
  * A React hook for managing lazy-loaded data in localStorage with support for compression and field-specific operations.
- * 
+ *
  * @template T - The type of data to be stored, which must be an object.
  * @param key - The unique key to store the data in localStorage.
  * @param initialValue - The initial value to use if no data is stored.
  * @param options - Additional storage options, such as compression.
  * @returns An object containing the current value, functions to update the value, preload fields, check if fields are loaded, and remove the data.
- * 
+ *
  * @example
  * ```tsx
  * import { useLazyStorage } from "@brushy/localstorage;
- * 
+ *
  * interface UserData {
  *   name: string;
  *   email: string;
@@ -23,19 +23,19 @@ import type { CompressionOptions } from "../core/types";
  *     city: string;
  *   };
  * }
- * 
+ *
  * function UserProfile() {
  *   const [userData, setUserData, preloadField, isFieldLoaded, removeUserData] = useLazyStorage<UserData>(
  *     "user:profile",
  *     { name: "", email: "" }
  *   );
- * 
+ *
  *   const handleLoadAddress = () => {
  *     if (!isFieldLoaded("address")) {
  *       preloadField("address");
  *     }
  *   };
- * 
+ *
  *   return (
  *     <div>
  *       <h2>{userData.name}</h2>
@@ -76,7 +76,7 @@ export function useLazyStorage<T extends object>(
 
   /**
    * Updates the value stored in localStorage.
-   * 
+   *
    * @param newValue - The new value or a function that returns the new value based on the previous value.
    */
   const updateValue = useCallback(
@@ -113,7 +113,7 @@ export function useLazyStorage<T extends object>(
 
   /**
    * Preloads a specific field from the stored data.
-   * 
+   *
    * @param field - The field to preload.
    */
   const preloadField = useCallback(
@@ -128,7 +128,7 @@ export function useLazyStorage<T extends object>(
 
   /**
    * Checks if a specific field has been loaded.
-   * 
+   *
    * @param field - The field to check.
    * @returns True if the field has been loaded, false otherwise.
    */

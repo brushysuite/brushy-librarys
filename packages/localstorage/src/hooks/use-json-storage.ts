@@ -4,17 +4,17 @@ import { JSONStorageOptions } from "../core/types";
 
 /**
  * A React hook for managing JSON data in localStorage with support for partial updates, schema validation, and array merging.
- * 
+ *
  * @template T - The type of JSON data to be stored, which must be an object.
  * @param key - The unique key to store the data in localStorage.
  * @param initialValue - The initial value to use if no data is stored.
  * @param options - Additional storage options, such as compression or a custom reviver.
  * @returns An object containing the current value, functions to update the value, merge arrays, and remove the data, along with validation and schema information.
- * 
+ *
  * @example
  * ```tsx
  * import { useJSONStorage } from "@brushy/localstorage";
- * 
+ *
  * interface UserPreferences {
  *   theme: "light" | "dark";
  *   fontSize: number;
@@ -23,7 +23,7 @@ import { JSONStorageOptions } from "../core/types";
  *     push: boolean;
  *   };
  * }
- * 
+ *
  * function SettingsComponent() {
  *   const [prefs, setPrefs, updatePrefs, mergePrefs, removePrefs, isValid, schema] = useJSONStorage<UserPreferences>(
  *     "user:prefs",
@@ -36,15 +36,15 @@ import { JSONStorageOptions } from "../core/types";
  *       },
  *     },
  *   );
- * 
+ *
  *   const toggleTheme = () => {
  *     updatePrefs({ theme: prefs.theme === "light" ? "dark" : "light" });
  *   };
- * 
+ *
  *   const increaseFontSize = () => {
  *     updatePrefs({ fontSize: prefs.fontSize + 2 });
  *   };
- * 
+ *
  *   const disableNotifications = () => {
  *     updatePrefs({
  *       notifications: {
@@ -53,11 +53,11 @@ import { JSONStorageOptions } from "../core/types";
  *       },
  *     });
  *   };
- * 
+ *
  *   const addNotificationTypes = () => {
  *     mergePrefs(["sms", "in-app"], { unique: true });
  *   };
- * 
+ *
  *   return (
  *     <div>
  *       <h1>Settings</h1>
@@ -117,7 +117,7 @@ export function useJSONStorage<T extends object>(
 
   /**
    * Updates the entire value stored in localStorage.
-   * 
+   *
    * @param newValue - The new value or a function that returns the new value based on the previous value.
    */
   const updateValue = useCallback(
@@ -139,7 +139,7 @@ export function useJSONStorage<T extends object>(
 
   /**
    * Updates specific fields of the stored JSON data.
-   * 
+   *
    * @param updates - An object containing the fields to be updated.
    */
   const updateFields = useCallback(
@@ -156,7 +156,7 @@ export function useJSONStorage<T extends object>(
 
   /**
    * Merges an array of items into the stored JSON data.
-   * 
+   *
    * @template I - The type of items in the array to be merged.
    * @param items - The array of items to merge.
    * @param mergeOptions - Options for merging, such as ensuring uniqueness or providing a custom comparator.

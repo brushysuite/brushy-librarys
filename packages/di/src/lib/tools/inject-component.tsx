@@ -11,7 +11,7 @@ export const componentCache = new Map<Token, React.ComponentType<any>>();
 
 /**
  * Renders an error UI for component loading issues.
- * 
+ *
  * @param message - The error message to display.
  * @param details - Optional detailed error information.
  * @returns A React element displaying the error UI.
@@ -85,7 +85,7 @@ export const renderErrorUI = (message: string, details?: string) => (
 
 /**
  * Handles the case when a component is not found in the DI container.
- * 
+ *
  * @param token - The token of the component that was not found.
  * @param isDevelopment - A flag indicating if the environment is development.
  * @returns A React element or null based on the environment.
@@ -103,7 +103,7 @@ export const handleComponentNotFound = (
 
 /**
  * Handles errors that occur during component resolution.
- * 
+ *
  * @param token - The token of the component that failed to resolve.
  * @param error - The error that occurred during resolution.
  * @param isDevelopment - A flag indicating if the environment is development.
@@ -127,13 +127,13 @@ export const handleResolveError = (
 /**
  * Injects a React component from the DI container.
  * Works in both client and server components with automatic detection.
- * 
+ *
  * @param token - The token of the component to be injected.
  * @param fallback - Optional component to be used if the token is not registered.
  * @returns A React component that renders the injected component.
- * 
+ *
  * @example
- * 
+ *
  * ```typescript
  * // Registering a component
  * const BUTTON_COMPONENT = Symbol('BUTTON_COMPONENT');
@@ -141,16 +141,16 @@ export const handleResolveError = (
  *   <button className={`btn btn-${variant}`}>{children}</button>
  * );
  * container.register(BUTTON_COMPONENT, { useValue: MyButtonComponent });
- * 
+ *
  * // Using the injected component
  * const Button = useInjectComponent<React.FC<{ variant: string }>>(BUTTON_COMPONENT);
- * 
+ *
  * // Using with a fallback
  * const DefaultButton: React.FC<{ variant: string }> = ({ variant, children }) => (
  *   <button className={`default-btn default-btn-${variant}`}>{children}</button>
  * );
  * const ButtonWithFallback = useInjectComponent<React.FC<{ variant: string }>>(BUTTON_COMPONENT, DefaultButton);
- * 
+ *
  * // Rendering the component
  * <Button variant="primary">Click here</Button>
  * <ButtonWithFallback variant="secondary">Click here</ButtonWithFallback>
@@ -208,32 +208,32 @@ export function useInjectComponent<P extends React.JSX.IntrinsicAttributes>(
 /**
  * Creates a server-compatible component provider.
  * This version works in both client and server components.
- * 
+ *
  * @param components - An object mapping tokens to React components.
  * @returns A React functional component that serves as a provider for the components.
- * 
+ *
  * @example
- * 
+ *
  * ```typescript
  * const BUTTON_COMPONENT = Symbol('BUTTON_COMPONENT');
  * const CARD_COMPONENT = Symbol('CARD_COMPONENT');
- * 
+ *
  * const Button: React.FC<{ variant: string }> = ({ variant, children }) => (
  *   <button className={`btn btn-${variant}`}>{children}</button>
  * );
- * 
+ *
  * const Card: React.FC<{ title: string }> = ({ title, children }) => (
  *   <div className="card">
  *     <h3>{title}</h3>
  *     <div>{children}</div>
  *   </div>
  * );
- * 
+ *
  * const UIComponentsProvider = createComponentsProvider({
  *   [BUTTON_COMPONENT]: Button,
  *   [CARD_COMPONENT]: Card,
  * });
- * 
+ *
  * // Usage
  * <UIComponentsProvider>
  *   <App />
@@ -260,18 +260,18 @@ export function createComponentsProvider(components: {
 /**
  * Registers a React component in the DI container.
  * Works in both client and server components.
- * 
+ *
  * @param token - The token to register the component under.
  * @param component - The React component to register.
- * 
+ *
  * @example
- * 
+ *
  * ```typescript
  * const BUTTON_COMPONENT = Symbol('BUTTON_COMPONENT');
  * const MyButton: React.FC<{ variant: string }> = ({ variant, children }) => (
  *   <button className={`btn btn-${variant}`}>{children}</button>
  * );
- * 
+ *
  * registerComponent(BUTTON_COMPONENT, MyButton);
  * ```
  */

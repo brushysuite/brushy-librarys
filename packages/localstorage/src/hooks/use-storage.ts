@@ -4,29 +4,29 @@ import type { StorageOptions } from "../core/types";
 
 /**
  * Hook for managing data in localStorage with support for compression and field updates.
- * 
+ *
  * @template T - The type of data to be stored.
  * @param key - The unique key to store the data in localStorage.
  * @param initialValue - The initial value to use if no data is stored.
  * @param options - Additional storage options, such as compression.
  * @returns An object containing the current value, functions to update the value, and remove the data.
- * 
+ *
  * @example
  * ```tsx
  * import { useStorage } from "@brushy/localstorage";
- * 
+ *
  * function AuthComponent() {
  *   const [token, setToken, removeToken] = useStorage("auth:token", null);
- * 
+ *
  *   const handleLogin = async (credentials) => {
  *     const response = await api.login(credentials);
  *     setToken(response.token);
  *   };
- * 
+ *
  *   const handleLogout = () => {
  *     removeToken();
  *   };
- * 
+ *
  *   return (
  *     <div>
  *       {token ? (
@@ -59,7 +59,7 @@ export function useStorage<T>(
 
   /**
    * Updates the value stored in localStorage.
-   * 
+   *
    * @param newValue - The new value or a function that returns the new value based on the previous value.
    */
   const updateValue = useCallback(
@@ -84,7 +84,7 @@ export function useStorage<T>(
 
   /**
    * Updates specific fields of the stored value.
-   * 
+   *
    * @param updates - An object containing the fields to be updated.
    */
   const updateFields = useCallback(
