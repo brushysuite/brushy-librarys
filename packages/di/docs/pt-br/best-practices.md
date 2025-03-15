@@ -50,6 +50,7 @@ export const TOKENS = {
 - Use `singleton` para serviços compartilhados (padrão)
 - Use `transient` para instâncias que não devem ser compartilhadas
 - Use `scoped` para instâncias que devem ser compartilhadas dentro de um escopo (ex: requisição HTTP)
+- Use `immutable` para gerenciadores de estado e instâncias que nunca devem ser invalidadas
 
 ```typescript
 // Serviço compartilhado
@@ -68,6 +69,36 @@ container.register(TOKENS.SERVICES.FILE_PROCESSOR, {
 container.register(TOKENS.SERVICES.REQUEST_CONTEXT, {
   useClass: RequestContext,
   lifecycle: "scoped",
+});
+
+// Gerenciadores de estado que nunca devem ser invalidados
+container.register(TOKENS.SERVICES.QUERY_CLIENT, {
+  useFactory: () => new QueryClient(),
+  lifecycle: "immutable",
+});
+```
+
+### Use Ciclo de Vida Imutável para Gerenciadores de Estado
+
+Ao trabalhar com bibliotecas de gerenciamento de estado como React Query, Redux ou Zustand, use o ciclo de vida `immutable` para garantir que a instância nunca seja invalidada:
+
+```typescript
+// React Query
+container.register(QUERY_CLIENT, {
+  useFactory: () => new QueryClient(),
+  lifecycle: "immutable"
+});
+
+// Redux Store
+container.register(REDUX_STORE, {
+  useFactory: () => createStore(rootReducer),
+  lifecycle: "immutable"
+});
+
+// Zustand Store
+container.register(APP_STORE, {
+  useFactory: () => create(yourStore),
+  lifecycle: "immutable"
 });
 ```
 
@@ -247,6 +278,26 @@ console.log(`Taxa de erro: ${stats.errorRate * 100}%`);
 console.log(`Taxa de sucesso: ${stats.resolveSuccessRate * 100}%`);
 ```
 
+### Verificar Integridade Imutável
+
+Use o método `verifyImmutableIntegrity` para garantir que instâncias imutáveis mantenham sua identidade:
+
+```typescript
+// Criar uma função verificadora
+const verificarIntegridade = container.verifyImmutableIntegrity();
+
+// Verificar integridade em pontos críticos da aplicação
+function verificarIntegridadeDoSistema() {
+  const queryClientIntacto = verificarIntegridade(QUERY_CLIENT);
+  const reduxStoreIntacto = verificarIntegridade(REDUX_STORE);
+  
+  if (!queryClientIntacto || !reduxStoreIntacto) {
+    console.error("Violação de integridade imutável detectada!");
+    // Tomar ação apropriada
+  }
+}
+```
+
 ### Logging Detalhado
 
 Ative o modo de debug para logging detalhado:
@@ -265,17 +316,17 @@ const container = new Container({
 Valide as dependências ao registrá-las:
 
 ```typescript
-function registerService(token, serviceClass, dependencies = []) {
+function registrarServico(token, classeServico, dependencias = []) {
   // Verificar se todas as dependências estão registradas
-  for (const dep of dependencies) {
+  for (const dep of dependencias) {
     if (!container.registry.has(dep)) {
       throw new Error(`Dependência não registrada: ${String(dep)}`);
     }
   }
 
   container.register(token, {
-    useClass: serviceClass,
-    dependencies,
+    useClass: classeServico,
+    dependencies: dependencias,
   });
 }
 ```
@@ -345,6 +396,10 @@ export const TOKENS = {
     BUTTON: Symbol("BUTTON"),
     CARD: Symbol("CARD"),
   },
+  STATE: {
+    QUERY_CLIENT: Symbol("QUERY_CLIENT"),
+    STORE: Symbol("STORE"),
+  }
 };
 ```
 
@@ -355,16 +410,24 @@ import { Container } from "@brushy/di";
 import { authModule } from "./modules/auth.module";
 import { userModule } from "./modules/user.module";
 import { productModule } from "./modules/product.module";
+import { TOKENS } from "./tokens";
+import { QueryClient } from "react-query";
 
 export function createAppContainer() {
   const container = new Container({ name: "AppContainer" });
+
+  // Registrar gerenciadores de estado com ciclo de vida imutável
+  container.register(TOKENS.STATE.QUERY_CLIENT, {
+    useFactory: () => new QueryClient(),
+    lifecycle: "immutable"
+  });
 
   // Importar módulos
   container.import(authModule);
   container.import(userModule);
   container.import(productModule);
 
-  // Configurar coletor de lixo
+  // Iniciar coletor de lixo
   container.startGarbageCollector();
 
   return container;
@@ -378,13 +441,22 @@ export const appContainer = createAppContainer();
 ```tsx
 import { BrushyDIProvider, inject } from "@brushy/di";
 import { appContainer } from "../di/container";
+import { QueryClientProvider } from "react-query";
+import { TOKENS } from "../di/tokens";
 
 // Configurar container global
 inject.setGlobalContainer(appContainer);
 
 export function AppProvider({ children }) {
+  // Obter o cliente de consulta imutável
+  const queryClient = inject.resolve(TOKENS.STATE.QUERY_CLIENT);
+
   return (
-    <BrushyDIProvider container={appContainer}>{children}</BrushyDIProvider>
+    <BrushyDIProvider container={appContainer}>
+      <QueryClientProvider client={queryClient}>
+        {children}
+      </QueryClientProvider>
+    </BrushyDIProvider>
   );
 }
 ```

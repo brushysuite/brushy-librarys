@@ -24,7 +24,7 @@ O `@brushy/di` é um sistema de injeção de dependências poderoso e flexível 
 O `@brushy/di` foi projetado para facilitar a gestão de dependências em aplicações modernas, permitindo:
 
 - Injeção de dependências com tipagem forte
-- Gerenciamento de ciclo de vida de instâncias (singleton, transient, scoped)
+- Gerenciamento de ciclo de vida de instâncias (singleton, transient, scoped, immutable)
 - Suporte a componentes React
 - Resolução assíncrona de dependências
 - Monitoramento e observabilidade
@@ -47,7 +47,11 @@ O sistema de DI (Dependency Injection) é baseado em alguns conceitos fundamenta
 - **Container**: Armazena e gerencia as dependências
 - **Token**: Identificador único para cada dependência
 - **Provider**: Configuração que define como uma dependência deve ser criada
-- **Lifecycle**: Define o ciclo de vida de uma instância (singleton, transient, scoped)
+- **Lifecycle**: Define o ciclo de vida de uma instância:
+  - **singleton**: Uma única instância é criada e reutilizada em toda a aplicação
+  - **transient**: Uma nova instância é criada cada vez que a dependência é resolvida
+  - **scoped**: Uma instância é criada por escopo, tipicamente por requisição HTTP
+  - **immutable**: Uma única instância é criada e nunca é invalidada ou coletada pelo garbage collector
 
 ## API de Referência
 

@@ -9,5 +9,6 @@ export type Token = string | symbol;
  * - **singleton**: A single instance is created and reused across the application.
  * - **transient**: A new instance is created each time the dependency is resolved.
  * - **scoped**: An instance is created per scope, typically per HTTP request in web applications.
+ * - **immutable**: A single instance is created and never invalidated or garbage collected.
  */
-export type Lifecycle = "singleton" | "transient" | "scoped";
+export type Lifecycle = "singleton" | "transient" | "scoped" | "immutable";

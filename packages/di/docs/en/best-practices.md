@@ -50,6 +50,7 @@ export const TOKENS = {
 - Use `singleton` for shared services (default)
 - Use `transient` for instances that should not be shared
 - Use `scoped` for instances that should be shared within a scope (e.g., HTTP request)
+- Use `immutable` for state managers and instances that should never be invalidated
 
 ```typescript
 // Shared service
@@ -68,6 +69,36 @@ container.register(TOKENS.SERVICES.FILE_PROCESSOR, {
 container.register(TOKENS.SERVICES.REQUEST_CONTEXT, {
   useClass: RequestContext,
   lifecycle: "scoped",
+});
+
+// State managers that should never be invalidated
+container.register(TOKENS.SERVICES.QUERY_CLIENT, {
+  useFactory: () => new QueryClient(),
+  lifecycle: "immutable",
+});
+```
+
+### Use Immutable Lifecycle for State Managers
+
+When working with state management libraries like React Query, Redux, or Zustand, use the `immutable` lifecycle to ensure the instance is never invalidated:
+
+```typescript
+// React Query
+container.register(QUERY_CLIENT, {
+  useFactory: () => new QueryClient(),
+  lifecycle: "immutable"
+});
+
+// Redux Store
+container.register(REDUX_STORE, {
+  useFactory: () => createStore(rootReducer),
+  lifecycle: "immutable"
+});
+
+// Zustand Store
+container.register(APP_STORE, {
+  useFactory: () => create(yourStore),
+  lifecycle: "immutable"
 });
 ```
 
@@ -247,4 +278,215 @@ console.log(`Error rate: ${stats.errorRate * 100}%`);
 console.log(`Success rate: ${stats.resolveSuccessRate * 100}%`);
 ```
 
+### Verify Immutable Integrity
+
+Use the `verifyImmutableIntegrity` method to ensure immutable instances maintain their identity:
+
+```typescript
+// Create a verifier function
+const verifyIntegrity = container.verifyImmutableIntegrity();
+
+// Check integrity at critical points in your application
+function checkSystemIntegrity() {
+  const queryClientIntact = verifyIntegrity(QUERY_CLIENT);
+  const reduxStoreIntact = verifyIntegrity(REDUX_STORE);
+  
+  if (!queryClientIntact || !reduxStoreIntact) {
+    console.error("Immutable integrity violation detected!");
+    // Take appropriate action
+  }
+}
+```
+
 ### Detailed Logging
+
+Enable debug mode for detailed logging:
+
+```typescript
+const container = new Container({
+  debug: true,
+  name: "AppContainer",
+});
+```
+
+## Security
+
+### Validation of Dependencies
+
+Validate dependencies when registering them:
+
+```typescript
+function registerService(token, serviceClass, dependencies = []) {
+  // Check if all dependencies are registered
+  for (const dep of dependencies) {
+    if (!container.registry.has(dep)) {
+      throw new Error(`Dependency not registered: ${String(dep)}`);
+    }
+  }
+
+  container.register(token, {
+    useClass: serviceClass,
+    dependencies,
+  });
+}
+```
+
+### Avoid Exposing Sensitive Services
+
+Don't expose sensitive services directly:
+
+```typescript
+// ✅ Good: Expose only necessary methods
+container.register(AUTH_SERVICE, {
+  useFactory: () => {
+    const authService = new AuthService();
+
+    // Return only public methods
+    return {
+      login: authService.login.bind(authService),
+      logout: authService.logout.bind(authService),
+      isAuthenticated: authService.isAuthenticated.bind(authService),
+    };
+  },
+});
+
+// ❌ Avoid: Exposing the entire service
+container.register(AUTH_SERVICE, {
+  useClass: AuthService,
+});
+```
+
+## Complete Architecture Example
+
+```
+src/
+├── di/
+│   ├── tokens.ts           # All token definitions
+│   ├── container.ts        # Main container configuration
+│   └── modules/            # DI modules
+│       ├── auth.module.ts
+│       ├── user.module.ts
+│       └── product.module.ts
+├── services/               # Service implementations
+│   ├── auth/
+│   ├── user/
+│   └── product/
+├── components/             # React components
+│   ├── providers/          # DI providers
+│   │   └── AppProvider.tsx # Main provider
+│   └── ...
+└── hooks/                  # Custom hooks
+    └── useAuth.ts          # Hook using useInject
+```
+
+### tokens.ts
+
+```typescript
+export const TOKENS = {
+  SERVICES: {
+    AUTH: Symbol("AUTH_SERVICE"),
+    USER: Symbol("USER_SERVICE"),
+    PRODUCT: Symbol("PRODUCT_SERVICE"),
+  },
+  REPOSITORIES: {
+    USER: Symbol("USER_REPOSITORY"),
+    PRODUCT: Symbol("PRODUCT_REPOSITORY"),
+  },
+  UI: {
+    BUTTON: Symbol("BUTTON"),
+    CARD: Symbol("CARD"),
+  },
+  STATE: {
+    QUERY_CLIENT: Symbol("QUERY_CLIENT"),
+    STORE: Symbol("STORE"),
+  }
+};
+```
+
+### container.ts
+
+```typescript
+import { Container } from "@brushy/di";
+import { authModule } from "./modules/auth.module";
+import { userModule } from "./modules/user.module";
+import { productModule } from "./modules/product.module";
+import { TOKENS } from "./tokens";
+import { QueryClient } from "react-query";
+
+export function createAppContainer() {
+  const container = new Container({ name: "AppContainer" });
+
+  // Register state managers with immutable lifecycle
+  container.register(TOKENS.STATE.QUERY_CLIENT, {
+    useFactory: () => new QueryClient(),
+    lifecycle: "immutable"
+  });
+
+  // Import modules
+  container.import(authModule);
+  container.import(userModule);
+  container.import(productModule);
+
+  // Start garbage collector
+  container.startGarbageCollector();
+
+  return container;
+}
+
+export const appContainer = createAppContainer();
+```
+
+### AppProvider.tsx
+
+```tsx
+import { BrushyDIProvider, inject } from "@brushy/di";
+import { appContainer } from "../di/container";
+import { QueryClientProvider } from "react-query";
+import { TOKENS } from "../di/tokens";
+
+// Set global container
+inject.setGlobalContainer(appContainer);
+
+export function AppProvider({ children }) {
+  // Get the immutable query client
+  const queryClient = inject.resolve(TOKENS.STATE.QUERY_CLIENT);
+
+  return (
+    <BrushyDIProvider container={appContainer}>
+      <QueryClientProvider client={queryClient}>
+        {children}
+      </QueryClientProvider>
+    </BrushyDIProvider>
+  );
+}
+```
+
+### useAuth.ts
+
+```typescript
+import { useInject } from "@brushy/di";
+import { TOKENS } from "../di/tokens";
+import { useState, useEffect } from "react";
+
+export function useAuth() {
+  const authService = useInject(TOKENS.SERVICES.AUTH);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    setIsAuthenticated(authService.isAuthenticated());
+
+    // Subscribe to authentication changes
+    const unsubscribe = authService.subscribe((state) => {
+      setIsAuthenticated(state.isAuthenticated);
+    });
+
+    return unsubscribe;
+  }, [authService]);
+
+  return {
+    isAuthenticated,
+    login: authService.login,
+    logout: authService.logout,
+  };
+}
+```

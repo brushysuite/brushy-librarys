@@ -168,7 +168,7 @@ export class ContainerMonitor {
         eventType +
         "]" +
         (tokenStr ? " Token: " + tokenStr : "") +
-        details,
+        JSON.stringify(details, null, 2),
     );
   }
 

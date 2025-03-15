@@ -5,7 +5,8 @@
   "license": "MIT",
   "homepage": "https://gfrancodev.com",
   "scripts": {
-    "build": "turbo run build --filter=@brushy/*",
+    "build": "turbo build",
+    "build-packages": "turbo run build --filter=./packages/*",
     "dev": "turbo run dev",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
@@ -13,11 +14,8 @@
     "test": "turbo run test --filter=@brushy/*",
     "test:coverage": "turbo run test:coverage --filter=@brushy/*",
     "changeset": "changeset",
-    "version": "changeset version",
-    "publish:npm": "turbo run build --filter=@brushy/* && changeset publish",
-    "prepublish": "turbo run build --filter=@brushy/*",
-    "publish:all": "npm run build && npm publish -w @brushy/* --access public",
-    "publish:yarn": "yarn npm publish --access public"
+    "version-packages": "changeset version",
+    "release": "npm run build-packages && changeset publish"
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.1",
@@ -35,5 +33,8 @@
   ],
   "dependencies": {
     "@testing-library/dom": "^10.4.0"
+  },
+  "lint-staged": {
+    "*.{js,ts,json}": "prettier --write \"src/**/*.ts\""
   }
 }

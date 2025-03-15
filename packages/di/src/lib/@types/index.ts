@@ -6,7 +6,7 @@ export interface ProviderConfig<T = any> {
   useClass?: new (...args: any[]) => T;
   useFactory?: (...args: any[]) => T;
   useValue?: any;
-  lifecycle?: "singleton" | "transient" | "scoped";
+  lifecycle?: "singleton" | "transient" | "scoped" | "immutable";
   ttl?: number;
   promiseTtl?: number;
   observable?: {

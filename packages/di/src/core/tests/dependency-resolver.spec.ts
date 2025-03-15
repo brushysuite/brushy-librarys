@@ -418,7 +418,6 @@ describe("DependencyResolver", () => {
 
       registry.register(token, { useClass: TestService });
 
-      // Criar uma instância e armazená-la no cache
       const instance = new TestService();
       (resolver as any).instances.set(token, {
         instance,
@@ -427,30 +426,25 @@ describe("DependencyResolver", () => {
 
       const debugSpy = vi.spyOn(Logger, "debug");
 
-      // Primeira chamada - deve retornar do cache singleton
       resolver.resolve(token);
       expect(debugSpy).toHaveBeenCalledWith(
         expect.stringContaining("Returning from singleton cache"),
       );
 
-      // Limpar o cache singleton e configurar o cache de request scope
       (resolver as any).instances.clear();
       (resolver as any).requestScopeInstances.set(token, {
         instance,
         lastUsed: Date.now(),
       });
 
-      // Segunda chamada - deve retornar do request scope
       resolver.resolve(token);
       expect(debugSpy).toHaveBeenCalledWith(
         expect.stringContaining("Returning from request scope"),
       );
 
-      // Limpar ambos os caches para testar o caso onde nada é encontrado
       (resolver as any).instances.clear();
       (resolver as any).requestScopeInstances.clear();
 
-      // Terceira chamada - não deve encontrar nada no cache
       resolver.resolve(token);
       expect(debugSpy).toHaveBeenCalledWith(
         expect.stringContaining("Creating instance of"),
@@ -462,19 +456,15 @@ describe("DependencyResolver", () => {
       const tokenName = "CACHE_TEST_TOKEN";
       const instance = { value: "test" };
 
-      // Registrar o token primeiro
       registry.register(token, {
         useValue: instance,
-        ttl: 1000, // Adicionar TTL para evitar o erro
+        ttl: 1000,
       });
 
-      // Acessar o método privado getFromCache
       const getFromCache = accessPrivateMethod(resolver, "getFromCache");
 
-      // Configurar o spy para Logger.debug
       const debugSpy = vi.spyOn(Logger, "debug");
 
-      // Caso 1: Testar cache singleton
       (resolver as any).instances.set(token, {
         instance,
         lastUsed: Date.now(),
@@ -486,11 +476,9 @@ describe("DependencyResolver", () => {
         `Returning from singleton cache: ${Logger.formatToken(tokenName)}`,
       );
 
-      // Limpar cache singleton
       (resolver as any).instances.clear();
       debugSpy.mockClear();
 
-      // Caso 2: Testar request scope cache
       (resolver as any).requestScopeInstances.set(token, {
         instance,
         lastUsed: Date.now(),
@@ -502,7 +490,6 @@ describe("DependencyResolver", () => {
         `Returning from request scope: ${Logger.formatToken(tokenName)}`,
       );
 
-      // Caso 3: Nenhum cache encontrado
       (resolver as any).requestScopeInstances.clear();
       debugSpy.mockClear();
 
@@ -1602,7 +1589,8 @@ describe("DependencyResolver", () => {
       const debugSpy = vi.spyOn(Logger, "debug");
 
       const originalDebug = resolver["debug"];
-      // @ts-ignore
+
+      //@ts-ignore
       resolver["debug"] = true;
 
       if (context.has(token)) {
