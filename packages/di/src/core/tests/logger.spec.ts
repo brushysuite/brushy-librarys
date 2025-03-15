@@ -8,7 +8,6 @@ describe("Logger", () => {
     vi.spyOn(console, "warn").mockImplementation(() => {});
     vi.spyOn(console, "error").mockImplementation(() => {});
 
-    // Reset the lastMessages cache
     Logger["lastMessages"] = {};
   });
 
