@@ -17,6 +17,7 @@ export class DependencyResolver {
 
   private readonly instances = new Map<Token, InstanceWrapper>();
   private readonly requestScopeInstances = new Map<Token, InstanceWrapper>();
+  private readonly immutableInstances = new Map<Token, any>();
 
   private readonly resolvingStack: Token[] = [];
   private readonly dependencyGraph = new Map<Token, Set<Token>>();
@@ -172,6 +173,15 @@ export class DependencyResolver {
    * Invalidate a cached instance and its dependents
    */
   invalidateCache(token: Token) {
+    if (this.immutableInstances.has(token)) {
+      if (this.debug) {
+        Logger.debug(
+          `Skipping invalidation for immutable instance: ${Logger.formatToken(this.formatToken(token))}`,
+        );
+      }
+      return;
+    }
+
     this.instances.delete(token);
     this.observables.delete(token);
     this.invalidateDependentCaches(token);
@@ -188,6 +198,15 @@ export class DependencyResolver {
    * Delete a specific instance and unsubscribe from its observable
    */
   deleteInstance(token: Token) {
+    if (this.immutableInstances.has(token)) {
+      if (this.debug) {
+        Logger.debug(
+          `Skipping deletion for immutable instance: ${Logger.formatToken(this.formatToken(token))}`,
+        );
+      }
+      return;
+    }
+
     this.instances.delete(token);
 
     const observable = this.observables.get(token);
@@ -237,7 +256,7 @@ export class DependencyResolver {
   }
 
   /**
-   * Trata valores diretos (useValue)
+   * Handles direct values (useValue)
    */
   private handleDirectValue<T>(token: Token, config: ProviderConfig): T {
     if (this.debug) {
@@ -250,9 +269,18 @@ export class DependencyResolver {
   }
 
   /**
-   * Obtém uma instância do cache (singleton ou request scope)
+   * Retrieves an instance from the cache (singleton, request scope, or immutable)
    */
   private getFromCache<T>(token: Token, tokenName: string): T | undefined {
+    const immutableInstance = this.immutableInstances.get(token);
+    if (immutableInstance) {
+      if (this.debug)
+        Logger.debug(
+          `Returning from immutable cache: ${Logger.formatToken(tokenName)}`,
+        );
+      return immutableInstance;
+    }
+
     const cachedInstance = this.getInstanceFromCache(token);
     if (cachedInstance) {
       if (this.debug)
@@ -579,6 +607,16 @@ export class DependencyResolver {
   ): void {
     if (config.lifecycle === "transient") return;
 
+    if (config.lifecycle === "immutable") {
+      this.immutableInstances.set(token, instance);
+      if (this.debug) {
+        Logger.debug(
+          `Stored immutable instance for ${Logger.formatToken(this.formatToken(token))}`,
+        );
+      }
+      return;
+    }
+
     const wrapper: InstanceWrapper = { instance, lastUsed: Date.now() };
 
     if (config.lifecycle === "scoped") {
@@ -736,11 +774,19 @@ export class DependencyResolver {
    */
   private printCachedInstances() {
     Logger.info("Cached Instances:");
-    const cachedCount = this.instances.size;
+    const cachedCount = this.instances.size + this.immutableInstances.size;
 
     if (cachedCount === 0) {
       Logger.debug("No cached instances.");
       return;
+    }
+
+    for (const [token, instance] of this.immutableInstances.entries()) {
+      const tokenName = this.formatToken(token);
+      const className = instance.constructor.name;
+      Logger.debug(
+        `• ${Logger.formatToken(tokenName)} (${Logger.formatClass(className)}) - Immutable`,
+      );
     }
 
     for (const [token, wrapper] of this.instances.entries()) {

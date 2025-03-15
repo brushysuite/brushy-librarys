@@ -34,9 +34,15 @@ export class Container {
       useValue?: any;
       useClass?: new (...args: any[]) => any;
       useFactory?: () => any;
-      lifecycle?: "singleton" | "transient" | "scoped";
+      lifecycle?: "singleton" | "transient" | "scoped" | "immutable";
       ttl?: number;
       dependencies?: Token[];
+      promiseTtl?: number;
+      observable?: {
+        subscribe: (callback: (value: any) => void) => () => void;
+        unsubscribe: () => void;
+      };
+      lazy?: boolean;
     }>;
     debug?: boolean;
     name?: string;
@@ -56,6 +62,9 @@ export class Container {
         lifecycle: config.lifecycle,
         ttl: config.ttl,
         dependencies: config.dependencies,
+        promiseTtl: config.promiseTtl,
+        observable: config.observable,
+        lazy: config.lazy,
       };
       this.register(config.provide, providerConfig);
     });
@@ -296,5 +305,34 @@ export class Container {
     args: any[] = [],
   ): Promise<T> {
     return this.resolver.getCachedPromise<T>(token, methodName, args);
+  }
+
+  /**
+   * Verifica a integridade das instâncias imutáveis
+   * Útil para testes e depuração
+   *
+   * @returns Uma função que verifica se uma instância imutável mantém sua identidade
+   */
+  verifyImmutableIntegrity(): (token: Token) => boolean {
+    const instances = new Map<Token, any>();
+
+    return (token: Token): boolean => {
+      const instance = this.resolve(token);
+
+      if (instances.has(token)) {
+        const previousInstance = instances.get(token);
+        const isIntact = previousInstance === instance;
+        const tokenLogger = Logger.formatToken(String(token));
+
+        if (!isIntact && process.env.NODE_ENV !== "production") {
+          Logger.error(`Immutable integrity violated for ${tokenLogger}`);
+        }
+
+        return isIntact;
+      }
+
+      instances.set(token, instance);
+      return true;
+    };
   }
 }
