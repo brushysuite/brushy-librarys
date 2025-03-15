@@ -7,7 +7,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.8-blue.svg)](https://www.typescriptlang.org/)
 [![Turborepo](https://img.shields.io/badge/Built%20With-Turborepo-blueviolet.svg)](https://turbo.build/)
-[![Test Coverage](https://img.shields.io/badge/Coverage-98%25-brightgreen.svg)](coverage)
+[![Test Coverage](https://img.shields.io/badge/Coverage-97.98%25-brightgreen.svg)](coverage)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
 
@@ -19,7 +19,7 @@ The Brushy Suite is a carefully designed collection of high-level libraries for 
 
 ### @brushy/di
 
-[![Coverage](https://img.shields.io/badge/coverage-99.5%25-brightgreen.svg)](packages/di/coverage)
+[![Coverage](https://img.shields.io/badge/coverage-97.98%25-brightgreen.svg)](packages/di/coverage)
 [![npm version](https://badge.fury.io/js/%40brushy%2Fdi.svg)](https://www.npmjs.com/package/@brushy/di)
 [![Size](https://img.shields.io/bundlephobia/minzip/@brushy/di)](https://bundlephobia.com/package/@brushy/di)
 

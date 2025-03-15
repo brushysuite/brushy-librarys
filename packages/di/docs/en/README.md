@@ -24,7 +24,7 @@
 `@brushy/di` is designed to facilitate dependency management in modern applications, enabling:
 
 - Strongly typed dependency injection
-- Instance lifecycle management (singleton, transient, scoped)
+- Instance lifecycle management (singleton, transient, scoped, immutable)
 - React component support
 - Asynchronous dependency resolution
 - Monitoring and observability
@@ -47,7 +47,11 @@ The DI (Dependency Injection) system is based on some fundamental concepts:
 - **Container**: Stores and manages dependencies
 - **Token**: Unique identifier for each dependency
 - **Provider**: Configuration that defines how a dependency should be created
-- **Lifecycle**: Defines the lifecycle of an instance (singleton, transient, scoped)
+- **Lifecycle**: Defines the lifecycle of an instance:
+  - **singleton**: A single instance is created and reused across the application
+  - **transient**: A new instance is created each time the dependency is resolved
+  - **scoped**: An instance is created per scope, typically per HTTP request
+  - **immutable**: A single instance is created and never invalidated or garbage collected
 
 ## API Reference
 
