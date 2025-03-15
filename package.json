@@ -13,8 +13,8 @@
     "check-types": "turbo run check-types",
     "test": "turbo run test --filter=@brushy/*",
     "test:coverage": "turbo run test:coverage --filter=@brushy/*",
-    "changeset": "changeset",
-    "version-packages": "changeset version",
+    "changeset": "npx changeset",
+    "version-packages": "npx changeset version",
     "release": "npm run build-packages && changeset publish"
   },
   "devDependencies": {
