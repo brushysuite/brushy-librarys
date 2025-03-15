@@ -37,12 +37,10 @@
       "cache": false,
       "persistent": true
     },
-    "publish:npm": {
+    "publish": {
       "dependsOn": ["build"],
-      "filter": {
-        "include": ["packages/*"],
-        "exclude": ["apps/**"]
-      }
+      "outputs": [],
+      "cache": false
     }
   }
 }
