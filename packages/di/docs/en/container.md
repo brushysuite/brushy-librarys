@@ -32,6 +32,11 @@ const container = new Container({
       useFactory: () => new Logger("app"),
       lifecycle: "transient",
     },
+    {
+      provide: "QUERY_CLIENT",
+      useFactory: () => new QueryClient(),
+      lifecycle: "immutable",
+    },
   ],
   debug: true,
   name: "AppContainer",
@@ -59,6 +64,12 @@ container.register("DATABASE", {
   useFactory: () => createDatabaseConnection(),
   lifecycle: "singleton",
 });
+
+// Immutable registration
+container.register("QUERY_CLIENT", {
+  useFactory: () => new QueryClient(),
+  lifecycle: "immutable",
+});
 ```
 
 ### Dependency Resolution
@@ -85,6 +96,10 @@ container.stopGarbageCollector();
 
 // Invalidate dependency cache
 container.invalidateCache("USER_SERVICE");
+
+// Verify immutable integrity
+const verifyIntegrity = container.verifyImmutableIntegrity();
+const isIntact = verifyIntegrity("QUERY_CLIENT");
 ```
 
 ### React Integration
@@ -168,6 +183,7 @@ Additionally, the logger uses specific colors for different types of information
 [DEBUG] • USER_SERVICE: UserServiceImpl (singleton)
 [DEBUG] • HTTP_CLIENT: HttpClientImpl (singleton)
 [DEBUG] • LOGGER: ConsoleLogger (transient)
+[DEBUG] • QUERY_CLIENT: QueryClient (immutable)
 
 [ERROR] Circular dependency detected: AUTH_SERVICE -> USER_SERVICE -> AUTH_SERVICE
 ```
@@ -196,6 +212,7 @@ Debug mode displays detailed information about:
    ```
    [INFO] Cached Instances:
    [DEBUG] • HTTP_CLIENT (HttpClientImpl) - Last used: 10:30:45
+   [DEBUG] • QUERY_CLIENT (QueryClient) - Immutable
    ```
 
 4. **Problem Detection**: Alerts about potential issues like circular dependencies
@@ -243,11 +260,66 @@ Debug mode is especially useful during:
 
 ## Lifecycles
 
-The container supports three types of lifecycles:
+The container supports four types of lifecycles:
 
-- **singleton**: A single instance is created and reused
+- **singleton**: A single instance is created and reused (default)
 - **transient**: A new instance is created for each resolution
 - **scoped**: An instance is created per scope (e.g., per HTTP request)
+- **immutable**: A single instance is created and never invalidated or garbage collected
+
+### Lifecycle Comparison
+
+| Lifecycle  | Creation           | Invalidation | Garbage Collection | Recommended Use |
+|------------|-------------------|-------------|-------------------|-----------------|
+| singleton  | Once              | Yes         | Yes               | Stateless services |
+| transient  | Each injection    | N/A         | N/A               | Factories, utilities |
+| scoped     | Per request       | Per request | Per request       | Request context |
+| immutable  | Once              | Never       | Never             | State managers, Query clients |
+
+### Immutable Lifecycle
+
+The `immutable` lifecycle is particularly useful for:
+
+- State management libraries (React Query, Redux, Zustand)
+- API clients that need to maintain stable connections
+- Services that need to maintain consistent state across components
+
+```typescript
+// React Query example
+container.register(QUERY_CLIENT, {
+  useFactory: () => new QueryClient(),
+  lifecycle: "immutable" // Never invalidated
+});
+
+// Redux Store example
+container.register(REDUX_STORE, {
+  useFactory: () => createStore(rootReducer),
+  lifecycle: "immutable"
+});
+```
+
+## Immutable Integrity Verification
+
+The container provides a method to verify the integrity of immutable instances:
+
+```typescript
+// Create a verifier function
+const verifyIntegrity = container.verifyImmutableIntegrity();
+
+// Check integrity
+const isQueryClientIntact = verifyIntegrity(QUERY_CLIENT);
+const isReduxStoreIntact = verifyIntegrity(REDUX_STORE);
+
+if (!isQueryClientIntact || !isReduxStoreIntact) {
+  console.error("Immutable integrity violation detected!");
+  // Take appropriate action
+}
+```
+
+This is useful for:
+- Debugging issues with state management
+- Ensuring critical services maintain their identity
+- Detecting unexpected modifications to immutable instances
 
 ## Complete Example
 
@@ -256,6 +328,7 @@ The container supports three types of lifecycles:
 const HTTP_CLIENT = Symbol("HTTP_CLIENT");
 const USER_SERVICE = Symbol("USER_SERVICE");
 const API_CONFIG = Symbol("API_CONFIG");
+const QUERY_CLIENT = Symbol("QUERY_CLIENT");
 
 // Create container
 const container = new Container({
@@ -266,6 +339,11 @@ const container = new Container({
         baseUrl: "https://api.example.com",
         timeout: 5000,
       },
+    },
+    {
+      provide: QUERY_CLIENT,
+      useFactory: () => new QueryClient(),
+      lifecycle: "immutable",
     },
   ],
   debug: true,
@@ -287,6 +365,10 @@ container.register(USER_SERVICE, {
 // Resolve dependencies
 const userService = container.resolve<UserService>(USER_SERVICE);
 const users = await userService.getUsers();
+
+// Verify immutable integrity
+const verifyIntegrity = container.verifyImmutableIntegrity();
+console.log("QueryClient integrity:", verifyIntegrity(QUERY_CLIENT));
 
 // Clean up resources when done
 container.clearRequestScope();
