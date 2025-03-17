@@ -75,11 +75,19 @@ export function useInjectLazy<T extends object>(
  * This version will be removed in future versions.
  * @example
  * // Old way:
- * const [service, load] = useLazyInject<UserService>('USER_SERVICE');
+ * const [heavyService, loadService] = useLazyInject<HeavyService>('HEAVY_SERVICE');
  *
- * // Recommended new way:
- * const service = useInjectLazy<UserService>('USER_SERVICE');
- * service.getUsers();
+ * // Load on button click
+ * const handleClick = () => {
+ *   loadService();
+ *   heavyService?.processData();
+ * };
+ *
+ * // With scope
+ * const [scopedService, loadScoped] = useLazyInject<ScopedService>(
+ *   'SCOPED_SERVICE',
+ *   { scope: requestScope }
+ * );
  */
 export function useLazyInject<T>(
   token: Token,
