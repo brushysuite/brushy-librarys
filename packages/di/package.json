@@ -54,8 +54,7 @@
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
     "prepublishOnly": "npm run build",
-    "publish:all": "npm run build && npm publish -w @brushy/* --access public",
-    "publish:npm": "npm publish --access public"
+    "publish": "npm publish --access public"
   },
   "keywords": [
     "dependency-injection",
@@ -85,6 +84,7 @@
     "@vitest/ui": "^3.0.8",
     "eslint": "^9.21.0",
     "jsdom": "^26.0.0",
+    "lint-staged": "^15.5.0",
     "prettier": "3.5.3",
     "serve": "^14.2.1",
     "typescript": "5.8.2",
@@ -96,8 +96,5 @@
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
-  },
-  "dependencies": {
-    "lint-staged": "^15.5.0"
   }
 }
