@@ -17,7 +17,7 @@
 
 A powerful and flexible dependency injection system for JavaScript/TypeScript applications, with special support for React.
 
-[🇧🇷 Documentação em Português](https://github.com/brushysuite/brushy-librarys/blob/main/packages/di/docs/pt-br/README.md) | [🇺🇸 English Documentation](https://github.com/brushysuite/brushy-librarys/blob/main/packages/di/docs/en/README.md)
+[🇧🇷 Documentação em Português](https://brushysuite.gfrancodev.com/docs/di/provider)
 
 ## Features
 
@@ -255,28 +255,6 @@ function App() {
 // Clean up when done
 container.clearRequestScope();
 ```
-
-## Documentation
-
-Complete documentation is available in multiple languages:
-
-### English
-
-- [Introduction and Basic Concepts](https://github.com/brushysuite/brushy-librarys/blob/main/packages/di/docs/en/README.md)
-- [Container](https://github.com/brushysuite/brushy-librarys/blob/main/packages/di/docs/en/container.md)
-- [React Hooks](https://github.com/brushysuite/brushy-librarys/blob/main/packages/di/docs/en/react-hooks.md)
-- [Component Injection](https://github.com/brushysuite/brushy-librarys/blob/main/packages/di/docs/en/component-injection.md)
-- [Utility Functions](https://github.com/brushysuite/brushy-librarys/blob/main/packages/di/docs/en/utilities.md)
-- [Best Practices](https://github.com/brushysuite/brushy-librarys/blob/main/packages/di/docs/en/best-practices.md)
-
-### Portuguese (Brasil)
-
-- [Introdução e Conceitos Básicos](https://github.com/brushysuite/brushy-librarys/blob/main/packages/di/docs/pt-br/README.md)
-- [Container](https://github.com/brushysuite/brushy-librarys/blob/main/packages/di/docs/container.md)
-- [Hooks React](https://github.com/brushysuite/brushy-librarys/blob/main/packages/di/docs/react-hooks.md)
-- [Injeção de Componentes](https://github.com/brushysuite/brushy-librarys/blob/main/packages/di/docs/component-injection.md)
-- [Funções Utilitárias](https://github.com/brushysuite/brushy-librarys/blob/main/packages/di/docs/utilities.md)
-- [Boas Práticas](https://github.com/brushysuite/brushy-librarys/blob/main/packages/di/docs/best-practices.md)
 
 To view the documentation locally:
 
