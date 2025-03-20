@@ -1,5 +1,11 @@
 # @brushy/di
 
+## 1.0.4
+
+### Minor Changes
+
+- Improved lazy injection with a new `useInjectLazy' hook
+
 ## 1.0.3
 
 ### Minor Changes
@@ -32,4 +38,5 @@
     ],
   });
   ```
+
 ---

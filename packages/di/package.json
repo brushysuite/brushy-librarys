@@ -1,6 +1,6 @@
 {
   "name": "@brushy/di",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Advanced dependency injection library with special support for React",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
