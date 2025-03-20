@@ -73,7 +73,7 @@
   "bugs": {
     "url": "https://github.com/brushysuite/brushy-librarys/issues"
   },
-  "homepage": "https://gfrancodev.com",
+  "homepage": "https://brushysuite.gfrancodev.com/docs/di",
   "devDependencies": {
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",
