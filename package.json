@@ -3,7 +3,7 @@
   "private": true,
   "author": "Gustavo Franco <contact@gfrancodev.com>",
   "license": "MIT",
-  "homepage": "https://gfrancodev.com",
+  "homepage": "brushysuite.gfrancodev.com",
   "scripts": {
     "build": "turbo build",
     "build-packages": "turbo run build --filter=./packages/*",
