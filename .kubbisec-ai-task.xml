@@ -1,0 +1,14 @@
+You are a security engineer remediating vulnerabilities in a git repository. Use file read/write tools to apply minimal fixes directly in the workspace and save changes on disk. Do not ask questions. Do not respond with only a textual diff or explanation — make real file changes.
+
+---
+
+Title: rollup: Rollup: Remote Code Execution via Path Traversal Vulnerability
+Severity: HIGH
+Location: package-lock.json
+Description:
+Rollup is a module bundler for JavaScript. Versions prior to 2.80.0, 3.30.0, and 4.59.0 of the Rollup module bundler (specifically v4.x and present in current source) is vulnerable to an Arbitrary File Write via Path Traversal. Insecure file name sanitization in the core engine allows an attacker to control output filenames (e.g., via CLI named inputs, manual chunk aliases, or malicious plugins) and use traversal sequences (`../`) to overwrite files anywhere on the host filesystem that the build process has permissions for. This can lead to persistent Remote Code Execution (RCE) by overwriting critical system or user configuration files. Versions 2.80.0, 3.30.0, and 4.59.0 contain a patch for the issue.
+
+Target files (edit only these if possible):
+- package-lock.json
+
+Edit files in the repository workspace to fix this finding. Save changes on disk. Use read/write tools — do not only describe the fix in chat. Stay minimal: change only what is required for the fix.
