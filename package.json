@@ -21,7 +21,7 @@
     "@changesets/cli": "^2.27.1",
     "jsdom": "^26.0.0",
     "prettier": "^3.5.3",
-    "turbo": "^2.4.4",
+    "turbo": "^2.10.4",
     "typescript": "5.8.2"
   },
   "engines": {
