@@ -36,7 +36,7 @@
   },
   "overrides": {
     "glob": "^10.5.0",
-    "happy-dom": "^20.10.6"
+    "form-data": "^4.0.5"
   },
   "lint-staged": {
     "*.{js,ts,json}": "prettier --write \"src/**/*.ts\""
