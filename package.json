@@ -35,7 +35,8 @@
     "@testing-library/dom": "^10.4.0"
   },
   "overrides": {
-    "glob": "^10.5.0"
+    "glob": "^10.5.0",
+    "rollup": "^4.59.0"
   },
   "lint-staged": {
     "*.{js,ts,json}": "prettier --write \"src/**/*.ts\""
