@@ -3,7 +3,7 @@
   "version": "1.0.4",
   "description": "Advanced dependency injection library with special support for React",
   "main": "./dist/index.js",
-  "module": "./dist/index.js",
+  "module": "./dist/index.mjs",
   "types": "dist/index.d.ts",
   "authors": [
     {
@@ -15,27 +15,32 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
+      "import": "./dist/index.mjs",
       "require": "./dist/index.js"
     },
     "./core": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
+      "import": "./dist/index.mjs",
       "require": "./dist/index.js"
     },
     "./react": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./monitor": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
       "require": "./dist/index.js"
     },
     "./package.json": "./package.json"
   },
   "files": ["dist", "docs", "README.md"],
   "sideEffects": false,
-  "react-native": "./dist/index.js",
+  "react-native": "./dist/index.mjs",
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
+    "build": "tsup",
+    "dev": "tsup --watch",
     "lint": "eslint src/",
     "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist",
     "check-types": "tsc --noEmit",
@@ -68,7 +73,8 @@
   "homepage": "https://brushysuite.gfrancodev.com/docs/di",
   "dependencies": {
     "@brushy/di-core": "*",
-    "@brushy/di-react": "*"
+    "@brushy/di-react": "*",
+    "@brushy/di-monitor": "*"
   },
   "peerDependencies": {
     "react": ">=18.0.0"
@@ -76,6 +82,7 @@
   "devDependencies": {
     "@brushy/di-core": "*",
     "@brushy/di-react": "*",
+    "@brushy/di-monitor": "*",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",
     "@types/node": "^22.13.9",
@@ -89,6 +96,7 @@
     "prettier": "3.5.3",
     "react": "19.0.0",
     "serve": "^14.2.1",
+    "tsup": "^8.4.0",
     "typescript": "5.8.2",
     "vitest": "^3.2.7"
   },

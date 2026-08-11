@@ -1,6 +1,8 @@
-import { Container, ContainerEvent } from "../core/container";
-import { MonitorOptions } from "../types";
-import { Logger } from "../core/logger";
+import type { Container, ContainerEvent } from "@brushy/di-core";
+import type { MonitorOptions } from "@brushy/di-core";
+
+const formatToken = (token: string): string => token;
+const formatType = (type: string): string => type;
 
 export class ContainerMonitor {
   private container: Container;
@@ -78,8 +80,8 @@ export class ContainerMonitor {
 
     if (!this.options.logToConsole) return;
 
-    const tokenStr = event.token ? Logger.formatToken(String(event.token)) : "";
-    const eventType = Logger.formatType(event.type);
+    const tokenStr = event.token ? formatToken(String(event.token)) : "";
+    const eventType = formatType(event.type);
     const details = event.details ? ` - ${event.details}` : "";
 
     console.info(

@@ -14,7 +14,6 @@ export { server } from "./tools/server";
 export { resolve } from "./tools/resolve";
 export { inject } from "./tools/inject";
 export { cache } from "./tools/cache";
-export { monitor, ContainerMonitor } from "./tools/monitor";
 
 export type {
   Token,

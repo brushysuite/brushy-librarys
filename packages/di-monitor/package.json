@@ -1,7 +1,7 @@
 {
-  "name": "@brushy/di-core",
+  "name": "@brushy/di-monitor",
   "version": "1.0.4",
-  "description": "Zero-dependency DI core for Node, browser and React Native",
+  "description": "Container monitoring utilities for @brushy/di-core",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "dist/index.d.ts",
@@ -13,31 +13,6 @@
       "import": "./dist/index.mjs",
       "require": "./dist/index.js"
     },
-    "./container": {
-      "types": "./dist/container.d.ts",
-      "import": "./dist/container.mjs",
-      "require": "./dist/container.js"
-    },
-    "./cache": {
-      "types": "./dist/cache.d.ts",
-      "import": "./dist/cache.mjs",
-      "require": "./dist/cache.js"
-    },
-    "./resolve": {
-      "types": "./dist/resolve.d.ts",
-      "import": "./dist/resolve.mjs",
-      "require": "./dist/resolve.js"
-    },
-    "./inject": {
-      "types": "./dist/inject.d.ts",
-      "import": "./dist/inject.mjs",
-      "require": "./dist/inject.js"
-    },
-    "./server": {
-      "types": "./dist/server.d.ts",
-      "import": "./dist/server.mjs",
-      "require": "./dist/server.js"
-    },
     "./package.json": "./package.json"
   },
   "files": ["dist", "README.md"],
@@ -47,21 +22,22 @@
     "clean": "rm -rf dist .turbo node_modules",
     "check-types": "tsc --noEmit",
     "test": "vitest run",
-    "test:coverage": "vitest run --coverage",
     "prepublishOnly": "npm run build"
   },
-  "keywords": ["dependency-injection", "di", "ioc", "typescript"],
+  "keywords": ["dependency-injection", "di", "monitoring", "observability"],
   "author": "Gustavo Franco <contact@gfrancodev.com>",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/brushysuite/brushy-librarys.git",
-    "directory": "packages/di-core"
+    "directory": "packages/di-monitor"
   },
   "homepage": "https://brushysuite.gfrancodev.com/docs/di",
+  "dependencies": {
+    "@brushy/di-core": "*"
+  },
   "devDependencies": {
     "@types/node": "^22.13.9",
-    "@vitest/coverage-v8": "^3.2.7",
     "tsup": "^8.4.0",
     "typescript": "5.8.2",
     "vitest": "^3.2.7"
