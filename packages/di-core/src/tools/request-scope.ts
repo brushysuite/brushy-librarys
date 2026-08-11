@@ -45,7 +45,17 @@ export function runInRequestScope<T>(
   fn: () => T,
   options: RequestScopeOptions = {},
 ): T {
-  if (!isRequestScopeSupported()) return fn();
+  const useAls =
+    isRequestScopeSupported() &&
+    (options.scope !== undefined || options.container === undefined);
+
+  if (!useAls) {
+    try {
+      return fn();
+    } finally {
+      cleanupRequestScope(options);
+    }
+  }
 
   const scope = createScope(options.scope);
   options.onEnter?.(scope);
@@ -63,7 +73,17 @@ export async function runInRequestScopeAsync<T>(
   fn: () => Promise<T>,
   options: RequestScopeOptions = {},
 ): Promise<T> {
-  if (!isRequestScopeSupported()) return fn();
+  const useAls =
+    isRequestScopeSupported() &&
+    (options.scope !== undefined || options.container === undefined);
+
+  if (!useAls) {
+    try {
+      return await fn();
+    } finally {
+      cleanupRequestScope(options);
+    }
+  }
 
   const scope = createScope(options.scope);
   options.onEnter?.(scope);

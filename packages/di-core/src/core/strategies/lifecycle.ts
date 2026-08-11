@@ -31,11 +31,13 @@ const singletonStrategy: LifecycleStrategy = {
   get(cache, token, ttl) {
     const wrapper = cache.singletons.get(token);
     if (!wrapper) return undefined;
-    if (isExpired(wrapper, ttl)) {
-      cache.singletons.delete(token);
-      return undefined;
+    if (ttl) {
+      if (isExpired(wrapper, ttl)) {
+        cache.singletons.delete(token);
+        return undefined;
+      }
+      wrapper.lastUsed = now();
     }
-    wrapper.lastUsed = now();
     return wrapper.instance;
   },
   set(cache, token, instance, _ttl) {
@@ -48,9 +50,7 @@ const scopedStrategy: LifecycleStrategy = {
   skipsStorage: false,
   get(cache, token) {
     const wrapper = cache.scoped.get(token);
-    if (!wrapper) return undefined;
-    wrapper.lastUsed = now();
-    return wrapper.instance;
+    return wrapper?.instance;
   },
   set(cache, token, instance) {
     cache.scoped.set(token, { instance, lastUsed: now() });

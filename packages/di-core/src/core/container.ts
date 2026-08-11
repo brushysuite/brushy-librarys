@@ -69,11 +69,13 @@ export class Container {
       });
     }
 
-    this.emit({
-      type: "register",
-      details: { containerName: name, providersCount: providers.length },
-      timestamp: Date.now(),
-    });
+    if (this.events.hasListeners) {
+      this.emit({
+        type: "register",
+        details: { containerName: name, providersCount: providers.length },
+        timestamp: Date.now(),
+      });
+    }
   }
 
   observe(observer: ContainerObserver): () => void {
@@ -138,12 +140,28 @@ export class Container {
   register<T>(token: Token, config: ProviderConfig<T>): void;
   register<T>(token: Token, config: ProviderConfig<T>) {
     this.registry.register(token, config);
-    this.emit({
-      type: "register",
-      token,
-      details: { config },
-      timestamp: Date.now(),
-    });
+    if (this.events.hasListeners) {
+      this.emit({
+        type: "register",
+        token,
+        details: { config },
+        timestamp: Date.now(),
+      });
+    }
+  }
+
+  registerMany(entries: Array<{ token: Token; config: ProviderConfig }>): void {
+    this.registry.registerMany(entries);
+    if (this.events.hasListeners) {
+      for (const { token, config } of entries) {
+        this.emit({
+          type: "register",
+          token,
+          details: { config },
+          timestamp: Date.now(),
+        });
+      }
+    }
   }
 
   resolve<T>(token: InjectionToken<T>): T;
@@ -153,43 +171,41 @@ export class Container {
   resolve<T>(token: Token): T;
   resolve<T>(token: Token): T {
     try {
+      let result: T;
+      let source: "self" | "parent";
+
       if (this.registry.has(token)) {
-        const result = this.resolver.resolve<T>(token);
+        result = this.resolver.resolve<T>(token);
+        source = "self";
+      } else if (this.parent) {
+        result = this.parent.resolve<T>(token);
+        source = "parent";
+      } else {
+        throw new Error(`Token not registered: ${String(token)}`);
+      }
+
+      if (this.events.hasListeners) {
         this.emit({
           type: "resolve",
           token,
-          details: { success: true, source: "self" },
+          details: { success: true, source },
           timestamp: Date.now(),
         });
-        return result;
       }
 
-      if (this.parent) {
-        try {
-          const result = this.parent.resolve<T>(token);
-          this.emit({
-            type: "resolve",
-            token,
-            details: { success: true, source: "parent" },
-            timestamp: Date.now(),
-          });
-          return result;
-        } catch {
-          // fall through
-        }
-      }
-
-      throw new Error(`Token not registered: ${String(token)}`);
+      return result;
     } catch (error: unknown) {
-      this.emit({
-        type: "error",
-        token,
-        details: {
-          error,
-          message: error instanceof Error ? error.message : String(error),
-        },
-        timestamp: Date.now(),
-      });
+      if (this.events.hasListeners) {
+        this.emit({
+          type: "error",
+          token,
+          details: {
+            error,
+            message: error instanceof Error ? error.message : String(error),
+          },
+          timestamp: Date.now(),
+        });
+      }
       throw error;
     }
   }

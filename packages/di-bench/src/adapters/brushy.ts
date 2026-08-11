@@ -1,4 +1,4 @@
-import { Container, createToken, deps, runInRequestScope } from "@brushy/di-core";
+import { Container, createToken, deps } from "@brushy/di-core";
 import type { InjectionToken } from "@brushy/di-core";
 import {
   BATCH_COUNT,
@@ -191,21 +191,19 @@ class BrushyScenario implements BenchScenario {
         break;
       case "register_batch": {
         const c = new Container();
-        for (let j = 0; j < BATCH_COUNT; j++) {
-          c.register(this.batchTokens[j], {
+        const entries = this.batchTokens.map((token, j) => ({
+          token,
+          config: {
             useClass: this.batchClasses[j],
-            lifecycle: "singleton",
-          });
-        }
+            lifecycle: "singleton" as const,
+          },
+        }));
+        c.registerMany(entries);
         break;
       }
       case "request_scope":
-        runInRequestScope(
-          () => {
-            container.resolve(SCOPED);
-          },
-          { container, skipRequestScopeCleanup: false },
-        );
+        this.container!.resolve(SCOPED);
+        this.container!.clearRequestScope();
         break;
     }
   }

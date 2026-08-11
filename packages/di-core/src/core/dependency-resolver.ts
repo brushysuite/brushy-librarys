@@ -11,6 +11,9 @@ import {
 import { createFromProvider, ResolveFn } from "./strategies/provider";
 import { DEFAULT_PROMISE_TTL } from "./constants";
 
+const EMPTY_CONTEXT = new Map<Token, unknown>();
+const FAST_MISS = Symbol("brushyFastMiss");
+
 /**
  * Resolves dependencies using strategy arrays — zero React imports.
  */
@@ -35,6 +38,11 @@ export class DependencyResolver {
   }
 
   resolve<T>(token: Token, context?: Map<Token, unknown>): T {
+    if (!context && !this.debug) {
+      const fast = this.tryFastResolve<T>(token);
+      if (fast !== FAST_MISS) return fast;
+    }
+
     if (this.resolving.has(token)) {
       throw new DependencyError(
         `Circular dependency detected: ${[...this.resolving].map(String).join(" -> ")} -> ${String(token)}`,
@@ -184,7 +192,7 @@ export class DependencyResolver {
 
     this.checkCircularDependency(token);
 
-    const localContext = context ?? new Map<Token, unknown>();
+    const localContext = context ?? EMPTY_CONTEXT;
     const tokenName = this.formatToken(token);
 
     if (localContext.has(token)) {
@@ -196,7 +204,7 @@ export class DependencyResolver {
       return localContext.get(token) as T;
     }
 
-    const cached = this.getFromCache<T>(token, tokenName);
+    const cached = this.getFromCache<T>(token, tokenName, config);
     if (cached !== undefined) return cached;
 
     return this.createAndStore<T>(token, config, tokenName);
@@ -206,7 +214,7 @@ export class DependencyResolver {
     token: Token,
     context?: Map<Token, unknown>,
   ): Promise<T> {
-    const localContext = context ?? new Map<Token, unknown>();
+    const localContext = context ?? EMPTY_CONTEXT;
 
     if (localContext.has(token)) {
       if (this.debug) {
@@ -270,7 +278,12 @@ export class DependencyResolver {
     return config.useValue as T;
   }
 
-  private getFromCache<T>(token: Token, tokenName: string): T | undefined {
+  private getFromCache<T>(
+    token: Token,
+    tokenName: string,
+    config?: ProviderConfig,
+  ): T | undefined {
+    const resolvedConfig = config ?? this.getConfig(token);
     const immutable = this.lifecycleCache.immutable.get(token);
     if (immutable !== undefined) {
       if (this.debug) {
@@ -281,12 +294,13 @@ export class DependencyResolver {
       return immutable as T;
     }
 
-    const config = this.getConfig(token);
-    const strategy = resolveLifecycleStrategy(config?.lifecycle);
+    if (!resolvedConfig) return undefined;
+
+    const strategy = resolveLifecycleStrategy(resolvedConfig.lifecycle);
     const fromSingleton = strategy.get(
       this.lifecycleCache,
       token,
-      config?.ttl,
+      resolvedConfig.ttl,
     );
     if (fromSingleton !== undefined) {
       if (this.debug) {
@@ -413,11 +427,42 @@ export class DependencyResolver {
     }
   }
 
+  private tryFastResolve<T>(token: Token): T | typeof FAST_MISS {
+    const meta = this.registry.getMeta(token);
+    if (!meta) return FAST_MISS;
+
+    if (meta.isImmutable) {
+      const cached = this.lifecycleCache.immutable.get(token);
+      if (cached !== undefined) return cached as T;
+      return FAST_MISS;
+    }
+
+    if (meta.isSingleton && !meta.hasTtl) {
+      const wrapper = this.lifecycleCache.singletons.get(token);
+      if (wrapper) return wrapper.instance as T;
+      return FAST_MISS;
+    }
+
+    if (meta.isScoped && meta.useClass) {
+      const wrapper = this.lifecycleCache.scoped.get(token);
+      if (wrapper) return wrapper.instance as T;
+      if (!meta.hasDeps) {
+        const instance = new meta.useClass();
+        this.lifecycleCache.scoped.set(token, { instance, lastUsed: 0 });
+        return instance as T;
+      }
+      return FAST_MISS;
+    }
+
+    if (meta.isTransient && meta.useClass && !meta.hasDeps) {
+      return new meta.useClass() as T;
+    }
+
+    return FAST_MISS;
+  }
+
   private getInstanceFromRequestScope(token: Token) {
-    const wrapper = this.lifecycleCache.scoped.get(token);
-    if (!wrapper) return undefined;
-    wrapper.lastUsed = Date.now();
-    return wrapper;
+    return this.lifecycleCache.scoped.get(token);
   }
 
   private trackDependencies(token: Token, config: ProviderConfig): void {
