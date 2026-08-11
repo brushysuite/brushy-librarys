@@ -14,7 +14,10 @@ export { server } from "./tools/server";
 export { resolve } from "./tools/resolve";
 export { inject } from "./tools/inject";
 export { cache } from "./tools/cache";
+export { defineModule } from "./tools/module";
+export type { DefinedModule } from "./tools/module";
 
+export { createToken } from "./types/tokens";
 export type {
   Token,
   Lifecycle,
@@ -24,4 +27,7 @@ export type {
   InjectOptions,
   MonitorEventType,
   MonitorOptions,
+  InjectionToken,
+  ResolveType,
+  InferProviderType,
 } from "./types";

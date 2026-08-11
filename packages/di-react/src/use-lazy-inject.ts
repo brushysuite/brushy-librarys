@@ -1,9 +1,21 @@
 import { useMemo, useRef, useState, useCallback } from "react";
 import { DependencyError } from "@brushy/di-core";
 import type { InjectOptions, Token } from "@brushy/di-core";
+import type { InjectionToken } from "@brushy/di-core";
 import { useInject } from "./use-inject";
 import { useDIContainer } from "./context";
 
+export function useInjectLazy<T extends object>(
+  token: InjectionToken<T>,
+  options?: InjectOptions,
+): T;
+export function useInjectLazy<
+  C extends abstract new (...args: any[]) => object,
+>(token: C, options?: InjectOptions): InstanceType<C>;
+export function useInjectLazy<T extends object>(
+  token: Token,
+  options?: InjectOptions,
+): T;
 export function useInjectLazy<T extends object>(
   token: Token,
   options?: InjectOptions,

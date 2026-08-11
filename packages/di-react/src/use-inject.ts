@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { promiseCache, DependencyError } from "@brushy/di-core";
 import type { InjectOptions, Token } from "@brushy/di-core";
+import type { InjectionToken } from "@brushy/di-core";
 import { useDIContainer } from "./context";
 
 const isThenable = (value: unknown): value is Promise<unknown> =>
@@ -8,7 +9,16 @@ const isThenable = (value: unknown): value is Promise<unknown> =>
   (value instanceof Promise ||
     (typeof (value as Promise<unknown>).then === "function"));
 
-export const useInject = <T>(token: Token, options?: InjectOptions): T => {
+export function useInject<T>(
+  token: InjectionToken<T>,
+  options?: InjectOptions,
+): T;
+export function useInject<C extends abstract new (...args: any[]) => any>(
+  token: C,
+  options?: InjectOptions,
+): InstanceType<C>;
+export function useInject<T>(token: Token, options?: InjectOptions): T;
+export function useInject<T>(token: Token, options?: InjectOptions): T {
   const container = useDIContainer(options?.scope);
 
   const service = useMemo(
@@ -48,4 +58,4 @@ export const useInject = <T>(token: Token, options?: InjectOptions): T => {
       }) as T,
     [service, tokenKey],
   );
-};
+}

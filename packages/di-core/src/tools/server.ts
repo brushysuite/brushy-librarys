@@ -1,9 +1,24 @@
 import { Container } from "../core/container";
 import { Token } from "../types";
+import type { InjectionToken } from "../types/tokens";
 
 let serverContainer: Container | null = null;
 
-export const server = {
+interface ServerAPI {
+  setServerContainer(container: Container): void;
+  getServerContainer(): Container;
+  resolve<T>(token: InjectionToken<T>): T;
+  resolve<C extends abstract new (...args: any[]) => any>(token: C): InstanceType<C>;
+  resolve<T>(token: Token): T;
+  resolveAsync<T>(token: InjectionToken<T>): Promise<T>;
+  resolveAsync<C extends abstract new (...args: any[]) => any>(
+    token: C,
+  ): Promise<InstanceType<C>>;
+  resolveAsync<T>(token: Token): Promise<T>;
+  clearRequestScope(): void;
+}
+
+export const server: ServerAPI = {
   setServerContainer: (container: Container): void => {
     serverContainer = container;
   },

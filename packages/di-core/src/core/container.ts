@@ -1,4 +1,5 @@
 import { ProviderConfig, Token } from "../types";
+import type { InjectionToken } from "../types/tokens";
 import { IS_DEV } from "./constants";
 import { DependencyRegistry } from "./dependency-registry";
 import { DependencyResolver } from "./dependency-resolver";
@@ -117,6 +118,12 @@ export class Container {
     return this.name;
   }
 
+  register<T>(token: InjectionToken<T>, config: ProviderConfig<T>): void;
+  register<C extends abstract new (...args: any[]) => any>(
+    token: C,
+    config: ProviderConfig<InstanceType<C>>,
+  ): void;
+  register<T>(token: Token, config: ProviderConfig<T>): void;
   register<T>(token: Token, config: ProviderConfig<T>) {
     this.registry.register(token, config);
     this.emit({
@@ -127,6 +134,11 @@ export class Container {
     });
   }
 
+  resolve<T>(token: InjectionToken<T>): T;
+  resolve<C extends abstract new (...args: any[]) => any>(
+    token: C,
+  ): InstanceType<C>;
+  resolve<T>(token: Token): T;
   resolve<T>(token: Token): T {
     try {
       if (this.registry.has(token)) {
@@ -170,6 +182,11 @@ export class Container {
     }
   }
 
+  resolveAsync<T>(token: InjectionToken<T>): Promise<T>;
+  resolveAsync<C extends abstract new (...args: any[]) => any>(
+    token: C,
+  ): Promise<InstanceType<C>>;
+  resolveAsync<T>(token: Token): Promise<T>;
   async resolveAsync<T>(token: Token): Promise<T> {
     try {
       const result = await this.resolver.resolveAsync<T>(token);

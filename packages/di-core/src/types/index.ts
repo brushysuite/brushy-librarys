@@ -47,3 +47,10 @@ export interface MonitorOptions {
   logToConsole?: boolean;
   maxEvents?: number;
 }
+
+export type {
+  InjectionToken,
+  ResolveType,
+  InferProviderType,
+} from "./tokens";
+export { createToken } from "./tokens";
