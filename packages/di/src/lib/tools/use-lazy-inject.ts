@@ -1,58 +1,11 @@
-import { useState, useCallback } from "react";
+import { useMemo, useRef, useState, useCallback } from "react";
 import { useInject } from "./use-inject";
+import { useDIContainer } from "../context";
 import { InjectOptions, Token } from "../@types";
 import { DependencyError } from "../../core/dependency-error";
 
 /**
- * Creates a lazy object that only resolves the value when accessed
- */
-function lazy<T extends object>(getter: () => T): T {
-  let instance: T | undefined;
-
-  const handler: ProxyHandler<T> = {
-    get(target: T, prop: string | symbol) {
-      try {
-        if (!instance) {
-          instance = getter();
-
-          if (!instance || typeof instance !== "object") {
-            throw new DependencyError(
-              `Invalid service instance. Expected object, got ${typeof instance}`,
-            );
-          }
-
-          Object.defineProperty(target, "__instance", {
-            value: instance,
-            writable: false,
-            configurable: false,
-          });
-        }
-
-        if (!(prop in instance)) {
-          throw new DependencyError(
-            `Method or property "${String(prop)}" not found in service`,
-          );
-        }
-
-        return instance[prop as keyof T];
-      } catch (error) {
-        throw new DependencyError(
-          `Failed to resolve lazy service: ${
-            error instanceof Error ? error.message : String(error)
-          }`,
-        );
-      }
-    },
-  };
-
-  return new Proxy({} as T, handler);
-}
-
-/**
- * New version of the hook using the lazy pattern with proxy
- * @example
- * const userService = useInjectLazy<UserService>('USER_SERVICE');
- * userService.getUsers(); // Resolves only when the method is called
+ * Lazy injection — resolves on first property access, hooks-safe.
  */
 export function useInjectLazy<T extends object>(
   token: Token,
@@ -62,50 +15,59 @@ export function useInjectLazy<T extends object>(
     throw new DependencyError("Token is required for lazy injection");
   }
 
-  return lazy(() =>
-    useInject<T>(token, {
-      ...options,
-      cachePromises: false,
-    }),
+  const container = useDIContainer(options?.scope);
+  const instanceRef = useRef<T | null>(null);
+
+  return useMemo(
+    () =>
+      new Proxy({} as T, {
+        get(_target, prop) {
+          try {
+            if (!instanceRef.current) {
+              instanceRef.current = container.resolve<T>(token);
+            }
+
+            const instance = instanceRef.current;
+            if (!instance || typeof instance !== "object") {
+              throw new DependencyError(
+                `Invalid service instance. Expected object, got ${typeof instance}`,
+              );
+            }
+
+            if (!(prop in instance)) {
+              throw new DependencyError(
+                `Method or property "${String(prop)}" not found in service`,
+              );
+            }
+
+            return instance[prop as keyof T];
+          } catch (error) {
+            if (error instanceof DependencyError) throw error;
+            throw new DependencyError(
+              `Failed to resolve lazy service: ${
+                error instanceof Error ? error.message : String(error)
+              }`,
+            );
+          }
+        },
+      }),
+    [container, token],
   );
 }
 
-/**
- * @deprecated Use useInjectLazy instead.
- * This version will be removed in future versions.
- * @example
- * // Old way:
- * const [heavyService, loadService] = useLazyInject<HeavyService>('HEAVY_SERVICE');
- *
- * // Load on button click
- * const handleClick = () => {
- *   loadService();
- *   heavyService?.processData();
- * };
- *
- * // With scope
- * const [scopedService, loadScoped] = useLazyInject<ScopedService>(
- *   'SCOPED_SERVICE',
- *   { scope: requestScope }
- * );
- */
+/** @deprecated Use useInjectLazy */
 export function useLazyInject<T>(
   token: Token,
   options?: InjectOptions,
 ): [T | undefined, () => void] {
   const [isLoaded, setIsLoaded] = useState(false);
   const [instance, setInstance] = useState<T | undefined>(undefined);
-
-  const service = useInject<T>(token, {
-    ...options,
-    cachePromises: false,
-  });
+  const service = useInject<T>(token, { ...options, cachePromises: false });
 
   const load = useCallback(() => {
-    if (!isLoaded) {
-      setInstance(service);
-      setIsLoaded(true);
-    }
+    if (isLoaded) return;
+    setInstance(service);
+    setIsLoaded(true);
   }, [service, isLoaded]);
 
   return [instance, load];

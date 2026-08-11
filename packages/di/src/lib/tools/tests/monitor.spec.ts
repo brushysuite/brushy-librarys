@@ -241,6 +241,8 @@ describe("ContainerMonitor", () => {
         logToConsole: true,
       });
 
+      const infoSpy = vi.spyOn(console, "info");
+
       const event: ContainerEvent = {
         type: "register",
         token: "TestService",
@@ -251,7 +253,7 @@ describe("ContainerMonitor", () => {
         observeCallback(event);
       }
 
-      expect(Logger.info).toHaveBeenCalled();
+      expect(infoSpy).toHaveBeenCalled();
       expect(Logger.formatToken).toHaveBeenCalledWith("TestService");
       expect(Logger.formatType).toHaveBeenCalledWith("register");
     });
@@ -260,6 +262,8 @@ describe("ContainerMonitor", () => {
       const containerMonitor = new ContainerMonitor(mockContainer, {
         logToConsole: true,
       });
+
+      const infoSpy = vi.spyOn(console, "info");
 
       const event: ContainerEvent = {
         type: "error",
@@ -272,7 +276,7 @@ describe("ContainerMonitor", () => {
         observeCallback(event);
       }
 
-      expect(Logger.info).toHaveBeenCalledWith(
+      expect(infoSpy).toHaveBeenCalledWith(
         expect.stringContaining("Service not found"),
       );
     });
@@ -281,6 +285,8 @@ describe("ContainerMonitor", () => {
       const containerMonitor = new ContainerMonitor(mockContainer, {
         logToConsole: true,
       });
+
+      const infoSpy = vi.spyOn(console, "info");
 
       const event: ContainerEvent = {
         type: "register",
@@ -291,7 +297,7 @@ describe("ContainerMonitor", () => {
         observeCallback(event);
       }
 
-      expect(Logger.info).toHaveBeenCalledWith(
+      expect(infoSpy).toHaveBeenCalledWith(
         expect.not.stringContaining("Token:"),
       );
     });

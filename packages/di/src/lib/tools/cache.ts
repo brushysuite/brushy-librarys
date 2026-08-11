@@ -1,92 +1,48 @@
-import { promiseCacheSystem } from "..";
+import { promiseCache, promiseCacheSystem } from "..";
 import { Token } from "../@types";
 
-/**
- * Public API for managing the promise cache system.
- * Provides methods to cache, retrieve and clear cached values and promises.
- */
-export const cache = {
-  /** Internal cache storage */
-  _cache: new Map<string, { value: any; expiry: number | null }>(),
+const toKey = (key: unknown): string =>
+  typeof key === "object" ? JSON.stringify(key) : String(key);
 
-  /**
-   * Clears the cache for a specific token or the entire cache if no token is provided
-   * @param token - Optional token to clear specific cache entry
-   */
+export const cache = {
+  _cache: new Map<string, { value: unknown; expiry: number | null }>(),
+
   clear: (token?: Token) => {
+    promiseCache.clear(token);
     promiseCacheSystem.clear(token);
 
-    if (token) {
-      const tokenKey =
-        typeof token === "object" ? JSON.stringify(token) : String(token);
-      cache._cache.delete(tokenKey);
-    } else {
+    if (!token) {
       cache._cache.clear();
+      return;
     }
+
+    cache._cache.delete(toKey(token));
   },
 
-  /**
-   * Retrieves a cached value by key
-   * @param key - The cache key to lookup
-   * @returns The cached value or null if not found or expired
-   */
-  get(key: string): any {
-    const cacheKey =
-      typeof key === "object" ? JSON.stringify(key) : String(key);
-    const item = this._cache.get(cacheKey);
-
+  get(key: string): unknown {
+    const item = cache._cache.get(toKey(key));
     if (!item) return null;
-
     if (item.expiry && item.expiry < Date.now()) {
-      this._cache.delete(cacheKey);
+      cache._cache.delete(toKey(key));
       return null;
     }
-
     return item.value;
   },
 
-  /**
-   * Sets a value in the cache with optional expiration
-   * @param key - The cache key
-   * @param value - The value to cache
-   * @param expirationMs - Optional expiration time in milliseconds
-   */
-  set(key: string, value: any, expirationMs?: number): void {
-    const cacheKey =
-      typeof key === "object" ? JSON.stringify(key) : String(key);
-    const expiry = expirationMs ? Date.now() + expirationMs : null;
-
-    this._cache.set(cacheKey, { value, expiry });
+  set(key: string, value: unknown, expirationMs?: number): void {
+    cache._cache.set(toKey(key), {
+      value,
+      expiry: expirationMs ? Date.now() + expirationMs : null,
+    });
   },
 
-  /**
-   * Caches the result of a promise function with optional expiration
-   * @param key - The cache key
-   * @param fn - The promise function to execute and cache
-   * @param expirationMs - Optional expiration time in milliseconds
-   * @returns Promise resolving to the cached or new value
-   * @template T - The type of value returned by the promise
-   */
-  promise<T>(
-    key: any,
-    fn: () => Promise<T>,
-    expirationMs?: number,
-  ): Promise<T> {
-    const cacheKey =
-      typeof key === "object" ? JSON.stringify(key) : String(key);
+  promise<T>(key: string, fn: () => Promise<T>, expirationMs?: number): Promise<T> {
+    const cached = cache.get(key);
+    if (cached) return Promise.resolve(cached as T);
 
-    const cached = this.get(cacheKey);
-    if (cached) {
-      return Promise.resolve(cached);
-    }
-
-    return fn()
-      .then((result) => {
-        this.set(cacheKey, result, expirationMs);
-        return result;
-      })
-      .catch((error) => {
-        throw error;
-      });
+    return fn().then((result) => {
+      cache.set(key, result, expirationMs);
+      return result;
+    });
   },
 };

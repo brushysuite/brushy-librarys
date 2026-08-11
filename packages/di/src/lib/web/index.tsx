@@ -1,40 +1,23 @@
-"use client";
-
-import React, { useEffect } from "react";
+import { useMemo } from "react";
 import { containerRegistry } from "..";
 import { Container } from "../../core/container";
+import { DIContext, ROOT_SCOPE } from "../context";
 
 /**
- * React component that provides a dependency injection container to its children.
- * @param props The component props, including the container and optional scope.
- * @returns The children wrapped with the provided container.
+ * Provides a DI container to React and React Native trees — no useEffect.
  */
 export const BrushyDIProvider: React.FC<{
   container: Container;
   children: React.ReactNode;
   scope?: object;
-}> = ({ container, children, scope }) => {
-  const actualScope = scope ?? {};
-
-  containerRegistry.registerContainer(actualScope, container);
-
-  if (!containerRegistry.hasDefaultContainer()) {
-    containerRegistry.setDefaultContainer(container);
-  }
-
-  useEffect(() => {
-    containerRegistry.registerContainer(actualScope, container);
-
+}> = ({ container, children, scope = ROOT_SCOPE }) => {
+  const value = useMemo(() => {
+    containerRegistry.registerContainer(scope, container);
     if (!containerRegistry.hasDefaultContainer()) {
       containerRegistry.setDefaultContainer(container);
     }
+    return container;
+  }, [container, scope]);
 
-    return () => {
-      if (containerRegistry.getContainer() === container) {
-        return;
-      }
-    };
-  }, [container, actualScope]);
-
-  return <>{children}</>;
+  return <DIContext.Provider value={value}>{children}</DIContext.Provider>;
 };

@@ -1,20 +1,15 @@
 import { describe, it, expect } from "vitest";
-import { containerRegistry, promiseCacheSystem } from "../index";
+import { containerRegistry, promiseCacheSystem, PromiseCacheSystem } from "../index";
 import { ContainerRegistry } from "../../core/container-registry";
-import { PromiseCacheSystem } from "../../core/promise-cache-system";
+import { PromiseCache } from "../../core/promise-cache";
 
 describe("lib/index", () => {
-  describe("containerRegistry", () => {
-    it("should export an instance of ContainerRegistry", () => {
-      // Assert
-      expect(containerRegistry).toBeInstanceOf(ContainerRegistry);
-    });
+  it("should export an instance of ContainerRegistry", () => {
+    expect(containerRegistry).toBeInstanceOf(ContainerRegistry);
   });
 
-  describe("promiseCacheSystem", () => {
-    it("should export an instance of PromiseCacheSystem", () => {
-      // Assert
-      expect(promiseCacheSystem).toBeInstanceOf(PromiseCacheSystem);
-    });
+  it("should export promise cache instances", () => {
+    expect(promiseCacheSystem).toBeInstanceOf(PromiseCache);
+    expect(new PromiseCacheSystem()).toBeInstanceOf(PromiseCache);
   });
 });

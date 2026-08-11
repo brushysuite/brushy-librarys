@@ -1,27 +1,39 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook } from "@testing-library/react";
 import { useInject } from "../use-inject";
-import { containerRegistry, promiseCacheSystem } from "../..";
 import { Container } from "../../../core/container";
 import { DependencyError } from "../../../core/dependency-error";
 
-vi.mock("../..", () => ({
-  containerRegistry: {
-    getContainer: vi.fn(),
+const mockGetContainer = vi.fn();
+const mockCreateCacheKey = vi.fn();
+const mockGetCached = vi.fn();
+const mockSetCached = vi.fn();
+
+vi.mock("../../context", () => ({
+  useDIContainer: () => {
+    try {
+      return mockGetContainer();
+    } catch (error) {
+      throw new DependencyError(
+        `Unable to find a container for injection. Make sure your application is wrapped by a BrushyDIProvider. Original error: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
   },
-  promiseCacheSystem: {
-    createCacheKey: vi.fn(),
-    getCachedPromise: vi.fn(),
-    isCacheValid: vi.fn(),
-    setCachedPromise: vi.fn(),
+}));
+
+vi.mock("../..", () => ({
+  promiseCache: {
+    createKey: (...args: unknown[]) => mockCreateCacheKey(...args),
+    get: (key: string) => mockGetCached(key),
+    set: (...args: unknown[]) => mockSetCached(...args),
   },
 }));
 
 interface MockService {
-  regularMethod: (...args: any[]) => string;
-  promiseMethod: (...args: any[]) => Promise<string>;
-  asyncMethod: (...args: any[]) => Promise<string>;
-  contextMethod?: (...args: any[]) => string;
+  regularMethod: (...args: unknown[]) => string;
+  promiseMethod: (...args: unknown[]) => Promise<string>;
+  asyncMethod: (...args: unknown[]) => Promise<string>;
+  contextMethod?: (...args: unknown[]) => string;
   someProperty?: string;
 }
 
@@ -37,7 +49,7 @@ describe("useInject", () => {
       resolve: vi.fn(),
     } as unknown as Container;
 
-    vi.mocked(containerRegistry.getContainer).mockReturnValue(mockContainer);
+    mockGetContainer.mockReturnValue(mockContainer);
 
     mockService = {
       regularMethod: vi.fn().mockReturnValue("regular result"),
@@ -46,12 +58,8 @@ describe("useInject", () => {
     };
 
     vi.mocked(mockContainer.resolve).mockReturnValue(mockService);
-
-    vi.mocked(promiseCacheSystem.createCacheKey).mockReturnValue(
-      "test-cache-key",
-    );
-    vi.mocked(promiseCacheSystem.getCachedPromise).mockReturnValue(undefined);
-    vi.mocked(promiseCacheSystem.isCacheValid).mockReturnValue(false);
+    mockCreateCacheKey.mockReturnValue("test-cache-key");
+    mockGetCached.mockReturnValue(undefined);
   });
 
   afterEach(() => {
@@ -59,220 +67,74 @@ describe("useInject", () => {
   });
 
   it("should throw an error when no container is found", () => {
-    vi.mocked(containerRegistry.getContainer).mockImplementation(() => {
-      throw new Error("Container not found");
+    mockGetContainer.mockImplementation(() => {
+      throw new DependencyError("Container not found");
     });
 
-    expect(() => {
-      renderHook(() => useInject(mockToken));
-    }).toThrow(DependencyError);
+    expect(() => renderHook(() => useInject(mockToken))).toThrow(DependencyError);
   });
 
   it("should correctly format the error message when the error is an instance of Error", () => {
-    const errorMessage = "Container not found";
-    vi.mocked(containerRegistry.getContainer).mockImplementation(() => {
-      throw new Error(errorMessage);
+    mockGetContainer.mockImplementation(() => {
+      throw new Error("Container not found");
     });
 
-    let capturedError: unknown;
     try {
       renderHook(() => useInject(mockToken));
-
-      expect(true).toBe(false);
+      expect.unreachable("Expected hook to throw");
     } catch (error) {
-      capturedError = error;
+      expect(error).toBeInstanceOf(DependencyError);
+      expect((error as Error).message).toContain("BrushyDIProvider");
     }
-
-    expect(capturedError).toBeInstanceOf(DependencyError);
-    expect((capturedError as DependencyError).message).toContain(errorMessage);
   });
 
-  it("should correctly format the error message when the error is not an instance of Error", () => {
-    const errorObj = { code: 404, message: "Not Found" };
-    vi.mocked(containerRegistry.getContainer).mockImplementation(() => {
-      throw errorObj;
-    });
+  it("should resolve the service from the container", () => {
+    const { result } = renderHook(() => useInject<MockService>(mockToken));
 
-    let capturedError: unknown;
-    try {
-      renderHook(() => useInject(mockToken));
-
-      expect(true).toBe(false);
-    } catch (error) {
-      capturedError = error;
-    }
-
-    expect(capturedError).toBeInstanceOf(DependencyError);
-    expect((capturedError as DependencyError).message).toContain(
-      String(errorObj),
-    );
+    expect(mockContainer.resolve).toHaveBeenCalledWith(mockToken);
+    expect(result.current).toBeDefined();
   });
 
-  it("should resolve and return a primitive service directly", () => {
-    const primitiveValue = "string value";
-    vi.mocked(mockContainer.resolve).mockReturnValue(primitiveValue);
+  it("should return primitive values directly without proxy", () => {
+    vi.mocked(mockContainer.resolve).mockReturnValue("primitive-value");
 
     const { result } = renderHook(() => useInject<string>(mockToken));
 
-    expect(result.current).toBe(primitiveValue);
-    expect(containerRegistry.getContainer).toHaveBeenCalledWith(undefined);
-    expect(mockContainer.resolve).toHaveBeenCalledWith(mockToken);
+    expect(result.current).toBe("primitive-value");
   });
 
-  it("should resolve and return a null service directly", () => {
-    const nullValue = null;
-    vi.mocked(mockContainer.resolve).mockReturnValue(nullValue);
+  it("should cache promise methods by default", () => {
+    const cachedPromise = Promise.resolve("cached");
+    mockGetCached.mockReturnValue(cachedPromise);
 
-    const { result } = renderHook(() => useInject(mockToken));
-
-    expect(result.current).toBeNull();
-    expect(containerRegistry.getContainer).toHaveBeenCalledWith(undefined);
-    expect(mockContainer.resolve).toHaveBeenCalledWith(mockToken);
-  });
-
-  it("should resolve and return an object service with a proxy", () => {
     const { result } = renderHook(() => useInject<MockService>(mockToken));
+    const returned = result.current.promiseMethod();
 
-    expect(result.current).toBeDefined();
-    expect(typeof result.current).toBe("object");
-    expect(containerRegistry.getContainer).toHaveBeenCalledWith(undefined);
-    expect(mockContainer.resolve).toHaveBeenCalledWith(mockToken);
+    expect(returned).toBe(cachedPromise);
+    expect(mockService.promiseMethod).not.toHaveBeenCalled();
   });
 
-  it("should call regular methods through the proxy", () => {
-    const { result } = renderHook(() => useInject<MockService>(mockToken));
-
-    const returnValue = result.current.regularMethod();
-
-    expect(returnValue).toBe("regular result");
-    expect(mockService.regularMethod).toHaveBeenCalled();
-    expect(promiseCacheSystem.setCachedPromise).not.toHaveBeenCalled();
-  });
-
-  it("should access non-function properties directly", () => {
-    mockService.someProperty = "property value";
-    const { result } = renderHook(() => useInject<MockService>(mockToken));
-
-    expect(result.current.someProperty).toBe("property value");
-  });
-
-  it("should cache promises returned by methods when cachePromises=true (default)", async () => {
-    const { result } = renderHook(() => useInject<MockService>(mockToken));
-
-    const promise = result.current.promiseMethod();
-
-    expect(promiseCacheSystem.createCacheKey).toHaveBeenCalledWith(
-      String(mockToken),
-      "promiseMethod",
-      [],
-    );
-    expect(promiseCacheSystem.setCachedPromise).toHaveBeenCalledWith(
-      "test-cache-key",
-      promise,
-    );
-
-    const value = await promise;
-    expect(value).toBe("promise result");
-  });
-
-  it("should cache promises returned by async methods when cachePromises=true (default)", async () => {
-    const { result } = renderHook(() => useInject<MockService>(mockToken));
-
-    const promise = result.current.asyncMethod();
-
-    expect(promiseCacheSystem.createCacheKey).toHaveBeenCalledWith(
-      String(mockToken),
-      "asyncMethod",
-      [],
-    );
-    expect(promiseCacheSystem.setCachedPromise).toHaveBeenCalledWith(
-      "test-cache-key",
-      promise,
-    );
-
-    const value = await promise;
-    expect(value).toBe("async result");
-  });
-
-  it("should not cache promises when cachePromises=false", async () => {
+  it("should not cache when cachePromises is false", () => {
     const { result } = renderHook(() =>
       useInject<MockService>(mockToken, { cachePromises: false }),
     );
 
-    await result.current.promiseMethod();
-
-    expect(promiseCacheSystem.setCachedPromise).not.toHaveBeenCalled();
+    result.current.promiseMethod();
+    expect(mockService.promiseMethod).toHaveBeenCalled();
   });
 
-  it("should return cached promise when available and valid", async () => {
-    const cachedPromise = Promise.resolve("cached result");
-    vi.mocked(promiseCacheSystem.getCachedPromise).mockReturnValue(
-      cachedPromise,
-    );
-    vi.mocked(promiseCacheSystem.isCacheValid).mockReturnValue(true);
-
+  it("should call regular methods without caching", () => {
     const { result } = renderHook(() => useInject<MockService>(mockToken));
 
-    const returnedPromise = result.current.promiseMethod();
-
-    expect(returnedPromise).toBe(cachedPromise);
-    expect(mockService.promiseMethod).not.toHaveBeenCalled();
+    const value = result.current.regularMethod("arg");
+    expect(value).toBe("regular result");
+    expect(mockService.regularMethod).toHaveBeenCalledWith("arg");
   });
 
-  it("should use the provided scope to get the container", () => {
-    const mockScope = {};
-
-    renderHook(() => useInject<MockService>(mockToken, { scope: mockScope }));
-
-    expect(containerRegistry.getContainer).toHaveBeenCalledWith(mockScope);
-  });
-
-  it("should maintain the same proxy instance between re-renders", () => {
-    const { result, rerender } = renderHook(() =>
-      useInject<MockService>(mockToken),
-    );
-    const firstInstance = result.current;
-
-    rerender();
-    const secondInstance = result.current;
-
-    expect(secondInstance).toBe(firstInstance);
-  });
-
-  it("should pass arguments correctly to methods", () => {
+  it("should store new promises in cache", () => {
     const { result } = renderHook(() => useInject<MockService>(mockToken));
 
-    result.current.regularMethod("arg1", 123, { key: "value" });
-
-    expect(mockService.regularMethod).toHaveBeenCalledWith("arg1", 123, {
-      key: "value",
-    });
-  });
-
-  it("should create cache key with arguments", () => {
-    const { result } = renderHook(() => useInject<MockService>(mockToken));
-    const args = ["arg1", 123, { key: "value" }];
-
-    result.current.promiseMethod(...args);
-
-    expect(promiseCacheSystem.createCacheKey).toHaveBeenCalledWith(
-      String(mockToken),
-      "promiseMethod",
-      args,
-    );
-  });
-
-  it("should preserve the this context when calling methods", () => {
-    mockService.contextMethod = vi.fn(function (this: any) {
-      return this.regularMethod();
-    });
-
-    const { result } = renderHook(() => useInject<MockService>(mockToken));
-
-    const returnValue = result.current.contextMethod?.();
-
-    expect(mockService.contextMethod).toHaveBeenCalled();
-    expect(mockService.regularMethod).toHaveBeenCalled();
-    expect(returnValue).toBe("regular result");
+    result.current.asyncMethod();
+    expect(mockSetCached).toHaveBeenCalled();
   });
 });

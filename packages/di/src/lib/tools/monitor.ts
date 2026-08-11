@@ -163,7 +163,7 @@ export class ContainerMonitor {
     const eventType = Logger.formatType(event.type);
     const details = event.details ? ` - ${event.details}` : "";
 
-    Logger.info(
+    console.info(
       "[DI:" +
         eventType +
         "]" +

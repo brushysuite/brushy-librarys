@@ -1,5 +1,11 @@
-import { PromiseCacheSystem } from "../core/promise-cache-system";
 import { ContainerRegistry } from "../core/container-registry";
+import { PromiseCache } from "../core/promise-cache";
 
 export const containerRegistry = new ContainerRegistry();
-export const promiseCacheSystem = new PromiseCacheSystem();
+export const promiseCache = new PromiseCache();
+
+/** @deprecated Use promiseCache */
+export class PromiseCacheSystem extends PromiseCache {}
+
+/** @deprecated Use promiseCache */
+export const promiseCacheSystem = promiseCache;

@@ -2,15 +2,18 @@ import { GarbageCollector } from "./garbage-collector";
 import { DependencyResolver } from "./dependency-resolver";
 
 export class LifecycleManager {
-  constructor(private resolver: DependencyResolver) {}
+  private garbageCollector: GarbageCollector | null = null;
 
-  startGarbageCollector(ttl: number = 60000, interval: number = 30000) {
-    const gc = new GarbageCollector(this.resolver);
-    gc.start(ttl, interval);
+  constructor(private readonly resolver: DependencyResolver) {}
+
+  startGarbageCollector(ttl = 60000, interval = 30000): void {
+    if (!this.garbageCollector) {
+      this.garbageCollector = new GarbageCollector(this.resolver);
+    }
+    this.garbageCollector.start(ttl, interval);
   }
 
-  stopGarbageCollector() {
-    const gc = new GarbageCollector(this.resolver);
-    gc.stop();
+  stopGarbageCollector(): void {
+    this.garbageCollector?.stop();
   }
 }

@@ -1142,8 +1142,8 @@ describe("DependencyResolver", () => {
       const tokenA = "TEST_TOKEN";
       dependencyGraph.set(tokenA, new Set());
       (testResolver as any).dependencyGraph = dependencyGraph;
-
-      (testResolver as any).instances = new Map();
+      (testResolver as any).lifecycleCache.singletons.clear();
+      (testResolver as any).lifecycleCache.immutable.clear();
 
       const infoSpy = vi.spyOn(Logger, "info");
       const debugSpy = vi.spyOn(Logger, "debug");

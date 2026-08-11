@@ -5,7 +5,8 @@ export { cache } from "./lib/tools/cache";
 export { monitor } from "./lib/tools/monitor";
 export { inject } from "./lib/tools/inject";
 export { useInject } from "./lib/tools/use-inject";
-export { useLazyInject } from "./lib/tools/use-lazy-inject";
+export { useLazyInject, useInjectLazy } from "./lib/tools/use-lazy-inject";
+export { ROOT_SCOPE } from "./lib/context";
 export {
   useInjectComponent,
   registerComponent,

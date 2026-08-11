@@ -1,27 +1,27 @@
 import { ProviderConfig, Token } from "../lib/@types";
+import { IS_DEV } from "./constants";
 import { DependencyRegistry } from "./dependency-registry";
 import { DependencyResolver } from "./dependency-resolver";
 import { LifecycleManager } from "./life-cycle-manager";
+import { ContainerEventBus } from "./events";
 import { Logger } from "./logger";
 
-// Interface for observability events
 export interface ContainerEvent {
   type: "register" | "resolve" | "error" | "import" | "clear";
   token?: Token;
   timestamp: number;
-  details?: any;
+  details?: unknown;
 }
 
-// Type for observers
 export type ContainerObserver = (event: ContainerEvent) => void;
 
 export class Container {
-  private readonly registry: DependencyRegistry;
+  private readonly registry = new DependencyRegistry();
   private readonly resolver: DependencyResolver;
   private readonly lifecycleManager: LifecycleManager;
-  private readonly observers: Set<ContainerObserver> = new Set();
+  private readonly events = new ContainerEventBus();
   private readonly name: string;
-  private readonly parent: Container | null = null;
+  private readonly parent: Container | null;
 
   constructor({
     providers = [],
@@ -31,17 +31,14 @@ export class Container {
   }: {
     providers?: Array<{
       provide: Token;
-      useValue?: any;
-      useClass?: new (...args: any[]) => any;
-      useFactory?: () => any;
-      lifecycle?: "singleton" | "transient" | "scoped" | "immutable";
+      useValue?: unknown;
+      useClass?: new (...args: unknown[]) => unknown;
+      useFactory?: () => unknown;
+      lifecycle?: ProviderConfig["lifecycle"];
       ttl?: number;
       dependencies?: Token[];
       promiseTtl?: number;
-      observable?: {
-        subscribe: (callback: (value: any) => void) => () => void;
-        unsubscribe: () => void;
-      };
+      observable?: ProviderConfig["observable"];
       lazy?: boolean;
     }>;
     debug?: boolean;
@@ -50,12 +47,11 @@ export class Container {
   } = {}) {
     this.name = name;
     this.parent = parent;
-    this.registry = new DependencyRegistry();
     this.resolver = new DependencyResolver(this.registry, debug);
     this.lifecycleManager = new LifecycleManager(this.resolver);
 
-    providers.forEach((config) => {
-      const providerConfig: ProviderConfig = {
+    for (const config of providers) {
+      this.register(config.provide, {
         useClass: config.useClass,
         useFactory: config.useFactory,
         useValue: config.useValue,
@@ -65,68 +61,33 @@ export class Container {
         promiseTtl: config.promiseTtl,
         observable: config.observable,
         lazy: config.lazy,
-      };
-      this.register(config.provide, providerConfig);
-    });
+      });
+    }
 
-    this.emitEvent({
+    this.emit({
       type: "register",
       details: { containerName: name, providersCount: providers.length },
       timestamp: Date.now(),
     });
   }
 
-  /**
-   * Registers an observer for container events
-   * @param observer Function to be called when events occur
-   * @returns Function to remove the observer
-   */
   observe(observer: ContainerObserver): () => void {
-    this.observers.add(observer);
-    return () => {
-      this.observers.delete(observer);
-    };
+    return this.events.subscribe(observer);
   }
 
-  /**
-   * Emits an event to all observers
-   */
-  private emitEvent(event: ContainerEvent): void {
-    this.observers.forEach((observer) => {
-      try {
-        observer(event);
-      } catch (error: unknown) {
-        const errorMessage =
-          error instanceof Error ? error.message : String(error);
-        Logger.error(`Error notifying observer: ${errorMessage}`);
-      }
-    });
+  private emit(event: ContainerEvent): void {
+    this.events.emit(event);
   }
 
-  /**
-   * Formats an error for event emission
-   * @param error The error to format
-   * @returns The formatted error message
-   */
   private formatErrorMessage(error: unknown): string {
     return error instanceof Error ? error.message : String(error);
   }
 
-  /**
-   * Imports providers from another container
-   * @param container Container to be imported
-   * @param options Import options
-   */
   import(
     container: Container,
-    options: {
-      overrideExisting?: boolean;
-      prefix?: string;
-    } = {},
+    options: { overrideExisting?: boolean; prefix?: string } = {},
   ): void {
-    const providers = container.exportProviders();
-
-    providers.forEach(({ token, config }) => {
+    for (const { token, config } of container.exportProviders()) {
       const targetToken = options.prefix
         ? `${options.prefix}.${String(token)}`
         : token;
@@ -134,205 +95,153 @@ export class Container {
       if (options.overrideExisting || !this.registry.has(targetToken)) {
         this.register(targetToken, config);
       }
-    });
+    }
 
-    this.emitEvent({
+    this.emit({
       type: "import",
       details: {
         sourceContainer: container.getName(),
         targetContainer: this.name,
-        providersCount: providers.length,
+        providersCount: container.exportProviders().length,
         options,
       },
       timestamp: Date.now(),
     });
   }
 
-  /**
-   * Exports all providers registered in this container
-   * @returns Array of tokens and configurations
-   */
   exportProviders(): Array<{ token: Token; config: ProviderConfig }> {
     return this.registry.getAllProviders();
   }
 
-  /**
-   * Gets the name of this container
-   */
   getName(): string {
     return this.name;
   }
 
-  /**
-   * Registers a provider in the container
-   */
   register<T>(token: Token, config: ProviderConfig<T>) {
-    const result = this.registry.register(token, config);
-
-    this.emitEvent({
+    this.registry.register(token, config);
+    this.emit({
       type: "register",
       token,
       details: { config },
       timestamp: Date.now(),
     });
-
-    return result;
   }
 
-  /**
-   * Resolves a dependency from the container
-   */
   resolve<T>(token: Token): T {
     try {
-      // Try to resolve from the current container
       if (this.registry.has(token)) {
         const result = this.resolver.resolve<T>(token);
-
-        this.emitEvent({
+        this.emit({
           type: "resolve",
           token,
           details: { success: true, source: "self" },
           timestamp: Date.now(),
         });
-
         return result;
       }
 
-      // If not found and has a parent, try to resolve from the parent
       if (this.parent) {
         try {
           const result = this.parent.resolve<T>(token);
-
-          this.emitEvent({
+          this.emit({
             type: "resolve",
             token,
             details: { success: true, source: "parent" },
             timestamp: Date.now(),
           });
-
           return result;
-        } catch (error) {
-          // Ignore parent error and continue
+        } catch {
+          // fall through
         }
       }
 
-      // If it reaches here, it was not found anywhere
       throw new Error(`Token not registered: ${String(token)}`);
     } catch (error: unknown) {
-      this.emitEvent({
+      this.emit({
         type: "error",
         token,
         details: {
           error,
-          message: this.formatErrorMessage(error),
+          message: error instanceof Error ? error.message : String(error),
         },
         timestamp: Date.now(),
       });
-
       throw error;
     }
   }
 
-  /**
-   * Resolves a dependency asynchronously
-   */
   async resolveAsync<T>(token: Token): Promise<T> {
     try {
       const result = await this.resolver.resolveAsync<T>(token);
-
-      this.emitEvent({
+      this.emit({
         type: "resolve",
         token,
         details: { success: true, async: true },
         timestamp: Date.now(),
       });
-
       return result;
     } catch (error: unknown) {
-      this.emitEvent({
+      this.emit({
         type: "error",
         token,
         details: {
           error,
-          message: this.formatErrorMessage(error),
+          message: error instanceof Error ? error.message : String(error),
           async: true,
         },
         timestamp: Date.now(),
       });
-
       throw error;
     }
   }
 
-  /**
-   * Clears the request scope
-   */
-  clearRequestScope() {
+  clearRequestScope(): void {
     this.resolver.clearRequestScope();
-
-    this.emitEvent({
+    this.emit({
       type: "clear",
       details: { scope: "request" },
       timestamp: Date.now(),
     });
   }
 
-  startGarbageCollector(ttl: number = 60000, interval: number = 30000) {
+  startGarbageCollector(ttl = 60000, interval = 30000): void {
     this.lifecycleManager.startGarbageCollector(ttl, interval);
   }
 
-  stopGarbageCollector() {
+  stopGarbageCollector(): void {
     this.lifecycleManager.stopGarbageCollector();
   }
 
-  invalidateCache(token: Token) {
+  invalidateCache(token: Token): void {
     this.resolver.invalidateCache(token);
   }
 
-  /**
-   * Gets a cached promise for a method call - designed for use with React's 'use' hook
-   * This prevents the creation of new promises on each render
-   *
-   * Example: const data = use(container.useAsyncMethod(HTTP_CLIENT, 'fetchData', [param1, param2]));
-   *
-   * @param token The dependency token
-   * @param methodName The name of the method to be called
-   * @param args Arguments to be passed to the method
-   */
   getPromise<T>(
     token: Token,
     methodName: string,
-    args: any[] = [],
+    args: unknown[] = [],
   ): Promise<T> {
     return this.resolver.getCachedPromise<T>(token, methodName, args);
   }
 
-  /**
-   * Verifica a integridade das instâncias imutáveis
-   * Útil para testes e depuração
-   *
-   * @returns Uma função que verifica se uma instância imutável mantém sua identidade
-   */
   verifyImmutableIntegrity(): (token: Token) => boolean {
-    const instances = new Map<Token, any>();
+    const instances = new Map<Token, unknown>();
 
     return (token: Token): boolean => {
       const instance = this.resolve(token);
 
-      if (instances.has(token)) {
-        const previousInstance = instances.get(token);
-        const isIntact = previousInstance === instance;
-        const tokenLogger = Logger.formatToken(String(token));
-
-        if (!isIntact && process.env.NODE_ENV !== "production") {
-          Logger.error(`Immutable integrity violated for ${tokenLogger}`);
-        }
-
-        return isIntact;
+      if (!instances.has(token)) {
+        instances.set(token, instance);
+        return true;
       }
 
-      instances.set(token, instance);
-      return true;
+      const isIntact = instances.get(token) === instance;
+      if (!isIntact && process.env.NODE_ENV !== "production") {
+        Logger.error(
+          `Immutable integrity violated for ${Logger.formatToken(String(token))}`,
+        );
+      }
+      return isIntact;
     };
   }
 }

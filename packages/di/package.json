@@ -18,6 +18,11 @@
       "import": "./dist/index.js",
       "require": "./dist/index.js"
     },
+    "./core": {
+      "types": "./dist/core/container.d.ts",
+      "import": "./dist/core/container.js",
+      "require": "./dist/core/container.js"
+    },
     "./core/*": {
       "types": "./dist/core/*.d.ts",
       "import": "./dist/core/*.js",
@@ -41,6 +46,7 @@
     "README.md"
   ],
   "sideEffects": false,
+  "react-native": "./dist/index.js",
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",

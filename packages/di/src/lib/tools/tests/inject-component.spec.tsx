@@ -81,10 +81,15 @@ const FallbackComponent: React.FC<MockComponentProps> = ({
 
 describe("useInjectComponent", () => {
   const TOKEN = "TEST_COMPONENT";
+  let mockContainer: { register: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
     vi.clearAllMocks();
     componentCache.clear();
+    mockContainer = { register: vi.fn() };
+    vi.mocked(inject.getGlobalContainer).mockReturnValue(
+      mockContainer as never,
+    );
   });
 
   it("should render the injected component", () => {

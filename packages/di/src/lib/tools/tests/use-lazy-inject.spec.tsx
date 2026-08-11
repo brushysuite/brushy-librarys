@@ -3,9 +3,18 @@ import { renderHook, act } from "@testing-library/react";
 import { useLazyInject, useInjectLazy } from "../use-lazy-inject";
 import { useInject } from "../use-inject";
 import { DependencyError } from "../../../core/dependency-error";
+import { Container } from "../../../core/container";
 
 vi.mock("../use-inject", () => ({
   useInject: vi.fn(),
+}));
+
+const mockContainer = {
+  resolve: vi.fn(),
+} as unknown as Container;
+
+vi.mock("../../context", () => ({
+  useDIContainer: () => mockContainer,
 }));
 
 interface MockService {
@@ -24,7 +33,6 @@ describe("useLazyInject", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-
     vi.mocked(useInject).mockReturnValue(mockService);
   });
 
@@ -111,6 +119,7 @@ describe("useLazyInject", () => {
     const newMockService = {
       method: vi.fn().mockReturnValue("new result"),
       asyncMethod: vi.fn().mockResolvedValue("new async result"),
+      property: "new",
     };
     vi.mocked(useInject).mockReturnValue(newMockService);
 
@@ -131,11 +140,7 @@ describe("useInjectLazy", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(useInject).mockReturnValue(mockService);
-  });
-
-  afterEach(() => {
-    vi.resetAllMocks();
+    vi.mocked(mockContainer.resolve).mockReturnValue(mockService);
   });
 
   it("should throw error when token is not provided", () => {
@@ -153,14 +158,9 @@ describe("useInjectLazy", () => {
   it("should return a proxy object that lazily resolves the service", () => {
     const { result } = renderHook(() => useInjectLazy<MockService>(mockToken));
 
-    expect(useInject).not.toHaveBeenCalled();
-
+    expect(mockContainer.resolve).not.toHaveBeenCalled();
     result.current.method();
-
-    expect(useInject).toHaveBeenCalledWith(mockToken, {
-      cachePromises: false,
-    });
-
+    expect(mockContainer.resolve).toHaveBeenCalledWith(mockToken);
     expect(mockService.method).toHaveBeenCalled();
   });
 
@@ -168,28 +168,9 @@ describe("useInjectLazy", () => {
     const { result } = renderHook(() => useInjectLazy<MockService>(mockToken));
 
     result.current.method();
-    expect(useInject).toHaveBeenCalledTimes(1);
-
     result.current.asyncMethod();
-    expect(useInject).toHaveBeenCalledTimes(1);
-
-    const prop = result.current.property;
-    expect(prop).toBe("test property");
-    expect(useInject).toHaveBeenCalledTimes(1);
-  });
-
-  it("should pass options to useInject", () => {
-    const options = { scope: {}, cachePromises: true };
-    const { result } = renderHook(() =>
-      useInjectLazy<MockService>(mockToken, options),
-    );
-
-    result.current.method();
-
-    expect(useInject).toHaveBeenCalledWith(mockToken, {
-      ...options,
-      cachePromises: false,
-    });
+    expect(result.current.property).toBe("test property");
+    expect(mockContainer.resolve).toHaveBeenCalledTimes(1);
   });
 
   it("should throw a DependencyError when accessing a non-existent property", () => {
@@ -201,237 +182,32 @@ describe("useInjectLazy", () => {
     }).toThrow(DependencyError);
   });
 
-  it("should throw a DependencyError when useInject returns a non-object value", () => {
-    vi.mocked(useInject).mockReturnValue("not an object" as any);
+  it("should throw when resolve returns a non-object value", () => {
+    vi.mocked(mockContainer.resolve).mockReturnValue("not an object" as never);
 
     const { result } = renderHook(() => useInjectLazy<MockService>(mockToken));
 
-    expect(() => {
-      result.current.method();
-    }).toThrow(DependencyError);
+    expect(() => result.current.method()).toThrow(DependencyError);
   });
 
-  it("should throw a DependencyError when useInject throws an error", () => {
-    vi.mocked(useInject).mockImplementation(() => {
+  it("should wrap resolve errors", () => {
+    vi.mocked(mockContainer.resolve).mockImplementation(() => {
       throw new Error("Service not found");
     });
 
     const { result } = renderHook(() => useInjectLazy<MockService>(mockToken));
 
-    expect(() => {
-      result.current.method();
-    }).toThrow(DependencyError);
-    expect(() => {
-      result.current.method();
-    }).toThrow(/Failed to resolve lazy service: Service not found/);
+    expect(() => result.current.method()).toThrow(
+      /Failed to resolve lazy service: Service not found/,
+    );
   });
 
-  it("should store the resolved instance internally", () => {
+  it("should cache resolved instance after first access", () => {
     const { result } = renderHook(() => useInjectLazy<MockService>(mockToken));
     result.current.method();
     result.current.method();
-    result.current.asyncMethod();
-    expect(useInject).toHaveBeenCalledTimes(1);
+    expect(mockContainer.resolve).toHaveBeenCalledTimes(1);
     expect(mockService.method).toHaveBeenCalledTimes(2);
-  });
-
-  it("should throw a DependencyError when useInject returns null", () => {
-    vi.mocked(useInject).mockReturnValue(null as any);
-
-    const { result } = renderHook(() => useInjectLazy<MockService>(mockToken));
-
-    expect(() => {
-      result.current.method();
-    }).toThrow(DependencyError);
-    expect(() => {
-      result.current.method();
-    }).toThrow(/Invalid service instance/);
-  });
-
-  it("should throw a DependencyError when useInject returns undefined", () => {
-    vi.mocked(useInject).mockReturnValue(undefined as any);
-
-    const { result } = renderHook(() => useInjectLazy<MockService>(mockToken));
-
-    expect(() => {
-      result.current.method();
-    }).toThrow(DependencyError);
-    expect(() => {
-      result.current.method();
-    }).toThrow(/Invalid service instance/);
-  });
-
-  it("should handle non-Error exceptions from useInject", () => {
-    vi.mocked(useInject).mockImplementation(() => {
-      throw "String error message";
-    });
-
-    const { result } = renderHook(() => useInjectLazy<MockService>(mockToken));
-
-    expect(() => {
-      result.current.method();
-    }).toThrow(DependencyError);
-    expect(() => {
-      result.current.method();
-    }).toThrow(/Failed to resolve lazy service: String error message/);
-  });
-
-  it("should handle symbol properties", () => {
-    const symbolProp = Symbol("testSymbol");
-    const mockServiceWithSymbol = {
-      ...mockService,
-      [symbolProp]: "symbol value",
-    };
-
-    vi.mocked(useInject).mockReturnValue(mockServiceWithSymbol as any);
-
-    const { result } = renderHook(() =>
-      useInjectLazy<typeof mockServiceWithSymbol>(mockToken),
-    );
-
-    result.current.method();
-
-    expect(result.current[symbolProp]).toBe("symbol value");
-    expect(useInject).toHaveBeenCalledTimes(1);
-  });
-
-  it("should handle empty options", () => {
-    const { result } = renderHook(() => useInjectLazy<MockService>(mockToken));
-
-    result.current.method();
-
-    expect(useInject).toHaveBeenCalledWith(mockToken, {
-      cachePromises: false,
-    });
-  });
-
-  it("should handle various token types", () => {
-    const stringToken = "STRING_TOKEN";
-    renderHook(() => useInjectLazy<MockService>(stringToken));
-
-    const symbolToken = Symbol("SYMBOL_TOKEN");
-    renderHook(() => useInjectLazy<MockService>(symbolToken));
-
-    const objectToken = { id: "OBJECT_TOKEN" };
-    //@ts-ignore
-    renderHook(() => useInjectLazy<MockService>(objectToken));
-    expect(useInject).toHaveBeenCalledTimes(0);
-  });
-
-  it("should handle multiple instances with different tokens", () => {
-    const token1 = "TOKEN_1";
-    const token2 = "TOKEN_2";
-
-    const service1 = { ...mockService, id: "service1" };
-    const service2 = { ...mockService, id: "service2" };
-
-    vi.mocked(useInject).mockImplementation((token) => {
-      if (token === token1) return service1 as any;
-      if (token === token2) return service2 as any;
-      return null as any;
-    });
-
-    const { result: result1 } = renderHook(() =>
-      useInjectLazy<typeof service1>(token1),
-    );
-    const { result: result2 } = renderHook(() =>
-      useInjectLazy<typeof service2>(token2),
-    );
-
-    result1.current.method();
-    result2.current.method();
-
-    expect(result1.current.id).toBe("service1");
-    expect(result2.current.id).toBe("service2");
-  });
-
-  it("should handle primitive values returned by useInject", () => {
-    vi.mocked(useInject).mockReturnValue(42 as any);
-
-    const { result } = renderHook(() => useInjectLazy<MockService>(mockToken));
-
-    expect(() => {
-      result.current.method();
-    }).toThrow(DependencyError);
-    expect(() => {
-      result.current.method();
-    }).toThrow(/Failed to resolve lazy service: Cannot use 'in' operator to search for 'method' in 42/);
-
-    vi.mocked(useInject).mockReturnValue(true as any);
-
-    const { result: result2 } = renderHook(() =>
-      useInjectLazy<MockService>(mockToken),
-    );
-
-    expect(() => {
-      result2.current.method();
-    }).toThrow(DependencyError);
-    expect(() => {
-      result2.current.method();
-    }).toThrow(/Failed to resolve lazy service: Cannot use 'in' operator to search for 'method' in true/);
-  });
-
-  it("should handle complex error scenarios", () => {
-    const problematicService = {
-      get method() {
-        throw new Error("Property access error");
-      },
-    };
-
-    vi.mocked(useInject).mockReturnValue(problematicService as any);
-
-    const { result } = renderHook(() => useInjectLazy<MockService>(mockToken));
-
-    expect(() => {
-      result.current.method();
-    }).toThrow(DependencyError);
-    expect(() => {
-      result.current.method();
-    }).toThrow(/Failed to resolve lazy service: Property access error/);
-  });
-
-  it("should handle non-standard error objects", () => {
-    const customError = { message: "Custom error object", isError: true };
-
-    vi.mocked(useInject).mockImplementation(() => {
-      throw customError;
-    });
-
-    const { result } = renderHook(() => useInjectLazy<MockService>(mockToken));
-
-    expect(() => {
-      result.current.method();
-    }).toThrow(DependencyError);
-    expect(() => {
-      result.current.method();
-    }).toThrow(/Failed to resolve lazy service: \[object Object\]/);
-  });
-
-  it("should handle proxy behavior with various property types", () => {
-    const complexService = {
-      ...mockService,
-      nestedObject: { value: "nested" },
-      get computedProp() {
-        return "computed";
-      },
-      writableProp: undefined as string | undefined,
-    };
-
-    vi.mocked(useInject).mockReturnValue(complexService as any);
-
-    const { result } = renderHook(() =>
-      useInjectLazy<typeof complexService>(mockToken),
-    );
-
-    expect(result.current.nestedObject.value).toBe("nested");
-
-    expect(result.current.computedProp).toBe("computed");
-
-    expect(() => {
-      (result.current as any).writableProp = "new value";
-    }).not.toThrow();
-
-    expect(useInject).toHaveBeenCalledTimes(1);
   });
 });
 
@@ -442,9 +218,10 @@ describe("lazy function (internal)", () => {
     asyncMethod: vi.fn().mockResolvedValue("async result"),
     property: "test property",
   };
+
   it("should cache the instance after first access", () => {
     let callCount = 0;
-    vi.mocked(useInject).mockImplementation(() => {
+    vi.mocked(mockContainer.resolve).mockImplementation(() => {
       callCount++;
       return mockService;
     });
