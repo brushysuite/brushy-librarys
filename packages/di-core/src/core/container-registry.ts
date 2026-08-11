@@ -1,6 +1,7 @@
 import { Container } from "./container";
 import { DependencyError } from "./dependency-error";
 import { ROOT_SCOPE } from "./constants";
+import { getActiveScope } from "../tools/request-scope-store";
 
 /**
  * Container registry with scope caching — React Native safe (Map/WeakMap only).
@@ -28,21 +29,23 @@ export class ContainerRegistry {
   }
 
   getContainer(scope?: object): Container {
-    if (scope && this.lastScope === scope && this.lastContainer) {
+    const resolvedScope = scope ?? getActiveScope();
+
+    if (resolvedScope && this.lastScope === resolvedScope && this.lastContainer) {
       return this.lastContainer;
     }
 
-    if (scope) {
-      const fromMap = this.scopedContainers.get(scope);
+    if (resolvedScope) {
+      const fromMap = this.scopedContainers.get(resolvedScope);
       if (fromMap) {
-        this.lastScope = scope;
+        this.lastScope = resolvedScope;
         this.lastContainer = fromMap;
         return fromMap;
       }
 
-      const fromWeak = this.weakScopedContainers.get(scope);
+      const fromWeak = this.weakScopedContainers.get(resolvedScope);
       if (fromWeak) {
-        this.lastScope = scope;
+        this.lastScope = resolvedScope;
         this.lastContainer = fromWeak;
         return fromWeak;
       }

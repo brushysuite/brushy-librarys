@@ -38,6 +38,11 @@
       "import": "./dist/server.mjs",
       "require": "./dist/server.js"
     },
+    "./request-scope": {
+      "types": "./dist/request-scope.d.ts",
+      "import": "./dist/request-scope.mjs",
+      "require": "./dist/request-scope.js"
+    },
     "./package.json": "./package.json"
   },
   "files": ["dist", "README.md"],

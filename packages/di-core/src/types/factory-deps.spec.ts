@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { Container } from "../core/container";
-import { createToken } from "./tokens";
+import { createToken, deps } from "./tokens";
 
 class Logger {
   log(msg: string) {
@@ -23,8 +23,8 @@ describe("factory dependencies inference", () => {
 
     container.register(LOGGER, { useClass: Logger });
     container.register(AUTH, {
-      useFactory: (logger: Logger) => new AuthService(logger),
-      dependencies: [LOGGER],
+      useFactory: (logger) => new AuthService(logger),
+      dependencies: deps([LOGGER]),
     });
 
     const auth = container.resolve(AUTH);

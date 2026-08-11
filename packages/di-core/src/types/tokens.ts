@@ -1,4 +1,6 @@
-import type { ProviderConfig, Token } from "./index";
+export type Token = string | symbol | Function;
+
+export type Lifecycle = "singleton" | "transient" | "scoped" | "immutable";
 
 /** Token com tipo embutido (compile-time only) */
 export type InjectionToken<T> = symbol & { readonly __type?: T };
@@ -26,20 +28,48 @@ export type InferProviderType<C> = C extends {
       ? V
       : unknown;
 
+/** Preserva tuple de tokens para inferência em factories */
+export function deps<const D extends readonly Token[]>(tokens: D): D {
+  return tokens;
+}
+
+/** Config base compartilhada */
+export interface ProviderConfigBase {
+  lifecycle?: Lifecycle;
+  ttl?: number;
+  promiseTtl?: number;
+  observable?: {
+    subscribe: (callback: (value: unknown) => void) => () => void;
+    unsubscribe: () => void;
+  };
+  lazy?: boolean;
+}
+
+export type ValueProviderConfig<T> = ProviderConfigBase & {
+  useValue: T;
+  useClass?: never;
+  useFactory?: never;
+  dependencies?: never;
+};
+
 export type FactoryProviderConfig<
   T,
   D extends readonly Token[] = readonly Token[],
-> = Omit<ProviderConfig<T>, "useClass" | "useValue" | "useFactory"> & {
+> = ProviderConfigBase & {
   useFactory: (...args: InferDependencies<D>) => T;
   dependencies: D;
+  useValue?: never;
+  useClass?: never;
 };
 
 export type ClassProviderConfig<
   T,
   D extends readonly Token[] = readonly Token[],
-> = Omit<ProviderConfig<T>, "useValue" | "useFactory" | "useClass"> & {
+> = ProviderConfigBase & {
   useClass: new (...args: InferDependencies<D>) => T;
   dependencies?: D;
+  useValue?: never;
+  useFactory?: never;
 };
 
 /** Cria token tipado — runtime: Symbol(description) */

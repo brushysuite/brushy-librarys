@@ -47,9 +47,45 @@ const database = await server.resolveAsync<Database>("DATABASE");
 await database.connect();
 ```
 
-### Limpeza de Escopo de Requisição
+### Escopo de Requisição Automático (AsyncLocalStorage)
 
-Um dos recursos mais importantes para aplicações servidor é a capacidade de limpar o escopo de requisição após cada requisição HTTP, evitando vazamentos de memória e garantindo isolamento entre requisições.
+Em Node.js, prefira `server.brushyRequestScope()` ou `runInRequestScope()` — eles vinculam o escopo ativo via `AsyncLocalStorage`, então `resolve()` / `inject.resolve()` obtêm instâncias scoped sem passar `scope` manualmente.
+
+```typescript
+import express from "express";
+import { server } from "@brushy/di";
+
+const app = express();
+
+// Recomendado: middleware com ALS e cleanup em finish/close
+app.use(server.brushyRequestScope());
+
+app.get("/users", (req, res) => {
+  const userService = server.resolve(USER_SERVICE); // scoped por requisição
+  res.json(userService.getUsers());
+});
+```
+
+Para scripts, testes ou fluxos fora de HTTP:
+
+```typescript
+import { runInRequestScope, runInRequestScopeAsync } from "@brushy/di";
+
+runInRequestScope(() => {
+  const svc = server.resolve(USER_SERVICE);
+});
+
+await runInRequestScopeAsync(async () => {
+  const svc = await server.resolveAsync(DATABASE);
+  await svc.connect();
+});
+```
+
+`isRequestScopeSupported()` indica se ALS está disponível (Node.js). Em React Native / browsers, scoped ainda funciona com `scope` explícito.
+
+### Limpeza de Escopo de Requisição (manual)
+
+Se não puder usar o middleware ALS, chame `server.clearRequestScope()` após cada requisição HTTP.
 
 ```typescript
 // Em um middleware Express
@@ -164,14 +200,8 @@ server.setServerContainer(serverContainer);
 // Criar aplicação Express
 const app = express();
 
-// Middleware para limpar escopo de requisição
-app.use((req, res, next) => {
-  next();
-  // Após a resposta ser enviada
-  res.on("finish", () => {
-    server.clearRequestScope();
-  });
-});
+// Middleware — escopo ALS (recomendado)
+app.use(server.brushyRequestScope());
 
 // Rota para obter usuários
 app.get("/users", async (req, res) => {
@@ -284,7 +314,7 @@ export async function GET() {
 
 ## Melhores Práticas
 
-1. **Sempre limpe o escopo de requisição**: Chame `server.clearRequestScope()` após cada requisição HTTP para evitar vazamentos de memória.
+1. **Prefira `brushyRequestScope()`**: Em Node.js, use `server.brushyRequestScope()` ou `runInRequestScope()` em vez de `clearRequestScope()` manual em cada rota.
 
 2. **Use lifecycle adequado**: Para serviços compartilhados, use `singleton`. Para serviços específicos de requisição, use `scoped`.
 

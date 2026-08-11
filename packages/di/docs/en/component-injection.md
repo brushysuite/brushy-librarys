@@ -21,8 +21,9 @@ import { useInjectComponent } from "@brushy/di";
 ### Basic Usage
 
 ```tsx
-// Define token for the component
-const BUTTON_COMPONENT = "BUTTON_COMPONENT";
+import { createToken, useInjectComponent } from "@brushy/di";
+
+const BUTTON_COMPONENT = createToken<React.ComponentType<ButtonProps>>("BUTTON");
 
 // Inject the component
 const Button = useInjectComponent(BUTTON_COMPONENT);

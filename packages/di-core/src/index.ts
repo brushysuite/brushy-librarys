@@ -17,10 +17,21 @@ export { cache } from "./tools/cache";
 export { defineModule } from "./tools/module";
 export type { DefinedModule } from "./tools/module";
 export { createBrushyApp } from "./tools/bootstrap";
+export {
+  getActiveScope,
+  runInRequestScope,
+  runInRequestScopeAsync,
+  brushyRequestScope,
+  isRequestScopeSupported,
+} from "./tools/request-scope";
+export type {
+  RequestScopeOptions,
+  BrushyRequestScopeOptions,
+} from "./tools/request-scope";
 export { enableBrushyDebug, getBrushyDebug } from "./tools/debug";
 export type { BrushyDebugAPI } from "./tools/debug";
 
-export { createToken } from "./types/tokens";
+export { createToken, deps } from "./types/tokens";
 export type {
   Token,
   Lifecycle,

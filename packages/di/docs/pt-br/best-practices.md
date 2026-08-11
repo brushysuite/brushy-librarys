@@ -16,6 +16,23 @@ const USER_SERVICE = Symbol("USER_SERVICE");
 const USER_SERVICE = "USER_SERVICE";
 ```
 
+### Use `createToken` para Inferência de Tipos
+
+Prefira `createToken<T>()` em vez de `Symbol` puro quando quiser inferência em `register`, `resolve`, `useInject` e `dependencies` de factories:
+
+```typescript
+import { createToken, deps } from "@brushy/di";
+
+const LOGGER = createToken<Logger>("LOGGER");
+const USER_SERVICE = createToken<UserService>("USER_SERVICE");
+
+container.register(USER_SERVICE, {
+  useFactory: (logger) => new UserService(logger),
+  dependencies: deps([LOGGER]),
+  lifecycle: "scoped",
+});
+```
+
 ### Centralize a Definição de Tokens
 
 Mantenha todos os tokens em um local centralizado:
@@ -105,12 +122,20 @@ container.register(APP_STORE, {
 ### Limpe Recursos Adequadamente
 
 ```typescript
-// Em aplicações web, limpe o escopo de requisição após cada requisição
+// Node.js — recomendado: middleware ALS (cleanup em finish/close)
+import { server } from "@brushy/di";
+app.use(server.brushyRequestScope());
+
+// Ou envolva trabalho fora de HTTP
+import { runInRequestScope } from "@brushy/di";
+runInRequestScope(() => {
+  const svc = container.resolve(REQUEST_CONTEXT);
+});
+
+// Cleanup manual quando ALS não está disponível
 app.use((req, res, next) => {
-  // Processar requisição
   next();
-  // Após a resposta ser enviada
-  container.clearRequestScope();
+  res.on("finish", () => container.clearRequestScope());
 });
 
 // Use o coletor de lixo para limpar instâncias não utilizadas

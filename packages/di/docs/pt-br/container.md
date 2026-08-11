@@ -43,6 +43,31 @@ const container = new Container({
 });
 ```
 
+## Tokens Tipados e Dependências de Factory
+
+Use `createToken<T>()` para inferência automática em `register` e `resolve`. Em factories, envolva `dependencies` com `deps()` para tipar os argumentos:
+
+```typescript
+import { Container, createToken, deps } from "@brushy/di";
+
+const LOGGER = createToken<Logger>("LOGGER");
+const USER_SERVICE = createToken<UserService>("USER_SERVICE");
+
+const container = new Container();
+
+container.register(LOGGER, { useClass: Logger });
+
+container.register(USER_SERVICE, {
+  useFactory: (logger) => new UserService(logger),
+  dependencies: deps([LOGGER]), // logger: Logger
+  lifecycle: "scoped",
+});
+
+const userService = container.resolve(USER_SERVICE); // UserService — sem generic manual
+```
+
+Tokens legados (`string` / `Symbol`) ainda funcionam, mas exigem generic explícito: `container.resolve<UserService>("USER_SERVICE")`.
+
 ## API
 
 ### Registro de Dependências

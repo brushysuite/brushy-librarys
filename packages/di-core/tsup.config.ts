@@ -8,6 +8,7 @@ export default defineConfig({
     resolve: "src/entries/resolve.ts",
     inject: "src/entries/inject.ts",
     server: "src/entries/server.ts",
+    "request-scope": "src/entries/request-scope.ts",
   },
   format: ["cjs", "esm"],
   dts: true,

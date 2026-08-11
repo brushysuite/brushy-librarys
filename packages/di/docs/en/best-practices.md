@@ -16,6 +16,23 @@ const USER_SERVICE = Symbol("USER_SERVICE");
 const USER_SERVICE = "USER_SERVICE";
 ```
 
+### Use `createToken` for Type Inference
+
+Prefer `createToken<T>()` over raw `Symbol` when you want inference in `register`, `resolve`, `useInject`, and factory `dependencies`:
+
+```typescript
+import { createToken, deps } from "@brushy/di";
+
+const LOGGER = createToken<Logger>("LOGGER");
+const USER_SERVICE = createToken<UserService>("USER_SERVICE");
+
+container.register(USER_SERVICE, {
+  useFactory: (logger) => new UserService(logger),
+  dependencies: deps([LOGGER]),
+  lifecycle: "scoped",
+});
+```
+
 ### Centralize Token Definition
 
 Keep all tokens in a centralized location:
@@ -105,12 +122,20 @@ container.register(APP_STORE, {
 ### Clean Up Resources Properly
 
 ```typescript
-// In web applications, clean up the request scope after each request
+// Node.js — recommended: ALS middleware (cleans up on finish/close)
+import { server } from "@brushy/di";
+app.use(server.brushyRequestScope());
+
+// Or wrap non-HTTP work
+import { runInRequestScope } from "@brushy/di";
+runInRequestScope(() => {
+  const svc = container.resolve(REQUEST_CONTEXT);
+});
+
+// Manual cleanup when ALS is not available
 app.use((req, res, next) => {
-  // Process request
   next();
-  // After response is sent
-  container.clearRequestScope();
+  res.on("finish", () => container.clearRequestScope());
 });
 
 // Use garbage collector to clean up unused instances

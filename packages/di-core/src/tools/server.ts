@@ -1,8 +1,18 @@
 import { Container } from "../core/container";
 import { Token } from "../types";
 import type { InjectionToken } from "../types/tokens";
+import {
+  brushyRequestScope as createBrushyRequestScope,
+  type BrushyRequestScopeOptions,
+} from "./request-scope";
 
 let serverContainer: Container | null = null;
+
+type MiddlewareHandler = (
+  req: { on?: (event: string, fn: () => void) => void },
+  res: { on?: (event: string, fn: () => void) => void },
+  next: (error?: unknown) => void,
+) => void;
 
 interface ServerAPI {
   setServerContainer(container: Container): void;
@@ -16,6 +26,7 @@ interface ServerAPI {
   ): Promise<InstanceType<C>>;
   resolveAsync<T>(token: Token): Promise<T>;
   clearRequestScope(): void;
+  brushyRequestScope(options?: Omit<BrushyRequestScopeOptions, "container">): MiddlewareHandler;
 }
 
 export const server: ServerAPI = {
@@ -42,5 +53,14 @@ export const server: ServerAPI = {
 
   clearRequestScope: (): void => {
     server.getServerContainer().clearRequestScope();
+  },
+
+  brushyRequestScope: (
+    options: Omit<BrushyRequestScopeOptions, "container"> = {},
+  ): MiddlewareHandler => {
+    return createBrushyRequestScope({
+      ...options,
+      container: server.getServerContainer(),
+    });
   },
 };

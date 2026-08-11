@@ -1,21 +1,36 @@
-export type Token = string | symbol | Function;
+import type {
+  ValueProviderConfig,
+  FactoryProviderConfig,
+  ClassProviderConfig,
+  ProviderConfigBase,
+  Token,
+  Lifecycle,
+} from "./tokens";
 
-export type Lifecycle = "singleton" | "transient" | "scoped" | "immutable";
+export type {
+  Token,
+  Lifecycle,
+  InjectionToken,
+  ResolveType,
+  InferProviderType,
+  InferDependencies,
+  FactoryProviderConfig,
+  ClassProviderConfig,
+  ValueProviderConfig,
+  ProviderConfigBase,
+} from "./tokens";
+export { createToken, deps } from "./tokens";
 
-export interface ProviderConfig<T = unknown> {
-  useClass?: new (...args: any[]) => T;
-  useFactory?: (...args: any[]) => T;
-  useValue?: T;
-  lifecycle?: Lifecycle;
-  ttl?: number;
-  promiseTtl?: number;
-  observable?: {
-    subscribe: (callback: (value: T) => void) => () => void;
-    unsubscribe: () => void;
-  };
-  lazy?: boolean;
-  dependencies?: Token[];
-}
+export type ProviderConfig<T = unknown> =
+  | ValueProviderConfig<T>
+  | FactoryProviderConfig<T, readonly Token[]>
+  | ClassProviderConfig<T, readonly Token[]>
+  | (ProviderConfigBase & {
+      useClass?: new (...args: any[]) => T;
+      useFactory?: (...args: any[]) => T;
+      useValue?: T;
+      dependencies?: Token[];
+    });
 
 export interface InstanceWrapper {
   instance: any;
@@ -47,13 +62,3 @@ export interface MonitorOptions {
   logToConsole?: boolean;
   maxEvents?: number;
 }
-
-export type {
-  InjectionToken,
-  ResolveType,
-  InferProviderType,
-  InferDependencies,
-  FactoryProviderConfig,
-  ClassProviderConfig,
-} from "./tokens";
-export { createToken } from "./tokens";

@@ -15,9 +15,12 @@ import { useInject } from "@brushy/di";
 ### Uso Básico
 
 ```typescript
+import { createToken, useInject } from "@brushy/di";
+
+const USER_SERVICE = createToken<UserService>("USER_SERVICE");
+
 function UserList() {
-  // Injetar o serviço de usuários
-  const userService = useInject<UserService>('USER_SERVICE');
+  const userService = useInject(USER_SERVICE); // tipo inferido — sem <UserService>
 
   // Usar o serviço
   const [users, setUsers] = useState([]);
@@ -40,7 +43,7 @@ function UserList() {
 
 ```typescript
 // Com opções
-const userService = useInject<UserService>("USER_SERVICE", {
+const userService = useInject(USER_SERVICE, {
   // Desativar cache de promessas
   cachePromises: false,
 
@@ -55,7 +58,7 @@ Por padrão, o `useInject` cria um proxy em torno do serviço injetado que autom
 
 ```typescript
 function UserProfile({ userId }) {
-  const userService = useInject<UserService>('USER_SERVICE');
+  const userService = useInject(USER_SERVICE);
 
   // Esta promessa será cacheada automaticamente
   const user = use(userService.getUserById(userId));
@@ -143,14 +146,15 @@ function App() {
 import {
   Container,
   BrushyDIProvider,
+  createToken,
   useInject,
   useInjectLazy,
 } from "@brushy/di";
 import { useState, useEffect } from "react";
 
 // Tokens
-const USER_SERVICE = Symbol("USER_SERVICE");
-const ANALYTICS_SERVICE = Symbol("ANALYTICS_SERVICE");
+const USER_SERVICE = createToken<UserService>("USER_SERVICE");
+const ANALYTICS_SERVICE = createToken<AnalyticsService>("ANALYTICS_SERVICE");
 
 // Serviços
 class UserService {
@@ -172,9 +176,9 @@ container.register(ANALYTICS_SERVICE, { useClass: AnalyticsService });
 
 // Componente
 function UserList() {
-  const userService = useInject<UserService>(USER_SERVICE);
+  const userService = useInject(USER_SERVICE);
   const [analyticsService, loadAnalytics] =
-    useInjectLazy<AnalyticsService>(ANALYTICS_SERVICE);
+    useInjectLazy(ANALYTICS_SERVICE);
   const [users, setUsers] = useState([]);
 
   useEffect(() => {

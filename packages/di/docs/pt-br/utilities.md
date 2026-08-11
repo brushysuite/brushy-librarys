@@ -59,6 +59,43 @@ const auth = resolve(appModule.tokens.auth); // AuthService
 
 Tokens legados (`Symbol` / `string`) continuam funcionando, mas exigem genérico manual: `resolve<MyType>(TOKEN)`.
 
+## Escopo de Requisição (AsyncLocalStorage)
+
+Em Node.js, `@brushy/di` vincula o escopo ativo da requisição HTTP com `AsyncLocalStorage`. Dependências scoped são resolvidas automaticamente dentro desse escopo.
+
+### Importação
+
+```typescript
+import {
+  runInRequestScope,
+  runInRequestScopeAsync,
+  brushyRequestScope,
+  isRequestScopeSupported,
+  server,
+} from "@brushy/di";
+```
+
+### Middleware Express
+
+```typescript
+app.use(server.brushyRequestScope());
+// resolve() / inject.resolve() usam o escopo ativo — sem argumento scope manual
+```
+
+### Scripts e testes
+
+```typescript
+runInRequestScope(() => {
+  const svc = resolve(USER_SERVICE);
+});
+
+await runInRequestScopeAsync(async () => {
+  await resolveAsync(DATABASE);
+});
+```
+
+Use `isRequestScopeSupported()` para detectar ALS em Node.js. Em React Native, passe `scope` explícito em `InjectOptions` ou use o contexto de `BrushyDIProvider`.
+
 ## resolve
 
 A função `resolve` permite resolver dependências de forma global, sem precisar acessar diretamente o container.
