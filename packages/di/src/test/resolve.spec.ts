@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { Container, resolve, server } from "../index";
-import { containerRegistry } from "../lib";
+import { Container, resolve, server, containerRegistry } from "../index";
 
 describe("Resolve", () => {
   let container: Container;
