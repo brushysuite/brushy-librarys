@@ -16,6 +16,9 @@ export { inject } from "./tools/inject";
 export { cache } from "./tools/cache";
 export { defineModule } from "./tools/module";
 export type { DefinedModule } from "./tools/module";
+export { createBrushyApp } from "./tools/bootstrap";
+export { enableBrushyDebug, getBrushyDebug } from "./tools/debug";
+export type { BrushyDebugAPI } from "./tools/debug";
 
 export { createToken } from "./types/tokens";
 export type {
@@ -30,4 +33,7 @@ export type {
   InjectionToken,
   ResolveType,
   InferProviderType,
+  InferDependencies,
+  FactoryProviderConfig,
+  ClassProviderConfig,
 } from "./types";

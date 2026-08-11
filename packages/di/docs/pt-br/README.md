@@ -61,7 +61,7 @@ O Container é o componente central do sistema de injeção de dependências. El
 
 ### [Hooks React](./react-hooks.md)
 
-Hooks React para facilitar a injeção de dependências em componentes funcionais, incluindo `useInject` e `useLazyInject`.
+Hooks React para facilitar a injeção de dependências em componentes funcionais, incluindo `useInject` e `useInjectLazy`.
 
 ### [Injeção de Componentes](./component-injection.md)
 

@@ -3,7 +3,7 @@ import {
   Container,
   BrushyDIProvider,
   useInject,
-  useLazyInject,
+  useInjectLazy,
   server,
 } from "../index";
 import {
@@ -695,14 +695,12 @@ describe("E2E - React Hooks", () => {
     });
 
     const LazyComponent = () => {
-      const [loaded, setLoaded] = useState(false);
-      const [service, loadService] =
-        useLazyInject<ReportGenerator>(REPORT_GENERATOR);
+      const service = useInjectLazy<ReportGenerator>(REPORT_GENERATOR);
+      const [report, setReport] = useState("");
 
       const handleLoad = async () => {
         resolveInit();
-        loadService();
-        setLoaded(true);
+        setReport(service.generateReport({ test: "data" }));
       };
 
       return (
@@ -710,11 +708,7 @@ describe("E2E - React Hooks", () => {
           <button data-testid="load-button" onClick={handleLoad}>
             Load Service
           </button>
-          {loaded && service && (
-            <div data-testid="report">
-              {service.generateReport({ test: "data" })}
-            </div>
-          )}
+          {report && <div data-testid="report">{report}</div>}
         </div>
       );
     };

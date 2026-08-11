@@ -1,43 +1,39 @@
 {
-  "name": "@brushy/di-monitor",
+  "name": "@brushy/di-otel",
   "version": "2.0.0",
-  "description": "Container monitoring utilities for @brushy/di-core",
+  "description": "OpenTelemetry hooks for @brushy/di-core resolve tracing",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "dist/index.d.ts",
   "sideEffects": false,
-  "react-native": "./dist/index.mjs",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
       "require": "./dist/index.js"
-    },
-    "./package.json": "./package.json"
+    }
   },
   "files": ["dist", "README.md"],
   "scripts": {
     "build": "tsup",
-    "dev": "tsup --watch",
-    "clean": "rm -rf dist .turbo node_modules",
     "check-types": "tsc --noEmit",
     "test": "vitest run",
     "prepublishOnly": "npm run build"
   },
-  "keywords": ["dependency-injection", "di", "monitoring", "observability"],
+  "keywords": ["dependency-injection", "opentelemetry", "tracing"],
   "author": "Gustavo Franco <contact@gfrancodev.com>",
   "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/brushysuite/brushy-librarys.git",
-    "directory": "packages/di-monitor"
-  },
-  "homepage": "https://brushysuite.gfrancodev.com/docs/di",
   "dependencies": {
     "@brushy/di-core": "*"
   },
+  "peerDependencies": {
+    "@opentelemetry/api": ">=1.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@opentelemetry/api": { "optional": true }
+  },
   "devDependencies": {
-    "@types/node": "^22.13.9",
+    "@opentelemetry/api": "^1.9.0",
     "tsup": "^8.4.0",
     "typescript": "5.8.2",
     "vitest": "^3.2.7"

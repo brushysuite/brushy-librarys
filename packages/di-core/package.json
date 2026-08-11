@@ -1,6 +1,6 @@
 {
   "name": "@brushy/di-core",
-  "version": "1.0.4",
+  "version": "2.0.0",
   "description": "Zero-dependency DI core for Node, browser and React Native",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",

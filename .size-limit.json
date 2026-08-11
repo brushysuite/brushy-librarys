@@ -1,0 +1,14 @@
+[
+  {
+    "path": "packages/di-core/dist/index.mjs",
+    "limit": "36 KB"
+  },
+  {
+    "path": "packages/di-react/dist/index.mjs",
+    "limit": "10 KB"
+  },
+  {
+    "path": "packages/di-monitor/dist/index.mjs",
+    "limit": "4 KB"
+  }
+]

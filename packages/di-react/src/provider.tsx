@@ -1,16 +1,20 @@
+import type { FC, ReactNode } from "react";
 import { useMemo } from "react";
-import { Container } from "@brushy/di-core";
+import { Container, type ProviderConfig } from "@brushy/di-core";
+import type { DefinedModule } from "@brushy/di-core";
 import { DIContext, registerReactContainer, ROOT_SCOPE } from "./context";
 
-export const BrushyDIProvider: React.FC<{
+export const BrushyDIProvider: FC<{
   container: Container;
-  children: React.ReactNode;
+  children: ReactNode;
   scope?: object;
-}> = ({ container, children, scope = ROOT_SCOPE }) => {
+  module?: DefinedModule<Record<string, ProviderConfig>>;
+}> = ({ container, children, scope = ROOT_SCOPE, module }) => {
   const value = useMemo(() => {
+    if (module) module.register(container);
     registerReactContainer(scope, container);
     return container;
-  }, [container, scope]);
+  }, [container, scope, module]);
 
   return <DIContext.Provider value={value}>{children}</DIContext.Provider>;
 };

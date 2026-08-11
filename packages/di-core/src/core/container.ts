@@ -1,5 +1,9 @@
 import { ProviderConfig, Token } from "../types";
-import type { InjectionToken } from "../types/tokens";
+import type {
+  InjectionToken,
+  FactoryProviderConfig,
+  ClassProviderConfig,
+} from "../types/tokens";
 import { IS_DEV } from "./constants";
 import { DependencyRegistry } from "./dependency-registry";
 import { DependencyResolver } from "./dependency-resolver";
@@ -119,6 +123,14 @@ export class Container {
   }
 
   register<T>(token: InjectionToken<T>, config: ProviderConfig<T>): void;
+  register<T, D extends readonly Token[]>(
+    token: InjectionToken<T>,
+    config: FactoryProviderConfig<T, D>,
+  ): void;
+  register<T, D extends readonly Token[]>(
+    token: InjectionToken<T>,
+    config: ClassProviderConfig<T, D>,
+  ): void;
   register<C extends abstract new (...args: any[]) => any>(
     token: C,
     config: ProviderConfig<InstanceType<C>>,

@@ -1,0 +1,8 @@
+{
+  "entryPoints": ["../di-core/src/index.ts", "../di-react/src/index.ts"],
+  "out": "api-reference",
+  "name": "@brushy/di",
+  "readme": "en/README.md",
+  "excludeExternals": true,
+  "excludePrivate": true
+}

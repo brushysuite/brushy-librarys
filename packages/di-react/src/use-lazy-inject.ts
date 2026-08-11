@@ -1,8 +1,7 @@
-import { useMemo, useRef, useState, useCallback } from "react";
+import { useMemo, useRef } from "react";
 import { DependencyError } from "@brushy/di-core";
 import type { InjectOptions, Token } from "@brushy/di-core";
 import type { InjectionToken } from "@brushy/di-core";
-import { useInject } from "./use-inject";
 import { useDIContainer } from "./context";
 
 export function useInjectLazy<T extends object>(
@@ -62,22 +61,4 @@ export function useInjectLazy<T extends object>(
       }),
     [container, token],
   );
-}
-
-/** @deprecated Use useInjectLazy */
-export function useLazyInject<T>(
-  token: Token,
-  options?: InjectOptions,
-): [T | undefined, () => void] {
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [instance, setInstance] = useState<T | undefined>(undefined);
-  const service = useInject<T>(token, { ...options, cachePromises: false });
-
-  const load = useCallback(() => {
-    if (isLoaded) return;
-    setInstance(service);
-    setIsLoaded(true);
-  }, [service, isLoaded]);
-
-  return [instance, load];
 }

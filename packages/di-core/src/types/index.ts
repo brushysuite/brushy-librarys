@@ -2,10 +2,10 @@ export type Token = string | symbol | Function;
 
 export type Lifecycle = "singleton" | "transient" | "scoped" | "immutable";
 
-export interface ProviderConfig<T = any> {
+export interface ProviderConfig<T = unknown> {
   useClass?: new (...args: any[]) => T;
   useFactory?: (...args: any[]) => T;
-  useValue?: any;
+  useValue?: T;
   lifecycle?: Lifecycle;
   ttl?: number;
   promiseTtl?: number;
@@ -52,5 +52,8 @@ export type {
   InjectionToken,
   ResolveType,
   InferProviderType,
+  InferDependencies,
+  FactoryProviderConfig,
+  ClassProviderConfig,
 } from "./tokens";
 export { createToken } from "./tokens";

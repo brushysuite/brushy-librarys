@@ -1,103 +1,48 @@
-# @brushy/di - Dependency Injection System
+# @brushy/di — Dependency Injection
 
-## Official Documentation
+## Documentation
 
-- [Introduction and Basic Concepts](./README.md)
+- [Introduction](./README.md)
+- [Migration v2](./migration-v2.md)
 - [Container](./container.md)
 - [React Hooks](./react-hooks.md)
 - [Component Injection](./component-injection.md)
-- [Utility Functions](./utilities.md)
-- [Server Utilities](./server.md)
+- [Utilities](./utilities.md)
+- [Server](./server.md)
 - [Best Practices](./best-practices.md)
 
-## Main Exports
+## Packages (v2)
 
-`@brushy/di` exports the following functionalities:
+| Package | Description |
+|---------|-------------|
+| `@brushy/di` | Umbrella — installs all sub-packages |
+| `@brushy/di-core` | Zero-dependency core |
+| `@brushy/di-react` | React / React Native |
+| `@brushy/di-monitor` | Optional monitoring |
 
-```typescript
-// Main Class
-export { Container } from "./core/container";
-
-// Utility Functions
-export { resolve } from "./lib/tools/resolve";
-export { cache } from "./lib/tools/cache";
-export { inject } from "./lib/tools/inject";
-export { monitor } from "./lib/tools/monitor";
-export { server } from "./lib/tools/server";
-
-// React Hooks
-export { useInject } from "./lib/tools/use-inject";
-export { useLazyInject } from "./lib/tools/use-lazy-inject";
-
-// Component Injection
-export {
-  useInjectComponent,
-  registerComponent,
-  createComponentsProvider,
-} from "./lib/tools/inject-component";
-
-// React Provider
-export { BrushyDIProvider } from "./lib/web/index";
-```
-
-## Quick Guide
-
-### Create a Container
+## Main exports
 
 ```typescript
-import { Container } from "@brushy/di";
-
-const container = new Container({
-  providers: [
-    {
-      provide: "HTTP_CLIENT",
-      useClass: HttpClient,
-    },
-    {
-      provide: "CONFIG",
-      useValue: { apiUrl: "https://api.example.com" },
-    },
-  ],
-});
+import {
+  Container,
+  createToken,
+  defineModule,
+  createBrushyApp,
+  resolve,
+  inject,
+  server,
+  cache,
+  monitor,
+  useInject,
+  useInjectLazy,
+  BrushyDIProvider,
+} from "@brushy/di";
 ```
 
-### Resolve Dependencies
+Granular imports:
 
 ```typescript
-const httpClient = container.resolve("HTTP_CLIENT");
-```
-
-### Use in React Components
-
-```tsx
-import { BrushyDIProvider, useInject } from "@brushy/di";
-
-function App() {
-  return (
-    <BrushyDIProvider container={container}>
-      <UserList />
-    </BrushyDIProvider>
-  );
-}
-
-function UserList() {
-  const userService = useInject("USER_SERVICE");
-  // ...
-}
-```
-
-### Inject Components
-
-```tsx
-import { useInjectComponent } from "@brushy/di";
-
-const Button = useInjectComponent("BUTTON_COMPONENT");
-
-function App() {
-  return (
-    <div>
-      <Button variant="primary">Click Here</Button>
-    </div>
-  );
-}
+import { Container, createToken } from "@brushy/di/core";
+import { useInject } from "@brushy/di/react";
+import { monitor } from "@brushy/di/monitor";
 ```

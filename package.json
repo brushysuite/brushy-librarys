@@ -11,22 +11,30 @@
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types",
-    "test": "turbo run test --filter=@brushy/*",
-    "test:coverage": "turbo run test:coverage --filter=@brushy/*",
+    "test": "turbo run test --filter='@brushy/di*'",
+    "test:coverage": "turbo run test:coverage --filter='@brushy/di*'",
+    "size-limit": "size-limit",
+    "publint": "publint packages/di-core packages/di-react packages/di-monitor packages/di",
+    "check:boundaries": "depcruise packages/di-core/src --config .dependency-cruiser.cjs",
     "changeset": "npx changeset",
     "version-packages": "npx changeset version",
     "release": "npm run build-packages && changeset publish"
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.1",
+    "dependency-cruiser": "^16.9.0",
     "jsdom": "^26.0.0",
     "prettier": "^3.5.3",
+    "publint": "^0.3.12",
+    "size-limit": "^11.2.0",
+    "@size-limit/file": "^11.2.0",
     "turbo": "^2.10.4",
     "typescript": "5.8.2"
   },
   "engines": {
     "node": ">=18"
   },
+  "packageManager": "npm@10.9.2",
   "workspaces": [
     "apps/*",
     "packages/*"

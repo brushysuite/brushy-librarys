@@ -6,7 +6,7 @@ export {
   DIContext,
 } from "./context";
 export { useInject } from "./use-inject";
-export { useLazyInject, useInjectLazy } from "./use-lazy-inject";
+export { useInjectLazy } from "./use-lazy-inject";
 export {
   useInjectComponent,
   registerComponent,

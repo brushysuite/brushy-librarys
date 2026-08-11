@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Check types
+        run: npm run check-types -- --filter='@brushy/di*'
+
+      - name: Test
+        run: npm run test -- --filter='@brushy/di*'
+
+      - name: Build
+        run: npm run build-packages
+
+      - name: Size limit
+        run: npm run size-limit --if-present
+
+      - name: Publint
+        run: npm run publint --if-present
+
+      - name: React Native smoke
+        run: node scripts/check-react-native.mjs
+
+      - name: Dependency boundaries
+        run: npm run check:boundaries --if-present

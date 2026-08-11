@@ -188,11 +188,11 @@ function UserProfile({ userId }) {
 
 ### Lazy Loading
 
-Use `useLazyInject` para carregar dependências pesadas apenas quando necessário:
+Use `useInjectLazy` para carregar dependências pesadas apenas quando necessário:
 
 ```tsx
 function ReportPage() {
-  const [reportService, loadReportService] = useLazyInject(REPORT_SERVICE);
+  const [reportService, loadReportService] = useInjectLazy(REPORT_SERVICE);
 
   const generateReport = () => {
     loadReportService();

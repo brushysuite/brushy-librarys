@@ -1,0 +1,19 @@
+{
+  "name": "@brushy/di-bench",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Benchmarks for @brushy/di-core",
+  "type": "module",
+  "scripts": {
+    "bench": "node dist/bench.mjs",
+    "build": "tsup",
+    "prebench": "npm run build"
+  },
+  "dependencies": {
+    "@brushy/di-core": "*"
+  },
+  "devDependencies": {
+    "tsup": "^8.4.0",
+    "typescript": "5.8.2"
+  }
+}

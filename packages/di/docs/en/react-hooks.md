@@ -64,14 +64,14 @@ function UserProfile({ userId }) {
 }
 ```
 
-## useLazyInject
+## useInjectLazy
 
-The `useLazyInject` hook allows loading dependencies on demand, useful for performance optimization.
+The `useInjectLazy` hook allows loading dependencies on demand, useful for performance optimization.
 
 ### Import
 
 ```typescript
-import { useLazyInject } from "@brushy/di";
+import { useInjectLazy } from "@brushy/di";
 ```
 
 ### Basic Usage
@@ -79,7 +79,7 @@ import { useLazyInject } from "@brushy/di";
 ```typescript
 function ReportGenerator() {
   // The service will only be loaded when needed
-  const [reportService, loadReportService] = useLazyInject<ReportService>('REPORT_SERVICE');
+  const [reportService, loadReportService] = useInjectLazy<ReportService>('REPORT_SERVICE');
   const [report, setReport] = useState(null);
 
   const generateReport = async () => {
@@ -105,7 +105,7 @@ function ReportGenerator() {
 
 ```typescript
 // With options
-const [reportService, loadReportService] = useLazyInject<ReportService>(
+const [reportService, loadReportService] = useInjectLazy<ReportService>(
   "REPORT_SERVICE",
   {
     scope: requestScope,
@@ -144,7 +144,7 @@ import {
   Container,
   BrushyDIProvider,
   useInject,
-  useLazyInject,
+  useInjectLazy,
 } from "@brushy/di";
 import { useState, useEffect } from "react";
 
@@ -174,7 +174,7 @@ container.register(ANALYTICS_SERVICE, { useClass: AnalyticsService });
 function UserList() {
   const userService = useInject<UserService>(USER_SERVICE);
   const [analyticsService, loadAnalytics] =
-    useLazyInject<AnalyticsService>(ANALYTICS_SERVICE);
+    useInjectLazy<AnalyticsService>(ANALYTICS_SERVICE);
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
