@@ -43,3 +43,6 @@ jobs:
 
       - name: Dependency boundaries
         run: npm run check:boundaries --if-present
+
+      - name: Bench smoke
+        run: npm run bench:quick --if-present

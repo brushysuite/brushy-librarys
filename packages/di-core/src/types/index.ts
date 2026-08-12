@@ -11,6 +11,7 @@ export type {
   Token,
   Lifecycle,
   InjectionToken,
+  UntypedInjectionToken,
   ResolveType,
   InferProviderType,
   InferDependencies,

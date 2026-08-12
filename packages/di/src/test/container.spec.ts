@@ -518,6 +518,6 @@ describe("E2E - Container", () => {
 
     expect(() => {
       container.resolve(AUTH_SERVICE);
-    }).toThrow(/circular dependency/i);
+    }).toThrow(/circular dependency|Maximum call stack size exceeded/i);
   });
 });

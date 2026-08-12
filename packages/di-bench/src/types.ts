@@ -31,7 +31,7 @@ export type LibId = (typeof ALL_LIB_IDS)[number];
 
 export interface BenchScenario {
   setup(): void;
-  run(): void;
+  run(): number;
   teardown(): void;
 }
 
@@ -75,20 +75,37 @@ export interface BenchEnvironment {
     scenarios: string;
     libs: string;
   };
+  packageVersions?: Record<string, string>;
 }
 
 export interface AggregatedTaskMetrics extends TaskMetrics {
   throughputP50Mean?: number;
   throughputP50Sd?: number;
+  throughputCvPct?: number;
   vsBaselinePct?: number;
   vsBrushyPct?: number;
+  frameworkRank?: number;
+  frameworkIsTop1?: boolean;
+  frameworkIsTied?: boolean;
+  frameworkGapToSecondPct?: number;
+  /** @deprecated Use frameworkRank - baseline is not a DI competitor */
   rank?: number;
   speedupVsBaseline?: number;
+  gapToSecondPct?: number;
+  isTop1?: boolean;
+}
+
+export interface BenchReportMeta {
+  isPartialRun: boolean;
+  scenariosRun: ScenarioId[];
+  allScenariosExpected: boolean;
+  tieMarginPct: number;
 }
 
 export interface BenchReport {
   environment: BenchEnvironment;
   runs: number;
+  meta: BenchReportMeta;
   tasks: TaskMetrics[];
   aggregated: AggregatedTaskMetrics[];
 }

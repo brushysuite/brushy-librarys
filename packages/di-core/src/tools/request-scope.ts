@@ -1,4 +1,5 @@
 import type { Container } from "../core/container";
+import { containerRegistry } from "../registry";
 import {
   isRequestScopeSupported,
   runWithActiveScope,
@@ -9,8 +10,6 @@ export { isRequestScopeSupported, getActiveScope } from "./request-scope-store";
 
 function getDefaultContainer(): Container | undefined {
   try {
-    // Lazy import evita dependência circular com registry.ts
-    const { containerRegistry } = require("../registry") as typeof import("../registry");
     return containerRegistry.getContainer();
   } catch {
     return undefined;
@@ -45,11 +44,7 @@ export function runInRequestScope<T>(
   fn: () => T,
   options: RequestScopeOptions = {},
 ): T {
-  const useAls =
-    isRequestScopeSupported() &&
-    (options.scope !== undefined || options.container === undefined);
-
-  if (!useAls) {
+  if (!isRequestScopeSupported()) {
     try {
       return fn();
     } finally {
@@ -73,11 +68,7 @@ export async function runInRequestScopeAsync<T>(
   fn: () => Promise<T>,
   options: RequestScopeOptions = {},
 ): Promise<T> {
-  const useAls =
-    isRequestScopeSupported() &&
-    (options.scope !== undefined || options.container === undefined);
-
-  if (!useAls) {
+  if (!isRequestScopeSupported()) {
     try {
       return await fn();
     } finally {

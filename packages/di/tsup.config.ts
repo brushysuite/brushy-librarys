@@ -6,6 +6,7 @@ export default defineConfig({
     core: "src/core.ts",
     react: "src/react.ts",
     monitor: "src/monitor.ts",
+    otel: "src/otel.ts",
   },
   format: ["cjs", "esm"],
   dts: true,
@@ -18,5 +19,6 @@ export default defineConfig({
     "@brushy/di-core",
     "@brushy/di-react",
     "@brushy/di-monitor",
+    "@brushy/di-otel",
   ],
 });

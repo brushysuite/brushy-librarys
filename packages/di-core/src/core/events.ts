@@ -3,7 +3,7 @@ import { ContainerEvent } from "./container";
 type Listener = (event: ContainerEvent) => void;
 
 /**
- * Minimal event bus — works in Node, browser and React Native without EventTarget.
+ * Minimal event bus - works in Node, browser and React Native without EventTarget.
  */
 export class ContainerEventBus {
   private listeners = new Set<Listener>();

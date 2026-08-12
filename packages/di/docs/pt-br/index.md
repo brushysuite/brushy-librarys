@@ -1,7 +1,8 @@
-# @brushy/di — Injeção de Dependências
+# @brushy/di - Injeção de Dependências
 
 ## Documentação
 
+- [Primeiros passos](./getting-started.md)
 - [Introdução](./README.md)
 - [Migração v2](./migration-v2.md)
 - [Container](./container.md)
@@ -15,7 +16,7 @@
 
 | Pacote | Descrição |
 |--------|-----------|
-| `@brushy/di` | Umbrella — instala todos os sub-pacotes |
+| `@brushy/di` | Umbrella - instala todos os sub-pacotes |
 | `@brushy/di-core` | Core zero-deps |
 | `@brushy/di-react` | React / React Native |
 | `@brushy/di-monitor` | Monitoramento opcional |

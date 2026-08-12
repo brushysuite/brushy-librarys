@@ -13,6 +13,7 @@ import {
   NodeD,
   NodeE,
 } from "../fixtures/classes.js";
+import { consumeChecksum } from "../fixtures/checksum.js";
 import type { BenchAdapter, BenchScenario, ScenarioId } from "../types.js";
 
 @injectable()
@@ -79,16 +80,16 @@ class InversifyFactoryService extends FactoryService {
 }
 
 function bindDeepGraph(container: Container): void {
-  container.bind(InversifyNodeA).toSelf();
-  container.bind(InversifyNodeB).toSelf();
-  container.bind(InversifyNodeC).toSelf();
-  container.bind(InversifyNodeD).toSelf();
-  container.bind(InversifyNodeE).toSelf();
+  container.bind(InversifyNodeA).toSelf().inSingletonScope();
+  container.bind(InversifyNodeB).toSelf().inSingletonScope();
+  container.bind(InversifyNodeC).toSelf().inSingletonScope();
+  container.bind(InversifyNodeD).toSelf().inSingletonScope();
+  container.bind(InversifyNodeE).toSelf().inSingletonScope();
 }
 
 function bindWideGraph(container: Container): void {
   bindDeepGraph(container);
-  container.bind(InversifyHubService).toSelf();
+  container.bind(InversifyHubService).toSelf().inSingletonScope();
 }
 
 class InversifyScenario implements BenchScenario {
@@ -105,9 +106,9 @@ class InversifyScenario implements BenchScenario {
       case "singleton_cold":
         break;
       case "singleton_warm":
-        this.container.bind(InversifyBenchService).toSelf();
+        this.container.bind(InversifyBenchService).toSelf().inSingletonScope();
         for (let i = 0; i < 10_000; i++) {
-          this.container.get(InversifyBenchService);
+          consumeChecksum(this.container.get(InversifyBenchService));
         }
         break;
       case "transient":
@@ -120,9 +121,12 @@ class InversifyScenario implements BenchScenario {
         bindWideGraph(this.container);
         break;
       case "factory_deps":
-        this.container.bind(InversifyLogger).toSelf();
-        this.container.bind(InversifyConfig).toSelf();
-        this.container.bind(InversifyFactoryService).toSelf();
+        this.container.bind(InversifyLogger).toSelf().inSingletonScope();
+        this.container.bind(InversifyConfig).toSelf().inSingletonScope();
+        this.container.bind(InversifyFactoryService).toSelf().inSingletonScope();
+        for (let i = 0; i < 10_000; i++) {
+          consumeChecksum(this.container.get(InversifyFactoryService));
+        }
         break;
       case "register_batch":
         this.batchClasses = Array.from(
@@ -136,39 +140,34 @@ class InversifyScenario implements BenchScenario {
     }
   }
 
-  run(): void {
+  run(): number {
     const container = this.container!;
 
     switch (this.scenario) {
       case "singleton_cold": {
         const c = new Container();
-        c.bind(InversifyBenchService).toSelf();
-        c.get(InversifyBenchService);
-        break;
+        c.bind(InversifyBenchService).toSelf().inSingletonScope();
+        return consumeChecksum(c.get(InversifyBenchService));
       }
       case "singleton_warm":
-        container.get(InversifyBenchService);
-        break;
+        return consumeChecksum(container.get(InversifyBenchService));
       case "transient":
-        container.get(InversifyBenchService);
-        break;
+        return consumeChecksum(container.get(InversifyBenchService));
       case "deep_graph":
-        container.get(InversifyNodeE);
-        break;
+        return consumeChecksum(container.get(InversifyNodeE).d.c.b.a.value);
       case "wide_graph":
-        container.get(InversifyHubService);
-        break;
+        return consumeChecksum(container.get(InversifyHubService).e.d.c.b.a.value);
       case "factory_deps":
-        container.get(InversifyFactoryService);
-        break;
+        return consumeChecksum(container.get(InversifyFactoryService));
       case "register_batch": {
         const c = new Container();
         for (const cls of this.batchClasses) {
-          c.bind(cls).toSelf();
+          c.bind(cls).toSelf().inSingletonScope();
         }
-        break;
+        return consumeChecksum(BATCH_COUNT);
       }
     }
+    return 0;
   }
 
   teardown(): void {

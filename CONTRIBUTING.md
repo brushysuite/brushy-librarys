@@ -15,14 +15,15 @@ npm run test -- --filter='@brushy/di*'
 | `@brushy/di-core` | Zero-dependency DI core |
 | `@brushy/di-react` | React / React Native bindings |
 | `@brushy/di-monitor` | Optional observability |
-| `@brushy/di` | Umbrella re-exports |
+| `@brushy/di-otel` | Optional OpenTelemetry tracing |
+| `@brushy/di` | Umbrella re-exports (core + react + monitor + otel) |
 
 ## Pull Requests
 
 1. Branch from `main`
 2. Run `npm run check-types` and tests locally
 3. Add a changeset: `npm run changeset`
-4. Keep PRs focused — one concern per PR
+4. Keep PRs focused - one concern per PR
 
 ## Releases
 

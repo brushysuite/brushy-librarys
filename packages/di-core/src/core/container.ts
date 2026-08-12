@@ -1,11 +1,14 @@
-import { ProviderConfig, Token } from "../types";
+import { ProviderConfig, Token, InstanceWrapper } from "../types";
 import type {
   InjectionToken,
   FactoryProviderConfig,
   ClassProviderConfig,
+  ValueProviderConfig,
+  UntypedInjectionToken,
 } from "../types/tokens";
-import { IS_DEV } from "./constants";
-import { DependencyRegistry } from "./dependency-registry";
+import { isDev } from "./constants";
+import { DependencyError } from "./dependency-error";
+import { DependencyRegistry, type ProviderRecord } from "./dependency-registry";
 import { DependencyResolver } from "./dependency-resolver";
 import { LifecycleManager } from "./life-cycle-manager";
 import { ContainerEventBus } from "./events";
@@ -20,16 +23,42 @@ export interface ContainerEvent {
 
 export type ContainerObserver = (event: ContainerEvent) => void;
 
+export class ScopedContainer {
+  constructor(
+    private readonly container: Container,
+    private readonly scopeKey: object,
+    private readonly bucket: Map<Token, InstanceWrapper>,
+  ) {}
+
+  resolve<T>(token: InjectionToken<T>): T;
+  resolve<C extends abstract new (...args: any[]) => any>(
+    token: C,
+  ): InstanceType<C>;
+  resolve<T>(token: Token): T;
+  resolve<T>(token: Token): T {
+    return this.container.resolveInScope<T>(token, this.scopeKey, this.bucket);
+  }
+
+  dispose(): void {
+    this.container.clearScopedInstances(this.scopeKey);
+  }
+}
+
 export class Container {
   private readonly registry = new DependencyRegistry();
   private readonly resolver: DependencyResolver;
-  private readonly lifecycleManager: LifecycleManager;
-  private readonly events = new ContainerEventBus();
+  private lifecycleManager: LifecycleManager | null = null;
+  private events: ContainerEventBus | null = null;
+  private hasListeners = false;
   private readonly name: string;
   private readonly parent: Container | null;
+  /** Monomorphic last-hit cache for repeated resolve of the same token. */
+  private lastToken: Token | null = null;
+  private lastCached: unknown = null;
+  private lastHasCached = false;
 
   constructor({
-    providers = [],
+    providers,
     debug = false,
     name = "default",
     parent = null,
@@ -44,7 +73,6 @@ export class Container {
       dependencies?: Token[];
       promiseTtl?: number;
       observable?: ProviderConfig["observable"];
-      lazy?: boolean;
     }>;
     debug?: boolean;
     name?: string;
@@ -53,37 +81,49 @@ export class Container {
     this.name = name;
     this.parent = parent;
     this.resolver = new DependencyResolver(this.registry, debug);
-    this.lifecycleManager = new LifecycleManager(this.resolver);
 
-    for (const config of providers) {
-      this.register(config.provide, {
-        useClass: config.useClass,
-        useFactory: config.useFactory,
-        useValue: config.useValue,
-        lifecycle: config.lifecycle,
-        ttl: config.ttl,
-        dependencies: config.dependencies,
-        promiseTtl: config.promiseTtl,
-        observable: config.observable,
-        lazy: config.lazy,
-      });
-    }
-
-    if (this.events.hasListeners) {
-      this.emit({
-        type: "register",
-        details: { containerName: name, providersCount: providers.length },
-        timestamp: Date.now(),
-      });
+    if (providers !== undefined && providers.length > 0) {
+      for (const config of providers) {
+        this.register(config.provide, {
+          useClass: config.useClass,
+          useFactory: config.useFactory,
+          useValue: config.useValue,
+          lifecycle: config.lifecycle,
+          ttl: config.ttl,
+          dependencies: config.dependencies,
+          promiseTtl: config.promiseTtl,
+          observable: config.observable,
+        });
+      }
     }
   }
 
   observe(observer: ContainerObserver): () => void {
-    return this.events.subscribe(observer);
+    const unsubscribe = this.getEventBus().subscribe(observer);
+    this.hasListeners = true;
+    return () => {
+      unsubscribe();
+      this.hasListeners = this.events?.hasListeners ?? false;
+    };
+  }
+
+  private getLifecycleManager(): LifecycleManager {
+    if (!this.lifecycleManager) {
+      this.lifecycleManager = new LifecycleManager(this.resolver);
+    }
+    return this.lifecycleManager;
+  }
+
+  private getEventBus(): ContainerEventBus {
+    if (!this.events) {
+      this.events = new ContainerEventBus();
+    }
+    return this.events;
   }
 
   private emit(event: ContainerEvent): void {
-    this.events.emit(event);
+    if (!this.hasListeners) return;
+    this.getEventBus().emit(event);
   }
 
   private formatErrorMessage(error: unknown): string {
@@ -104,16 +144,18 @@ export class Container {
       }
     }
 
-    this.emit({
-      type: "import",
-      details: {
-        sourceContainer: container.getName(),
-        targetContainer: this.name,
-        providersCount: container.exportProviders().length,
-        options,
-      },
-      timestamp: Date.now(),
-    });
+    if (this.hasListeners) {
+      this.emit({
+        type: "import",
+        details: {
+          sourceContainer: container.getName(),
+          targetContainer: this.name,
+          providersCount: container.exportProviders().length,
+          options,
+        },
+        timestamp: Date.now(),
+      });
+    }
   }
 
   exportProviders(): Array<{ token: Token; config: ProviderConfig }> {
@@ -124,43 +166,59 @@ export class Container {
     return this.name;
   }
 
-  register<T>(token: InjectionToken<T>, config: ProviderConfig<T>): void;
+  register<TValue>(
+    token: UntypedInjectionToken,
+    config: ValueProviderConfig<TValue>,
+  ): InjectionToken<TValue>;
+  register<TValue>(
+    token: string | symbol,
+    config: ValueProviderConfig<TValue>,
+  ): InjectionToken<TValue>;
+  register<T>(token: InjectionToken<T>, config: ProviderConfig<T>): InjectionToken<T>;
   register<T, D extends readonly Token[]>(
     token: InjectionToken<T>,
     config: FactoryProviderConfig<T, D>,
-  ): void;
+  ): InjectionToken<T>;
   register<T, D extends readonly Token[]>(
     token: InjectionToken<T>,
     config: ClassProviderConfig<T, D>,
-  ): void;
+  ): InjectionToken<T>;
   register<C extends abstract new (...args: any[]) => any>(
     token: C,
     config: ProviderConfig<InstanceType<C>>,
-  ): void;
-  register<T>(token: Token, config: ProviderConfig<T>): void;
-  register<T>(token: Token, config: ProviderConfig<T>) {
+  ): InjectionToken<InstanceType<C>>;
+  register<T>(token: Token, config: ProviderConfig<T>): InjectionToken<T>;
+  register<T>(token: Token, config: ProviderConfig<T>): InjectionToken<T> {
     this.registry.register(token, config);
-    if (this.events.hasListeners) {
-      this.emit({
+    if (this.lastToken === token) {
+      this.lastToken = null;
+      this.lastHasCached = false;
+      this.lastCached = null;
+    }
+    if (this.hasListeners) {
+      this.getEventBus().emit({
         type: "register",
         token,
         details: { config },
         timestamp: Date.now(),
       });
     }
+    return token as InjectionToken<T>;
   }
 
   registerMany(entries: Array<{ token: Token; config: ProviderConfig }>): void {
     this.registry.registerMany(entries);
-    if (this.events.hasListeners) {
-      for (const { token, config } of entries) {
-        this.emit({
-          type: "register",
-          token,
-          details: { config },
-          timestamp: Date.now(),
-        });
-      }
+    if (!this.hasListeners) return;
+
+    const bus = this.getEventBus();
+    const timestamp = Date.now();
+    for (const { token, config } of entries) {
+      bus.emit({
+        type: "register",
+        token,
+        details: { config },
+        timestamp,
+      });
     }
   }
 
@@ -170,6 +228,35 @@ export class Container {
   ): InstanceType<C>;
   resolve<T>(token: Token): T;
   resolve<T>(token: Token): T {
+    if (!this.hasListeners) {
+      if (this.lastHasCached && this.lastToken === token) {
+        return this.lastCached as T;
+      }
+
+      const record = this.registry.getRecord(token);
+      if (record) {
+        if (record.isCached) {
+          this.lastToken = token;
+          this.lastCached = record.cached;
+          this.lastHasCached = true;
+          return record.cached as T;
+        }
+        if (record.isUseValue) {
+          const value = record.config.useValue;
+          this.lastToken = token;
+          this.lastCached = value;
+          this.lastHasCached = true;
+          return value as T;
+        }
+        this.lastHasCached = false;
+        return this.resolver.resolveWithRecord<T>(token, record);
+      }
+      if (this.parent) {
+        return this.parent.resolve<T>(token);
+      }
+      throw new DependencyError(`Token not registered: ${String(token)}`);
+    }
+
     try {
       let result: T;
       let source: "self" | "parent";
@@ -181,31 +268,27 @@ export class Container {
         result = this.parent.resolve<T>(token);
         source = "parent";
       } else {
-        throw new Error(`Token not registered: ${String(token)}`);
+        throw new DependencyError(`Token not registered: ${String(token)}`);
       }
 
-      if (this.events.hasListeners) {
-        this.emit({
-          type: "resolve",
-          token,
-          details: { success: true, source },
-          timestamp: Date.now(),
-        });
-      }
+      this.getEventBus().emit({
+        type: "resolve",
+        token,
+        details: { success: true, source },
+        timestamp: Date.now(),
+      });
 
       return result;
     } catch (error: unknown) {
-      if (this.events.hasListeners) {
-        this.emit({
-          type: "error",
-          token,
-          details: {
-            error,
-            message: error instanceof Error ? error.message : String(error),
-          },
-          timestamp: Date.now(),
-        });
-      }
+      this.getEventBus().emit({
+        type: "error",
+        token,
+        details: {
+          error,
+          message: error instanceof Error ? error.message : String(error),
+        },
+        timestamp: Date.now(),
+      });
       throw error;
     }
   }
@@ -217,11 +300,23 @@ export class Container {
   resolveAsync<T>(token: Token): Promise<T>;
   async resolveAsync<T>(token: Token): Promise<T> {
     try {
-      const result = await this.resolver.resolveAsync<T>(token);
+      let result: T;
+      let source: "self" | "parent";
+
+      if (this.registry.has(token)) {
+        result = await this.resolver.resolveAsync<T>(token);
+        source = "self";
+      } else if (this.parent) {
+        result = await this.parent.resolveAsync<T>(token);
+        source = "parent";
+      } else {
+        throw new DependencyError(`Token not registered: ${String(token)}`);
+      }
+
       this.emit({
         type: "resolve",
         token,
-        details: { success: true, async: true },
+        details: { success: true, async: true, source },
         timestamp: Date.now(),
       });
       return result;
@@ -242,23 +337,113 @@ export class Container {
 
   clearRequestScope(): void {
     this.resolver.clearRequestScope();
-    this.emit({
-      type: "clear",
-      details: { scope: "request" },
-      timestamp: Date.now(),
-    });
+    if (this.hasListeners) {
+      this.getEventBus().emit({
+        type: "clear",
+        details: { scope: "request" },
+        timestamp: Date.now(),
+      });
+    }
+  }
+
+  createScope(scopeKey?: object): ScopedContainer {
+    const key = scopeKey ?? Object.create(null);
+    const bucket = this.resolver.getOrCreateScopeBucket(key);
+    return new ScopedContainer(this, key, bucket);
+  }
+
+  resolveInScope<T>(token: InjectionToken<T>, scopeKey: object): T;
+  resolveInScope<C extends abstract new (...args: any[]) => any>(
+    token: C,
+    scopeKey: object,
+  ): InstanceType<C>;
+  resolveInScope<T>(token: Token, scopeKey: object): T;
+  resolveInScope<T>(
+    token: Token,
+    scopeKey: object,
+    bucket?: Map<Token, InstanceWrapper>,
+  ): T;
+  resolveInScope<T>(
+    token: Token,
+    scopeKey: object,
+    bucket?: Map<Token, InstanceWrapper>,
+  ): T {
+    if (!this.hasListeners) {
+      if (this.registry.has(token)) {
+        return this.resolver.resolveInScope<T>(token, scopeKey, bucket);
+      }
+      if (this.parent) {
+        return this.parent.resolveInScope<T>(token, scopeKey);
+      }
+      throw new DependencyError(`Token not registered: ${String(token)}`);
+    }
+
+    try {
+      let result: T;
+      let source: "self" | "parent";
+
+      if (this.registry.has(token)) {
+        result = this.resolver.resolveInScope<T>(token, scopeKey, bucket);
+        source = "self";
+      } else if (this.parent) {
+        result = this.parent.resolveInScope<T>(token, scopeKey, bucket);
+        source = "parent";
+      } else {
+        throw new DependencyError(`Token not registered: ${String(token)}`);
+      }
+
+      this.getEventBus().emit({
+        type: "resolve",
+        token,
+        details: { success: true, source, scoped: true },
+        timestamp: Date.now(),
+      });
+
+      return result;
+    } catch (error: unknown) {
+      this.getEventBus().emit({
+        type: "error",
+        token,
+        details: {
+          error,
+          message: error instanceof Error ? error.message : String(error),
+        },
+        timestamp: Date.now(),
+      });
+      throw error;
+    }
+  }
+
+  clearScopedInstances(scopeKey: object): void {
+    this.resolver.clearScopedInstances(scopeKey);
+    if (this.hasListeners) {
+      this.getEventBus().emit({
+        type: "clear",
+        details: { scope: scopeKey },
+        timestamp: Date.now(),
+      });
+    }
+  }
+
+  getOrCreateScopeBucket(scopeKey: object): Map<Token, InstanceWrapper> {
+    return this.resolver.getOrCreateScopeBucket(scopeKey);
   }
 
   startGarbageCollector(ttl = 60000, interval = 30000): void {
-    this.lifecycleManager.startGarbageCollector(ttl, interval);
+    this.getLifecycleManager().startGarbageCollector(ttl, interval);
   }
 
   stopGarbageCollector(): void {
-    this.lifecycleManager.stopGarbageCollector();
+    this.lifecycleManager?.stopGarbageCollector();
   }
 
   invalidateCache(token: Token): void {
     this.resolver.invalidateCache(token);
+    if (this.lastToken === token) {
+      this.lastToken = null;
+      this.lastHasCached = false;
+      this.lastCached = null;
+    }
   }
 
   getPromise<T>(
@@ -281,7 +466,7 @@ export class Container {
       }
 
       const isIntact = instances.get(token) === instance;
-      if (!isIntact && process.env.NODE_ENV !== "production") {
+      if (!isIntact && isDev()) {
         Logger.error(
           `Immutable integrity violated for ${Logger.formatToken(String(token))}`,
         );

@@ -8,6 +8,7 @@
   - [Table of Contents](#table-of-contents)
   - [Introduction](#introduction)
   - [Installation](#installation)
+  - [Getting Started](./getting-started.md)
   - [Basic Concepts](#basic-concepts)
   - [API Reference](#api-reference)
     - [Container](#container)
@@ -34,11 +35,9 @@
 
 ```bash
 npm install @brushy/di
-# or
-yarn add @brushy/di
-# or
-pnpm add @brushy/di
 ```
+
+Stack-specific installs and setup recipes: **[Getting Started](./getting-started.md)**.
 
 ## Basic Concepts
 

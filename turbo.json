@@ -29,6 +29,9 @@
     "publish": {
       "dependsOn": ["build"],
       "cache": false
+    },
+    "bench": {
+      "cache": false
     }
   }
 }

@@ -1,9 +1,10 @@
 import "reflect-metadata";
 import { mkdir } from "node:fs/promises";
 import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { Bench, type TaskResult } from "tinybench";
-import { getAdapters } from "./adapters/index.js";
+import { getAdapters, shuffleAdapters } from "./adapters/index.js";
+import { maybeGcBetweenTasks } from "./bench-gc.js";
 import { captureEnvironment } from "./env.js";
 import { buildReport } from "./metrics/aggregate.js";
 import { renderConsoleSummary } from "./report/markdown.js";
@@ -14,39 +15,43 @@ import {
   type ScenarioId,
   type TaskMetrics,
 } from "./types.js";
+import { getGlobalChecksum, resetGlobalChecksum } from "./fixtures/checksum.js";
 
 const TIME_MS = Number(process.env.BENCH_TIME_MS ?? 3000);
 const RUNS = Number(process.env.BENCH_RUNS ?? 5);
 const SCENARIOS_FILTER = process.env.BENCH_SCENARIOS ?? "all";
 const LIBS_FILTER = process.env.BENCH_LIBS ?? "all";
+const MAX_ITERATIONS = Number(process.env.BENCH_MAX_ITERATIONS ?? 1_000_000);
+const BATCH_SIZE = Number(process.env.BENCH_BATCH_SIZE ?? 1);
+const ADAPTER_SEED = Number(process.env.BENCH_ADAPTER_SEED ?? 42);
 
-function parseScenarios(): ScenarioId[] {
-  if (SCENARIOS_FILTER === "all") return ALL_SCENARIOS;
-  return SCENARIOS_FILTER.split(",").map((s) => s.trim()) as ScenarioId[];
+export function parseScenarios(filter: string = SCENARIOS_FILTER): ScenarioId[] {
+  if (filter === "all") return ALL_SCENARIOS;
+  return filter.split(",").map((s) => s.trim()) as ScenarioId[];
 }
 
-function medianMs(samples: number[]): number {
+export function medianMs(samples: number[]): number {
   if (samples.length === 0) return 0;
   const sorted = [...samples].sort((a, b) => a - b);
-  const mid = Math.floor(sorted.length / 2);
-  return sorted[mid];
+  return sorted[Math.floor(sorted.length / 2)]!;
 }
 
-function msToNs(ms: number): number {
+export function msToNs(ms: number): number {
   return ms * 1_000_000;
 }
 
-function hzFromPeriodMs(ms: number): number {
+export function hzFromPeriodMs(ms: number): number {
   return ms > 0 ? 1000 / ms : 0;
 }
 
-function extractMetrics(
+export function extractMetrics(
   taskName: string,
   result: TaskResult,
   runIndex: number,
+  adapters: BenchAdapter[],
 ): TaskMetrics {
   const [lib, scenario] = taskName.split("::") as [TaskMetrics["lib"], ScenarioId];
-  const adapter = getAdapters().find((a) => a.id === lib);
+  const adapter = adapters.find((a) => a.id === lib);
 
   if (result.error) {
     return {
@@ -93,7 +98,9 @@ function extractMetrics(
   };
 }
 
-async function runSuite(
+let checksumSink = 0;
+
+export async function runSuite(
   adapters: BenchAdapter[],
   scenarios: ScenarioId[],
   runIndex: number,
@@ -102,11 +109,11 @@ async function runSuite(
     time: TIME_MS,
     warmupTime: 500,
     warmupIterations: 1000,
-    iterations: 0,
+    iterations: MAX_ITERATIONS,
   });
 
-  for (const adapter of adapters) {
-    for (const scenario of scenarios) {
+  for (const scenario of scenarios) {
+    for (const adapter of adapters) {
       if (!adapter.supports(scenario)) continue;
 
       const scenarioRunner = adapter.createScenario(scenario);
@@ -115,11 +122,20 @@ async function runSuite(
       bench.add(
         taskName,
         () => {
-          scenarioRunner.run();
+          if (BATCH_SIZE <= 1) {
+            checksumSink += scenarioRunner.run();
+            return;
+          }
+          for (let i = 0; i < BATCH_SIZE; i++) {
+            checksumSink += scenarioRunner.run();
+          }
         },
         {
           beforeAll: () => scenarioRunner.setup(),
-          afterAll: () => scenarioRunner.teardown(),
+          afterAll: () => {
+            scenarioRunner.teardown();
+            maybeGcBetweenTasks();
+          },
         },
       );
     }
@@ -131,15 +147,16 @@ async function runSuite(
   const metrics: TaskMetrics[] = [];
   for (const task of bench.tasks) {
     if (!task.result) continue;
-    metrics.push(extractMetrics(task.name ?? "", task.result, runIndex));
+    metrics.push(extractMetrics(task.name ?? "", task.result, runIndex, adapters));
   }
 
+  checksumSink += getGlobalChecksum();
   return metrics;
 }
 
-async function main(): Promise<void> {
+export async function main(): Promise<void> {
   const scenarios = parseScenarios();
-  const adapters = getAdapters(LIBS_FILTER);
+  const baseAdapters = getAdapters(LIBS_FILTER, ADAPTER_SEED);
 
   const environment = captureEnvironment(
     TIME_MS,
@@ -148,22 +165,30 @@ async function main(): Promise<void> {
     LIBS_FILTER,
   );
 
-  console.log("DI Benchmark — Tier 1");
+  console.log("DI Benchmark - library comparison");
   console.log(
     `Node ${environment.node} | ${environment.platform} | runs=${RUNS} time=${TIME_MS}ms`,
   );
-  console.log(`Libs: ${adapters.map((a) => a.id).join(", ")}`);
+  console.log(`Libs: ${baseAdapters.map((a) => a.id).join(", ")}`);
   console.log(`Scenarios: ${scenarios.join(", ")}`);
+  if (scenarios.length < ALL_SCENARIOS.length) {
+    console.log(
+      `WARNING: partial scenario run - results will not overwrite full latest.*`,
+    );
+  }
 
   const allTasks: TaskMetrics[] = [];
+  resetGlobalChecksum();
 
   for (let run = 0; run < RUNS; run++) {
-    console.log(`\nRun ${run + 1}/${RUNS}...`);
+    const runSeed = ADAPTER_SEED + run;
+    const adapters = shuffleAdapters(baseAdapters, runSeed);
+    console.log(`\nRun ${run + 1}/${RUNS} (adapter seed ${runSeed})...`);
     const tasks = await runSuite(adapters, scenarios, run);
     allTasks.push(...tasks);
   }
 
-  const report = buildReport(environment, RUNS, allTasks);
+  const report = buildReport(environment, RUNS, allTasks, scenarios);
 
   const resultsDir = join(
     dirname(fileURLToPath(import.meta.url)),
@@ -172,11 +197,20 @@ async function main(): Promise<void> {
   );
   await mkdir(resultsDir, { recursive: true });
 
-  await writeReportArtifacts(report);
+  await writeReportArtifacts(report, scenarios);
   console.log(renderConsoleSummary(report));
+
+  if (checksumSink === 0 && allTasks.some((t) => !t.error)) {
+    console.warn("Checksum sink is zero - results may have been eliminated.");
+  }
 }
 
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+/* v8 ignore start */
+const entry = process.argv[1];
+if (entry && import.meta.url === pathToFileURL(entry).href) {
+  main().catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
+}
+/* v8 ignore stop */

@@ -8,6 +8,7 @@ O `@brushy/di` é um sistema de injeção de dependências poderoso e flexível 
   - [Índice](#índice)
   - [Introdução](#introdução)
   - [Instalação](#instalação)
+  - [Primeiros passos](./getting-started.md)
   - [Conceitos Básicos](#conceitos-básicos)
   - [API de Referência](#api-de-referência)
     - [Container](#container)
@@ -34,11 +35,9 @@ O `@brushy/di` foi projetado para facilitar a gestão de dependências em aplica
 
 ```bash
 npm install @brushy/di
-# ou
-yarn add @brushy/di
-# ou
-pnpm add @brushy/di
 ```
+
+Instalação por stack e receitas de setup: **[Primeiros passos](./getting-started.md)**.
 
 ## Conceitos Básicos
 

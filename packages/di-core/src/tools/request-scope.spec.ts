@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from "vitest";
+import { afterEach, describe, it, expect, vi } from "vitest";
 import { Container } from "../core/container";
 import { containerRegistry } from "../registry";
 import { resolve } from "./resolve";
@@ -10,8 +10,13 @@ import {
   isRequestScopeSupported,
 } from "./request-scope";
 import { createToken } from "../types/tokens";
+import * as requestScopeStore from "./request-scope-store";
 
 describe("request-scope", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it("should report ALS support on Node", () => {
     expect(isRequestScopeSupported()).toBe(true);
   });
@@ -53,6 +58,35 @@ describe("request-scope", () => {
     expect(b).toBe(0);
   });
 
+  it("should isolate concurrent scopes without cross-clearing", async () => {
+    const container = new Container();
+    containerRegistry.setDefaultContainer(container);
+
+    const COUNTER = createToken<{ value: number }>("CONCURRENT_COUNTER");
+    container.register(COUNTER, {
+      useFactory: () => ({ value: 0 }),
+      lifecycle: "scoped",
+    });
+
+    const results: number[] = [];
+
+    await Promise.all([
+      runInRequestScopeAsync(async () => {
+        resolve(COUNTER).value = 1;
+        await new Promise((r) => setTimeout(r, 10));
+        results.push(resolve(COUNTER).value);
+      }, { container }),
+      runInRequestScopeAsync(async () => {
+        resolve(COUNTER).value = 2;
+        await new Promise((r) => setTimeout(r, 5));
+        results.push(resolve(COUNTER).value);
+      }, { container }),
+    ]);
+
+    expect(results).toContain(1);
+    expect(results).toContain(2);
+  });
+
   it("should run async callbacks inside request scope", async () => {
     let captured: object | undefined;
 
@@ -86,5 +120,120 @@ describe("request-scope", () => {
 
     finishHandlers.forEach((fn) => fn());
     expect(clearSpy).toHaveBeenCalled();
+  });
+
+  it("should use a custom cleanup callback when provided", () => {
+    const onCleanup = vi.fn();
+
+    runInRequestScope(() => undefined, { onCleanup, skipRequestScopeCleanup: false });
+
+    expect(onCleanup).toHaveBeenCalled();
+  });
+
+  it("should call next directly when request scope is unsupported", () => {
+    vi.spyOn(requestScopeStore, "isRequestScopeSupported").mockReturnValue(false);
+
+    const next = vi.fn();
+    brushyRequestScope({})({}, {}, next);
+
+    expect(next).toHaveBeenCalled();
+  });
+
+  it("should cleanup after runInRequestScope when ALS is unsupported", () => {
+    vi.spyOn(requestScopeStore, "isRequestScopeSupported").mockReturnValue(false);
+    const onCleanup = vi.fn();
+
+    const value = runInRequestScope(() => "done", { onCleanup });
+
+    expect(value).toBe("done");
+    expect(onCleanup).toHaveBeenCalled();
+  });
+
+  it("should cleanup after runInRequestScopeAsync when ALS is unsupported", async () => {
+    vi.spyOn(requestScopeStore, "isRequestScopeSupported").mockReturnValue(false);
+    const onCleanup = vi.fn();
+
+    await expect(
+      runInRequestScopeAsync(async () => "done", { onCleanup }),
+    ).resolves.toBe("done");
+    expect(onCleanup).toHaveBeenCalled();
+  });
+
+  it("brushyRequestScope should clear request scope on close", () => {
+    const container = new Container();
+    const clearSpy = vi.spyOn(container, "clearRequestScope");
+
+    const middleware = brushyRequestScope({ container });
+    const closeHandlers: Array<() => void> = [];
+
+    const res = {
+      on: (event: string, fn: () => void) => {
+        if (event === "close") closeHandlers.push(fn);
+      },
+    };
+
+    middleware({}, res, () => undefined);
+    closeHandlers.forEach((fn) => fn());
+
+    expect(clearSpy).toHaveBeenCalled();
+  });
+
+  it("should honor skipRequestScopeCleanup and onEnter callbacks", () => {
+    const container = new Container();
+    const clearSpy = vi.spyOn(container, "clearRequestScope");
+    const onEnter = vi.fn();
+
+    runInRequestScope(() => undefined, {
+      container,
+      onEnter,
+      skipRequestScopeCleanup: true,
+    });
+
+    expect(onEnter).toHaveBeenCalled();
+    expect(clearSpy).not.toHaveBeenCalled();
+  });
+
+  it("should call onEnter inside async request scopes", async () => {
+    const onEnter = vi.fn();
+
+    await runInRequestScopeAsync(async () => "ok", {
+      scope: { brushyRequestId: "custom" },
+      onEnter,
+    });
+
+    expect(onEnter).toHaveBeenCalledWith({ brushyRequestId: "custom" });
+  });
+
+  it("brushyRequestScope should use a custom container cleanup callback", () => {
+    const container = new Container();
+    const onCleanup = vi.fn();
+    const finishHandlers: Array<() => void> = [];
+
+    const middleware = brushyRequestScope({ container, onCleanup });
+    const res = {
+      on: (event: string, fn: () => void) => {
+        if (event === "finish") finishHandlers.push(fn);
+      },
+    };
+
+    middleware({}, res, () => undefined);
+    finishHandlers.forEach((fn) => fn());
+
+    expect(onCleanup).toHaveBeenCalledWith(container);
+  });
+
+  it("brushyRequestScope should ignore cleanup when no container is provided", () => {
+    const finishHandlers: Array<() => void> = [];
+    const middleware = brushyRequestScope();
+    const res = {
+      on: (event: string, fn: () => void) => {
+        if (event === "finish") finishHandlers.push(fn);
+      },
+    };
+
+    expect(() => {
+      middleware({}, res, () => undefined);
+      finishHandlers.forEach((fn) => fn());
+    }).not.toThrow();
   });
 });

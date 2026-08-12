@@ -6,9 +6,11 @@
   "type": "module",
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "bench": "npm run build && node --import reflect-metadata dist/bench.js",
-    "bench:quick": "npm run build && BENCH_TIME_MS=1000 BENCH_RUNS=1 node --import reflect-metadata dist/bench.js",
-    "prebench": "npm run build"
+    "bench": "npm run build -w @brushy/di-core && npm run build && node --import reflect-metadata dist/bench.js",
+    "bench:quick": "npm run build -w @brushy/di-core && npm run build && BENCH_TIME_MS=1000 BENCH_RUNS=1 node --import reflect-metadata dist/bench.js",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "prebench": "npm run build -w @brushy/di-core && npm run build"
   },
   "dependencies": {
     "@brushy/di-core": "*",
@@ -19,6 +21,10 @@
     "tinybench": "^2.9.0"
   },
   "devDependencies": {
-    "typescript": "5.8.2"
+    "@vitest/coverage-v8": "^3.2.7",
+    "@swc/core": "^1.11.29",
+    "typescript": "5.8.2",
+    "unplugin-swc": "^1.5.5",
+    "vitest": "^3.2.7"
   }
 }

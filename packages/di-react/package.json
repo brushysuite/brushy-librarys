@@ -15,16 +15,26 @@
     },
     "./package.json": "./package.json"
   },
-  "files": ["dist", "README.md"],
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md"
+  ],
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
     "clean": "rm -rf dist .turbo node_modules",
-    "check-types": "tsc --noEmit",
+    "check-types": "tsc --noEmit && tsc -p tsconfig.test.json",
     "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "prepublishOnly": "npm run build"
   },
-  "keywords": ["dependency-injection", "di", "react", "react-native"],
+  "keywords": [
+    "dependency-injection",
+    "di",
+    "react",
+    "react-native"
+  ],
   "author": "Gustavo Franco <contact@gfrancodev.com>",
   "license": "MIT",
   "repository": {
@@ -43,9 +53,11 @@
     "@testing-library/jest-dom": "^6.6.3",
     "@types/react": "19.0.10",
     "@vitejs/plugin-react": "^4.3.4",
+    "@vitest/coverage-v8": "^3.2.7",
     "jsdom": "^26.0.0",
-    "react": "19.0.0",
-    "tsup": "^8.4.0",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "tsup": "^8.5.1",
     "typescript": "5.8.2",
     "vitest": "^3.2.7"
   },

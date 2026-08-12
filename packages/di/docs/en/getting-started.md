@@ -1,0 +1,389 @@
+# Getting Started
+
+This guide helps you choose the right packages and setup order for a new project. Express, Fastify, Next.js, and React Native all use the same entrypoints: `@brushy/di/core` on the server and `@brushy/di/react` on the client.
+
+See also: [Migration v2](./migration-v2.md) · [Server](./server.md) · [Best Practices](./best-practices.md)
+
+## Quick rule
+
+1. Pick your **runtime** (web, mobile, server, full stack).
+2. Install the **minimum package**.
+3. Add **optional** packages only if you need them (`monitor`, `otel`).
+
+## Which package to install first
+
+Copy the command for your stack.
+
+**Full stack / Next.js**
+
+```bash
+npm install @brushy/di next react react-dom
+```
+
+**React web**
+
+```bash
+npm install @brushy/di react react-dom
+```
+
+Granular install (without umbrella):
+
+```bash
+npm install @brushy/di-core @brushy/di-react react react-dom
+```
+
+**React Native**
+
+```bash
+npm install @brushy/di react
+```
+
+Granular install:
+
+```bash
+npm install @brushy/di-core @brushy/di-react react
+```
+
+**Express**
+
+```bash
+npm install @brushy/di-core express
+```
+
+**Fastify**
+
+```bash
+npm install @brushy/di-core fastify
+```
+
+**Script / worker / library (no React)**
+
+```bash
+npm install @brushy/di-core
+```
+
+**API + React frontend in the same monorepo**
+
+```bash
+npm install @brushy/di-core @brushy/di-react express react react-dom
+```
+
+**Observability (optional)**
+
+```bash
+npm install @brushy/di-monitor @brushy/di-otel
+```
+
+### Published packages (v2)
+
+**Umbrella - core + react + monitor + otel**
+
+```bash
+npm install @brushy/di
+```
+
+**Core - Node, browser, RN without React hooks**
+
+```bash
+npm install @brushy/di-core
+```
+
+**React - web and React Native**
+
+```bash
+npm install @brushy/di-react
+```
+
+**Monitor**
+
+```bash
+npm install @brushy/di-monitor
+```
+
+**OpenTelemetry**
+
+```bash
+npm install @brushy/di-otel
+```
+
+### Imports (umbrella)
+
+```typescript
+import { Container } from "@brushy/di/core";
+import { useInject, BrushyDIProvider } from "@brushy/di/react";
+import { monitor } from "@brushy/di/monitor";
+import { traceContainer } from "@brushy/di/otel";
+```
+
+## Imports by runtime
+
+**Express, Fastify, Nest, API routes**
+
+```typescript
+import { Container, createToken, server, runInRequestScope } from "@brushy/di/core";
+
+app.use(server.brushyRequestScope());
+```
+
+**Next.js Route Handlers / RSC**
+
+```typescript
+import { Container, runInRequestScopeAsync, server } from "@brushy/di/core";
+```
+
+**React web, React Native, Next client**
+
+```typescript
+import { BrushyDIProvider, useInject } from "@brushy/di/react";
+```
+
+**Full stack (umbrella)**
+
+```typescript
+import { Container, useInject, BrushyDIProvider } from "@brushy/di";
+```
+
+See [ADR 004](../adr/README.md#adr-004-framework-integration-via-core-and-react) for the package split rationale.
+
+---
+
+## Recipes by stack
+
+### React web
+
+```bash
+npm install @brushy/di react react-dom
+```
+
+```tsx
+// di/container.ts
+import { Container, createToken } from "@brushy/di/core";
+
+export const container = new Container();
+export const USER_SERVICE = container.register(createToken<UserService>("USER_SERVICE"), {
+  useClass: UserService,
+  lifecycle: "singleton",
+});
+```
+
+```tsx
+// app/providers.tsx
+"use client";
+import { BrushyDIProvider } from "@brushy/di/react";
+import { container } from "./di/container";
+
+export function AppProviders({ children }: { children: React.ReactNode }) {
+  return <BrushyDIProvider container={container}>{children}</BrushyDIProvider>;
+}
+```
+
+```tsx
+// components/profile.tsx
+import { useInject } from "@brushy/di/react";
+import { USER_SERVICE } from "../di/container";
+
+export function Profile() {
+  const users = useInject(USER_SERVICE);
+  // ...
+}
+```
+
+Next: [React Hooks](./react-hooks.md)
+
+### React Native
+
+Same install and provider pattern as web. Metro resolves the `react-native` field automatically.
+
+```bash
+npm install @brushy/di react
+```
+
+```tsx
+import { BrushyDIProvider, useInject } from "@brushy/di/react";
+import { Container, createToken } from "@brushy/di/core";
+```
+
+**Important:** In dev, `useInjectComponent` shows a default error UI with DOM elements on web. On React Native, register a platform renderer once at bootstrap (otherwise UI is `null` and errors still log to `console.error`):
+
+```tsx
+import { Text, View } from "react-native";
+import { setInjectComponentErrorRenderer } from "@brushy/di/react";
+
+setInjectComponentErrorRenderer((message, details) => (
+  <View>
+    <Text>{message}</Text>
+    {details ? <Text>{details}</Text> : null}
+  </View>
+));
+```
+
+Next: [Component Injection](./component-injection.md)
+
+### Express
+
+```bash
+npm install @brushy/di-core express
+```
+
+```typescript
+import express from "express";
+import { Container, createToken, server } from "@brushy/di/core";
+
+const USER_SERVICE = createToken<UserService>("USER_SERVICE");
+const container = new Container();
+container.register(USER_SERVICE, { useClass: UserService, lifecycle: "scoped" });
+
+server.setServerContainer(container);
+
+const app = express();
+app.use(server.brushyRequestScope());
+
+app.get("/users", (_req, res) => {
+  const users = server.resolve(USER_SERVICE);
+  res.json(users.list());
+});
+
+app.listen(3000);
+```
+
+Next: [Server Utilities](./server.md)
+
+### Fastify
+
+Fastify is not Connect-compatible. Wrap each request with `runInRequestScope`:
+
+```bash
+npm install @brushy/di-core fastify
+```
+
+```typescript
+import Fastify from "fastify";
+import { Container, createToken, runInRequestScope } from "@brushy/di/core";
+
+const USER_SERVICE = createToken<UserService>("USER_SERVICE");
+const container = new Container();
+container.register(USER_SERVICE, { useClass: UserService, lifecycle: "scoped" });
+
+const app = Fastify();
+
+app.addHook("onRequest", async (_req, _reply) => {
+  // Scope is entered per route handler below
+});
+
+app.get("/users", async (_req, reply) => {
+  const users = runInRequestScope(
+    () => container.resolve(USER_SERVICE),
+    { container },
+  );
+  return reply.send(users.list());
+});
+```
+
+For production, prefer `runInRequestScopeAsync` in async handlers. Full patterns: [Server Utilities](./server.md).
+
+### Next.js (App Router)
+
+```bash
+npm install @brushy/di next react react-dom
+```
+
+**Client Components**
+
+```typescript
+import { BrushyDIProvider, useInject } from "@brushy/di/react";
+```
+
+**Route Handlers / server**
+
+```typescript
+import { Container, runInRequestScopeAsync, server } from "@brushy/di/core";
+```
+
+**React Server Components**
+
+```typescript
+import { Container, createToken } from "@brushy/di/core";
+// resolve on the server - no React hooks
+```
+
+```typescript
+// lib/di-setup.ts - module singleton (initialize once)
+import { Container, createToken, server } from "@brushy/di/core";
+
+let initialized = false;
+export const USER_REPO = createToken<UserRepository>("USER_REPO");
+
+export function setupServerContainer() {
+  if (initialized) return;
+  const container = new Container();
+  container.register(USER_REPO, { useClass: UserRepository, lifecycle: "scoped" });
+  server.setServerContainer(container);
+  initialized = true;
+}
+```
+
+```typescript
+// app/api/users/route.ts
+import { NextResponse } from "next/server";
+import { runInRequestScopeAsync, server } from "@brushy/di/core";
+import { setupServerContainer, USER_REPO } from "@/lib/di-setup";
+
+export async function GET() {
+  setupServerContainer();
+  const users = await runInRequestScopeAsync(
+    () => server.resolve(USER_REPO).findAll(),
+    { container: server.getServerContainer() },
+  );
+  return NextResponse.json(users);
+}
+```
+
+```tsx
+// app/providers.tsx
+"use client";
+import { BrushyDIProvider } from "@brushy/di/react";
+import { clientContainer } from "@/lib/client-container";
+
+export function Providers({ children }: { children: React.ReactNode }) {
+  return <BrushyDIProvider container={clientContainer}>{children}</BrushyDIProvider>;
+}
+```
+
+**Do not** rely on Next.js Edge middleware for Node ALS request scope in Route Handlers - bind scope **inside** the handler with `runInRequestScopeAsync`.
+
+Next: [Server - Next.js App Router example](./server.md#example-with-nextjs-app-router)
+
+### Backend-only (no React)
+
+```bash
+npm install @brushy/di-core
+```
+
+```typescript
+import { Container, createToken, resolve } from "@brushy/di/core";
+
+const LOGGER = createToken<Logger>("LOGGER");
+const container = new Container();
+container.register(LOGGER, { useClass: Logger, lifecycle: "singleton" });
+
+const logger = container.resolve(LOGGER);
+logger.info("ready");
+```
+
+---
+
+## Optional add-ons
+
+Install only when needed:
+
+```bash
+npm install @brushy/di-monitor   # runtime metrics / logging hooks
+npm install @brushy/di-otel      # OpenTelemetry tracing
+```
+
+## Next steps
+
+- [Container](./container.md) - registration and lifecycles
+- [Server](./server.md) - request scope, Express, Next.js
+- [Best Practices](./best-practices.md) - tokens, scopes, testing
+- [Migration v2](./migration-v2.md) - package split and imports

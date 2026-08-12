@@ -1,4 +1,4 @@
-export { Container } from "./core/container";
+export { Container, ScopedContainer } from "./core/container";
 export type { ContainerEvent, ContainerObserver } from "./core/container";
 export { DependencyError } from "./core/dependency-error";
 export { ContainerRegistry, ROOT_SCOPE } from "./core/container-registry";
@@ -31,6 +31,7 @@ export type {
 export { enableBrushyDebug, getBrushyDebug } from "./tools/debug";
 export type { BrushyDebugAPI } from "./tools/debug";
 
+export { isDev, isNodeDev, IS_DEV } from "./core/constants";
 export { createToken, deps } from "./types/tokens";
 export type {
   Token,
@@ -42,6 +43,7 @@ export type {
   MonitorEventType,
   MonitorOptions,
   InjectionToken,
+  UntypedInjectionToken,
   ResolveType,
   InferProviderType,
   InferDependencies,

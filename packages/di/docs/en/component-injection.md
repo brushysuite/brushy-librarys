@@ -1,255 +1,180 @@
 # React Component Injection
 
-`@brushy/di` provides specific functionalities for React component injection, enabling the creation of modular and extensible UI systems.
+`@brushy/di` supports **component injection**: register UI by token on the same `Container` used for services, then resolve with `useInjectComponent` in your shell (themes, white-label, A/B).
 
-## Available Functions
+## Tokens: Symbol only (never strings)
 
-- `useInjectComponent`: Injects a React component from the container
-- `registerComponent`: Registers a React component in the container
-- `createComponentsProvider`: Creates a provider to register multiple components
+Use **`createToken("…")`** or **`Symbol("…")`**. Never use plain strings. At runtime, `createToken` returns `Symbol(description)`; each token is unique and avoids collisions between modules or libraries.
+
+```typescript
+// ✅ Good: createToken (Symbol + inference from register / useValue)
+const SIDEBAR = createToken("SIDEBAR");
+
+// ✅ OK: raw Symbol when you do not need createToken helpers
+const SIDEBAR = Symbol("SIDEBAR");
+
+// ❌ Avoid: strings can collide across packages
+const SIDEBAR = "SIDEBAR";
+```
+
+Prefer **`createToken`** over raw `Symbol` so `container.register` and `useInjectComponent` infer types from the registered component.
+
+## Recommended: register on the Container
+
+Register React components like any other provider with **`useValue`** on the container. No separate registration API is required.
+
+### Declarative bootstrap
+
+```typescript
+import { Container, createToken } from "@brushy/di/core";
+import { AcmeSidebar } from "../themes/acme/acme-sidebar";
+import { AcmeHeader } from "../themes/acme/acme-header";
+
+const SIDEBAR = createToken("SIDEBAR");
+const HEADER = createToken("HEADER");
+
+export const container = new Container({
+  name: "app",
+  providers: [
+    { provide: SIDEBAR, useValue: AcmeSidebar },
+    { provide: HEADER, useValue: AcmeHeader },
+  ],
+});
+
+export { SIDEBAR, HEADER };
+```
+
+### Imperative registration
+
+`container.register` returns a typed token. Props flow to `useInjectComponent` without extra generics:
+
+```tsx
+const container = new Container();
+
+const BUTTON = container.register(createToken("BUTTON"), {
+  useValue: PrimaryButton,
+});
+
+function Toolbar() {
+  const Button = useInjectComponent(BUTTON);
+  return <Button variant="primary">Save</Button>;
+}
+```
+
+Equivalent form:
+
+```typescript
+container.register(BUTTON, { useValue: PrimaryButton });
+```
+
+### Type inference (no manual generics required)
+
+You **do not** need `createToken<React.ComponentType<ButtonProps>>("BUTTON")` in most cases. When you register with `useValue`, TypeScript infers the component type from the implementation. This is the same pattern used in `@brushy/di-react` tests:
+
+```tsx
+const BUTTON = container.register(createToken("BUTTON"), {
+  useValue: MockComponent,
+});
+
+const Button = useInjectComponent(BUTTON);
+// Button props are inferred from MockComponent
+return <Button label="Hello" />;
+```
+
+Add explicit token generics only when you need a contract before the implementation exists (e.g. shared `tokens.ts` consumed by multiple theme packages).
 
 ## useInjectComponent
 
-The `useInjectComponent` function allows injecting React components from the DI container.
+Resolves a component from the nearest `BrushyDIProvider` container.
 
 ### Import
 
 ```typescript
-import { useInjectComponent } from "@brushy/di";
+import { useInjectComponent, BrushyDIProvider } from "@brushy/di/react";
 ```
 
-### Basic Usage
+### With fallback
 
 ```tsx
-import { createToken, useInjectComponent } from "@brushy/di";
-
-const BUTTON_COMPONENT = createToken<React.ComponentType<ButtonProps>>("BUTTON");
-
-// Inject the component
-const Button = useInjectComponent(BUTTON_COMPONENT);
-
-// Use the injected component
-function App() {
-  return (
-    <div>
-      <h1>My App</h1>
-      <Button variant="primary">Click Here</Button>
-    </div>
-  );
-}
+const Button = useInjectComponent(BUTTON, DefaultButton);
 ```
 
-### With Fallback
+If the token is missing and no fallback is passed, dev builds show an error UI (web DOM by default). On React Native, call `setInjectComponentErrorRenderer` once at bootstrap. See [Getting Started](./getting-started.md).
+
+## Optional helpers
+
+These wrap `container.register`. Prefer the container API above for consistency with the rest of your DI graph.
+
+| API | Use when |
+| --- | --- |
+| `registerComponent(token, component, container?)` | One-off shorthand |
+| `registerComponents(map, container?)` | Batch imperative registration |
+| `createComponentsProvider(map)` | Legacy provider that registers on mount (prefer `BrushyDIProvider` + container bootstrap) |
+
+## Complete example: extensible UI shell
 
 ```tsx
-// Default component if token is not registered
-const DefaultButton = ({ children, ...props }) => (
-  <button {...props}>{children}</button>
-);
+import { useState } from "react";
+import { Container, createToken } from "@brushy/di/core";
+import { BrushyDIProvider, useInjectComponent } from "@brushy/di/react";
 
-// Inject with fallback
-const Button = useInjectComponent(BUTTON_COMPONENT, DefaultButton);
-```
-
-## registerComponent
-
-The `registerComponent` function registers a React component in the DI container.
-
-### Import
-
-```typescript
-import { registerComponent } from "@brushy/di";
-```
-
-### Basic Usage
-
-```tsx
-// Define token
-const BUTTON_COMPONENT = "BUTTON_COMPONENT";
-
-// Component to be registered
-const PrimaryButton = ({ children, ...props }) => (
-  <button className="primary-button" {...props}>
-    {children}
-  </button>
-);
-
-// Register the component
-registerComponent(BUTTON_COMPONENT, PrimaryButton);
-```
-
-## createComponentsProvider
-
-The `createComponentsProvider` function creates a React provider that registers multiple components at once.
-
-### Import
-
-```typescript
-import { createComponentsProvider } from "@brushy/di";
-```
-
-### Basic Usage
-
-```tsx
-// Define tokens
-const BUTTON_COMPONENT = "BUTTON_COMPONENT";
-const CARD_COMPONENT = "CARD_COMPONENT";
-const INPUT_COMPONENT = "INPUT_COMPONENT";
-
-// Components
-const Button = ({ children, ...props }) => (
-  <button className="custom-button" {...props}>
-    {children}
-  </button>
-);
-
-const Card = ({ title, children }) => (
-  <div className="card">
-    <div className="card-header">{title}</div>
-    <div className="card-body">{children}</div>
-  </div>
-);
-
-const Input = (props) => <input className="custom-input" {...props} />;
-
-// Create provider
-const UIComponentsProvider = createComponentsProvider({
-  [BUTTON_COMPONENT]: Button,
-  [CARD_COMPONENT]: Card,
-  [INPUT_COMPONENT]: Input,
-});
-
-// Use the provider
-function App() {
-  return (
-    <UIComponentsProvider>
-      <YourApp />
-    </UIComponentsProvider>
-  );
-}
-```
-
-## Server Components Compatibility
-
-The component injection functions are compatible with React Server Components:
-
-- `useInjectComponent` works both on client and server
-- `registerComponent` can be used in any context
-- `createComponentsProvider` is optimized for Server Components
-
-## Complete Example: Extensible UI System
-
-```tsx
-import {
-  Container,
-  BrushyDIProvider,
-  useInjectComponent,
-  registerComponent,
-  createComponentsProvider,
-} from "@brushy/di";
-
-// Tokens for components
-const BUTTON = Symbol("BUTTON");
-const CARD = Symbol("CARD");
-const MODAL = Symbol("MODAL");
-const THEME_PROVIDER = Symbol("THEME_PROVIDER");
-
-// Default components
-const DefaultButton = ({ children, variant = "default", ...props }) => (
+const DefaultButton = ({
+  children,
+  variant = "default",
+  ...props
+}: React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: string }) => (
   <button className={`btn btn-${variant}`} {...props}>
     {children}
   </button>
 );
 
-const DefaultCard = ({ title, children, ...props }) => (
-  <div className="card" {...props}>
-    {title && <div className="card-header">{title}</div>}
+const DefaultCard = ({
+  title,
+  children,
+}: {
+  title?: string;
+  children?: React.ReactNode;
+}) => (
+  <div className="card">
+    {title ? <div className="card-header">{title}</div> : null}
     <div className="card-body">{children}</div>
   </div>
 );
 
-const DefaultModal = ({ isOpen, onClose, title, children }) =>
-  isOpen ? (
-    <div className="modal">
-      <div className="modal-content">
-        <div className="modal-header">
-          <h2>{title}</h2>
-          <button onClick={onClose}>×</button>
-        </div>
-        <div className="modal-body">{children}</div>
-      </div>
-    </div>
-  ) : null;
+export const container = new Container({ name: "ui" });
 
-const DefaultThemeProvider = ({ children }) => (
-  <div className="default-theme">{children}</div>
-);
+const BUTTON = container.register(createToken("BUTTON"), {
+  useValue: DefaultButton,
+});
+const CARD = container.register(createToken("CARD"), { useValue: DefaultCard });
 
-// Create container
-const container = new Container();
-
-// Register default components
-container.register(BUTTON, { useValue: DefaultButton });
-container.register(CARD, { useValue: DefaultCard });
-container.register(MODAL, { useValue: DefaultModal });
-container.register(THEME_PROVIDER, { useValue: DefaultThemeProvider });
-
-// Injected components
-const Button = useInjectComponent(BUTTON);
-const Card = useInjectComponent(CARD);
-const Modal = useInjectComponent(MODAL);
-const ThemeProvider = useInjectComponent(THEME_PROVIDER);
-
-// Application
-function App() {
-  const [isModalOpen, setModalOpen] = useState(false);
+function AppShell() {
+  const Button = useInjectComponent(BUTTON);
+  const Card = useInjectComponent(CARD);
+  const [open, setOpen] = useState(false);
 
   return (
-    <BrushyDIProvider container={container}>
-      <ThemeProvider>
-        <div className="app">
-          <h1>Extensible UI System</h1>
-
-          <Button variant="primary" onClick={() => setModalOpen(true)}>
-            Open Modal
-          </Button>
-
-          <Card title="Example Card">
-            This is an example card injected from the DI container.
-          </Card>
-
-          <Modal
-            isOpen={isModalOpen}
-            onClose={() => setModalOpen(false)}
-            title="Example Modal"
-          >
-            This is an example modal injected from the DI container.
-          </Modal>
-        </div>
-      </ThemeProvider>
-    </BrushyDIProvider>
+    <div className="app">
+      <Button variant="primary" onClick={() => setOpen(true)}>
+        Open
+      </Button>
+      <Card title="Example">Content injected from the container.</Card>
+    </div>
   );
 }
 
-// Custom theme
-const CustomThemeProvider = ({ children }) => (
-  <div className="dark-theme">{children}</div>
-);
-
-// Provider to override default components
-const CustomUIProvider = createComponentsProvider({
-  [THEME_PROVIDER]: CustomThemeProvider,
-  // Could override other components here
-});
-
-// Application with custom theme
-function CustomApp() {
+export function App() {
   return (
     <BrushyDIProvider container={container}>
-      <CustomUIProvider>
-        <App />
-      </CustomUIProvider>
+      <AppShell />
     </BrushyDIProvider>
   );
 }
 ```
+
+To swap a theme, replace component imports in `providers` or `container.import` a child container. See [Best Practices](./best-practices.md).
+
+## Server Components
+
+- Register components on the container during bootstrap (server or client).
+- `useInjectComponent` runs in Client Components; pair with `@brushy/di/core` on the server for services.

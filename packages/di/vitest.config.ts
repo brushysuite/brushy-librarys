@@ -11,26 +11,33 @@ export default defineConfig({
     testTimeout: 30000,
     coverage: {
       provider: "v8",
-      reporter: ["text", "json", "html"],
+      reporter: ["text", "json-summary"],
+      thresholds: {
+        lines: 100,
+        branches: 100,
+        functions: 100,
+        statements: 100,
+      },
+      include: ["src/**/*.ts"],
       exclude: [
         "**/node_modules/**",
         "**/dist/**",
-        "**/test/**",
+        "src/test/**",
         "**/coverage/**",
         "tsup.config.ts",
         "vitest.config.ts",
-        "src/index.ts",
         "src/lib/@types/**",
-        "**/types.ts",
         "**/*.d.ts",
       ],
-      all: true,
     },
     include: ["src/**/*.{test,spec}.{ts,tsx}"],
   },
   resolve: {
     alias: {
       "@": resolve(__dirname, "./src"),
+      react: resolve(__dirname, "../../node_modules/react"),
+      "react-dom": resolve(__dirname, "../../node_modules/react-dom"),
     },
+    dedupe: ["react", "react-dom"],
   },
 });

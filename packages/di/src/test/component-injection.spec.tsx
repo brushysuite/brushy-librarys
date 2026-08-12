@@ -91,8 +91,8 @@ describe("E2E - Component Injection", () => {
     const BUTTON = Symbol("BUTTON");
     const CARD = Symbol("CARD");
 
-    registerComponent(BUTTON, Button);
-    registerComponent(CARD, Card);
+    registerComponent(BUTTON, Button, container);
+    registerComponent(CARD, Card, container);
 
     const App = () => {
       const ButtonComponent = useInjectComponent<ButtonProps>(BUTTON);
@@ -131,8 +131,8 @@ describe("E2E - Component Injection", () => {
     const BUTTON = Symbol("BUTTON");
     const CARD = Symbol("CARD");
 
-    registerComponent(BUTTON, Button);
-    registerComponent(CARD, Card);
+    registerComponent(BUTTON, Button, container);
+    registerComponent(CARD, Card, container);
 
     const ComponentsProvider = createComponentsProvider({
       [BUTTON]: Button,
@@ -175,7 +175,7 @@ describe("E2E - Component Injection", () => {
     );
 
     const BUTTON = Symbol("BUTTON");
-    registerComponent(BUTTON, DefaultButton);
+    registerComponent(BUTTON, DefaultButton, container);
 
     const App = () => {
       const ButtonComponent = useInjectComponent<ButtonProps>(BUTTON);
@@ -192,7 +192,7 @@ describe("E2E - Component Injection", () => {
 
     unmount();
 
-    registerComponent(BUTTON, CustomButton);
+    registerComponent(BUTTON, CustomButton, container);
 
     render(
       <BrushyDIProvider container={container}>
@@ -209,7 +209,7 @@ describe("E2E - Component Injection", () => {
     );
 
     const BUTTON = Symbol("BUTTON");
-    registerComponent(BUTTON, Button);
+    registerComponent(BUTTON, Button, container);
 
     const App = () => {
       const ButtonComponent = useInjectComponent<ButtonProps>(BUTTON);

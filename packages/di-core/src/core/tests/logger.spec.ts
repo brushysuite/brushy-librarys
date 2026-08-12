@@ -60,4 +60,26 @@ describe("Logger", () => {
       expect(console.warn).toHaveBeenCalledTimes(1);
     });
   });
+
+  describe("Formatting helpers", () => {
+    it("should format tokens, classes, lifecycles and types", () => {
+      expect(Logger.formatToken("TOKEN")).toContain("TOKEN");
+      expect(Logger.formatClass("MyClass")).toContain("MyClass");
+      expect(Logger.formatLifecycle("singleton")).toContain("singleton");
+      expect(Logger.formatType("Factory")).toContain("Factory");
+    });
+  });
+
+  describe("silent logger", () => {
+    it("should expose no-op logging methods", async () => {
+      const { silentLogger } = await import("../logger");
+
+      expect(() => {
+        silentLogger.info("info");
+        silentLogger.debug("debug");
+        silentLogger.warn("warn");
+        silentLogger.error("error");
+      }).not.toThrow();
+    });
+  });
 });

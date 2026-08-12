@@ -11,6 +11,7 @@ import {
   NodeD,
   NodeE,
 } from "../fixtures/classes.js";
+import { consumeChecksum } from "../fixtures/checksum.js";
 import type { BenchAdapter, BenchScenario, ScenarioId } from "../types.js";
 
 function buildDeepGraph(): NodeE {
@@ -28,9 +29,6 @@ function buildWideGraph(): HubService {
 
 class BaselineScenario implements BenchScenario {
   private warmInstance: BenchService | null = null;
-  private deepGraph: NodeE | null = null;
-  private wideGraph: HubService | null = null;
-  private factoryService: FactoryService | null = null;
   private batchClasses: (new () => BenchService)[] = [];
 
   constructor(private readonly scenario: ScenarioId) {}
@@ -42,17 +40,8 @@ class BaselineScenario implements BenchScenario {
       case "singleton_warm":
         this.warmInstance = new BenchService();
         for (let i = 0; i < 10_000; i++) {
-          void this.warmInstance.value;
+          consumeChecksum(this.warmInstance.value);
         }
-        break;
-      case "deep_graph":
-        this.deepGraph = buildDeepGraph();
-        break;
-      case "wide_graph":
-        this.wideGraph = buildWideGraph();
-        break;
-      case "factory_deps":
-        this.factoryService = new FactoryService(new Logger(), new Config());
         break;
       case "register_batch":
         this.batchClasses = Array.from(
@@ -63,39 +52,33 @@ class BaselineScenario implements BenchScenario {
     }
   }
 
-  run(): void {
+  run(): number {
     switch (this.scenario) {
       case "singleton_cold":
-        new BenchService();
-        break;
+        return consumeChecksum(new BenchService());
       case "singleton_warm":
-        void this.warmInstance!.value;
-        break;
+        return consumeChecksum(this.warmInstance!.value);
       case "transient":
-        new BenchService();
-        break;
+        return consumeChecksum(new BenchService());
       case "deep_graph":
-        void this.deepGraph!.d.c.b.a.value;
-        break;
+        return consumeChecksum(buildDeepGraph().d.c.b.a.value);
       case "wide_graph":
-        void this.wideGraph!.e.d.c.b.a.value;
-        break;
+        return consumeChecksum(buildWideGraph().e.d.c.b.a.value);
       case "factory_deps":
-        void this.factoryService!.logger;
-        break;
-      case "register_batch":
+        return consumeChecksum(new FactoryService(new Logger(), new Config()));
+      case "register_batch": {
+        let checksum = 0;
         for (const cls of this.batchClasses) {
-          new cls();
+          checksum ^= consumeChecksum(new cls());
         }
-        break;
+        return checksum;
+      }
     }
+    return 0;
   }
 
   teardown(): void {
     this.warmInstance = null;
-    this.deepGraph = null;
-    this.wideGraph = null;
-    this.factoryService = null;
     this.batchClasses = [];
   }
 }

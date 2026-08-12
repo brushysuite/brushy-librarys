@@ -14,6 +14,7 @@ import {
   NodeE,
   ScopedService,
 } from "../fixtures/classes.js";
+import { consumeChecksum } from "../fixtures/checksum.js";
 import type { BenchAdapter, BenchScenario, ScenarioId } from "../types.js";
 
 const SINGLETON = createToken<BenchService>("SINGLETON");
@@ -26,16 +27,10 @@ const LOGGER = createToken<Logger>("LOGGER");
 const CONFIG = createToken<Config>("CONFIG");
 
 function registerDeepGraph(container: Container): void {
-  container.register(LOGGER, { useClass: Logger, lifecycle: "singleton" });
-  container.register(createToken<NodeA>("A"), {
-    useClass: NodeA,
-    lifecycle: "singleton",
-  });
-  const tokenA = createToken<NodeA>("A_DEEP");
+  const tokenA = createToken<NodeA>("A");
   const tokenB = createToken<NodeB>("B");
   const tokenC = createToken<NodeC>("C");
   const tokenD = createToken<NodeD>("D");
-  const tokenE = createToken<NodeE>("E");
 
   container.register(tokenA, { useClass: NodeA, lifecycle: "singleton" });
   container.register(tokenB, {
@@ -115,7 +110,7 @@ class BrushyScenario implements BenchScenario {
           lifecycle: "singleton",
         });
         for (let i = 0; i < 10_000; i++) {
-          this.container.resolve(SINGLETON);
+          consumeChecksum(this.container.resolve(SINGLETON));
         }
         break;
       case "transient":
@@ -142,17 +137,20 @@ class BrushyScenario implements BenchScenario {
           dependencies: deps([LOGGER, CONFIG]),
           lifecycle: "singleton",
         });
+        for (let i = 0; i < 10_000; i++) {
+          consumeChecksum(this.container.resolve(FACTORY));
+        }
         break;
       case "register_batch":
         this.batchTokens = [];
         this.batchClasses = [];
         for (let i = 0; i < BATCH_COUNT; i++) {
-          this.batchTokens.push(createToken<BenchService>(`BATCH_${i}`));
-          this.batchClasses.push(
-            class BatchService extends BenchService {
-              idx = i;
-            },
-          );
+          const token = createToken<BenchService>(`BATCH_${i}`);
+          const useClass = class BatchService extends BenchService {
+            idx = i;
+          };
+          this.batchTokens.push(token);
+          this.batchClasses.push(useClass);
         }
         break;
       case "request_scope":
@@ -164,47 +162,43 @@ class BrushyScenario implements BenchScenario {
     }
   }
 
-  run(): void {
+  run(): number {
     const container = this.container!;
 
     switch (this.scenario) {
       case "singleton_cold": {
         const c = new Container();
         c.register(SINGLETON, { useClass: BenchService, lifecycle: "singleton" });
-        c.resolve(SINGLETON);
-        break;
+        return consumeChecksum(c.resolve(SINGLETON));
       }
       case "singleton_warm":
-        container.resolve(SINGLETON);
-        break;
+        return consumeChecksum(container.resolve(SINGLETON));
       case "transient":
-        container.resolve(TRANSIENT);
-        break;
+        return consumeChecksum(container.resolve(TRANSIENT));
       case "deep_graph":
-        container.resolve(DEEP);
-        break;
+        return consumeChecksum(container.resolve(DEEP).d.c.b.a.value);
       case "wide_graph":
-        container.resolve(WIDE);
-        break;
+        return consumeChecksum(container.resolve(WIDE).e.d.c.b.a.value);
       case "factory_deps":
-        container.resolve(FACTORY);
-        break;
+        return consumeChecksum(container.resolve(FACTORY));
       case "register_batch": {
         const c = new Container();
-        const entries = this.batchTokens.map((token, j) => ({
-          token,
-          config: {
-            useClass: this.batchClasses[j],
-            lifecycle: "singleton" as const,
-          },
-        }));
-        c.registerMany(entries);
-        break;
+        for (let i = 0; i < BATCH_COUNT; i++) {
+          c.register(this.batchTokens[i]!, {
+            useClass: this.batchClasses[i]!,
+            lifecycle: "singleton",
+          });
+        }
+        return consumeChecksum(BATCH_COUNT);
       }
-      case "request_scope":
-        this.container!.resolve(SCOPED);
-        this.container!.clearRequestScope();
-        break;
+      case "request_scope": {
+        const scope = container.createScope();
+        try {
+          return consumeChecksum(scope.resolve(SCOPED).id);
+        } finally {
+          scope.dispose();
+        }
+      }
     }
   }
 

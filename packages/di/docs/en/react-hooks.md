@@ -20,7 +20,7 @@ import { createToken, useInject } from "@brushy/di";
 const USER_SERVICE = createToken<UserService>("USER_SERVICE");
 
 function UserList() {
-  const userService = useInject(USER_SERVICE); // type inferred — no <UserService>
+  const userService = useInject(USER_SERVICE); // type inferred - no <UserService>
 
   // Use the service
   const [users, setUsers] = useState([]);
@@ -69,7 +69,7 @@ function UserProfile({ userId }) {
 
 ## useInjectLazy
 
-The `useInjectLazy` hook allows loading dependencies on demand, useful for performance optimization.
+The `useInjectLazy` hook resolves a dependency **lazily** via a proxy - the service is created on first property or method access.
 
 ### Import
 
@@ -81,18 +81,12 @@ import { useInjectLazy } from "@brushy/di";
 
 ```typescript
 function ReportGenerator() {
-  // The service will only be loaded when needed
-  const [reportService, loadReportService] = useInjectLazy<ReportService>('REPORT_SERVICE');
+  const reportService = useInjectLazy<ReportService>("REPORT_SERVICE");
   const [report, setReport] = useState(null);
 
   const generateReport = async () => {
-    // Load the service on demand
-    loadReportService();
-
-    if (reportService) {
-      const data = await reportService.generate();
-      setReport(data);
-    }
+    const data = await reportService.generate();
+    setReport(data);
   };
 
   return (
@@ -107,13 +101,9 @@ function ReportGenerator() {
 ### Options
 
 ```typescript
-// With options
-const [reportService, loadReportService] = useInjectLazy<ReportService>(
-  "REPORT_SERVICE",
-  {
-    scope: requestScope,
-  },
-);
+const reportService = useInjectLazy<ReportService>("REPORT_SERVICE", {
+  scope: requestScope,
+});
 ```
 
 ## Provider Integration
@@ -177,8 +167,7 @@ container.register(ANALYTICS_SERVICE, { useClass: AnalyticsService });
 // Component
 function UserList() {
   const userService = useInject(USER_SERVICE);
-  const [analyticsService, loadAnalytics] =
-    useInjectLazy(ANALYTICS_SERVICE);
+  const analyticsService = useInjectLazy(ANALYTICS_SERVICE);
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
@@ -186,10 +175,7 @@ function UserList() {
   }, [userService]);
 
   const trackClick = () => {
-    loadAnalytics();
-    if (analyticsService) {
-      analyticsService.trackEvent("user_list_clicked", { count: users.length });
-    }
+    analyticsService.trackEvent("user_list_clicked", { count: users.length });
   };
 
   return (

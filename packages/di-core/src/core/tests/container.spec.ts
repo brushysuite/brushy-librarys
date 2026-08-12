@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { Container } from "../container";
+import { LifecycleManager } from "../life-cycle-manager";
 import { Logger } from "../logger";
 
 describe("Container", () => {
@@ -131,14 +132,8 @@ describe("Container", () => {
     });
 
     it("should start and stop garbage collector", () => {
-      const startSpy = vi.spyOn(
-        container["lifecycleManager"],
-        "startGarbageCollector",
-      );
-      const stopSpy = vi.spyOn(
-        container["lifecycleManager"],
-        "stopGarbageCollector",
-      );
+      const startSpy = vi.spyOn(LifecycleManager.prototype, "startGarbageCollector");
+      const stopSpy = vi.spyOn(LifecycleManager.prototype, "stopGarbageCollector");
 
       container.startGarbageCollector(30000, 10000);
       container.stopGarbageCollector();
@@ -369,6 +364,31 @@ describe("Container", () => {
       expect(observer).not.toHaveBeenCalled();
     });
 
+    it("should keep listeners active until all observers unsubscribe", () => {
+      const first = vi.fn();
+      const second = vi.fn();
+
+      const unsubscribeFirst = container.observe(first);
+      container.observe(second);
+
+      unsubscribeFirst();
+      container.register("PARTIAL_UNSUB", { useValue: "still-listening" });
+
+      expect(second).toHaveBeenCalled();
+      expect(first).not.toHaveBeenCalled();
+    });
+
+    it("should clear listener state when the event bus is unavailable", () => {
+      const observer = vi.fn();
+      const unsubscribe = container.observe(observer);
+
+      (container as { events: unknown }).events = null;
+      unsubscribe();
+
+      container.register("NO_EVENT_BUS", { useValue: "silent" });
+      expect(observer).not.toHaveBeenCalled();
+    });
+
     it("should emit error events with non-Error objects and convert them to strings", () => {
       const observer = vi.fn();
       const token = "NON_ERROR_TOKEN";
@@ -398,6 +418,26 @@ describe("Container", () => {
       expect(event.details).toBeDefined();
 
       expect(event.details.message).toBeDefined();
+    });
+
+    it("should stringify non-Error resolve failures when observed", () => {
+      const observer = vi.fn();
+      const token = "STRING_ERROR_TOKEN";
+
+      container.register(token, {
+        useFactory: () => {
+          throw "string failure";
+        },
+      });
+      container.observe(observer);
+
+      expect(() => container.resolve(token)).toThrow();
+      expect(observer).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: "error",
+          details: expect.objectContaining({ message: "string failure" }),
+        }),
+      );
     });
   });
 
@@ -467,6 +507,80 @@ describe("Container", () => {
       const name = container.getName();
 
       expect(name).toBe("test-container");
+    });
+
+    it("should emit import events when observed", () => {
+      const observer = vi.fn();
+      const sourceContainer = new Container({ name: "source" });
+      const token = "IMPORT_EVENT";
+
+      sourceContainer.register(token, { useValue: "imported" });
+      container.observe(observer);
+      container.import(sourceContainer);
+
+      expect(observer).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: "import",
+          details: expect.objectContaining({
+            sourceContainer: "source",
+            targetContainer: "test-container",
+            providersCount: 1,
+          }),
+        }),
+      );
+    });
+  });
+
+  describe("Batch registration", () => {
+    it("should register many providers and emit events when observed", () => {
+      const observer = vi.fn();
+      const tokenA = "BATCH_A";
+      const tokenB = "BATCH_B";
+
+      container.observe(observer);
+      container.registerMany([
+        { token: tokenA, config: { useValue: "a" } },
+        { token: tokenB, config: { useValue: "b" } },
+      ]);
+
+      expect(container.resolve(tokenA)).toBe("a");
+      expect(container.resolve(tokenB)).toBe("b");
+      expect(observer).toHaveBeenCalledWith(
+        expect.objectContaining({ type: "register", token: tokenA }),
+      );
+      expect(observer).toHaveBeenCalledWith(
+        expect.objectContaining({ type: "register", token: tokenB }),
+      );
+    });
+
+    it("should register many providers without observers", () => {
+      container.registerMany([
+        { token: "SILENT_A", config: { useValue: "a" } },
+        { token: "SILENT_B", config: { useValue: "b" } },
+      ]);
+
+      expect(container.resolve("SILENT_A")).toBe("a");
+      expect(container.resolve("SILENT_B")).toBe("b");
+    });
+  });
+
+  describe("Resolve cache fast path", () => {
+    it("should reuse the monomorphic resolve cache without listeners", () => {
+      const token = "MONOMORPHIC_CACHE";
+      container.register(token, { useValue: "cached-value" });
+
+      expect(container.resolve(token)).toBe("cached-value");
+      expect(container.resolve(token)).toBe("cached-value");
+    });
+  });
+
+  describe("Constructor options", () => {
+    it("should accept an empty providers array", () => {
+      const emptyProvidersContainer = new Container({ providers: [] });
+      const token = "EMPTY_PROVIDERS";
+
+      emptyProvidersContainer.register(token, { useValue: "ok" });
+      expect(emptyProvidersContainer.resolve(token)).toBe("ok");
     });
   });
 
@@ -591,6 +705,22 @@ describe("Container", () => {
       expect(resolved).toBe(value);
     });
 
+    it("should resolve async dependencies from parent container", async () => {
+      const parentContainer = new Container({ name: "parent" });
+      const childContainer = new Container({
+        name: "child",
+        parent: parentContainer,
+      });
+
+      const token = "PARENT_ASYNC";
+      parentContainer.register(token, {
+        useFactory: async () => ({ ok: true }),
+      });
+
+      const resolved = await childContainer.resolveAsync(token);
+      expect(resolved).toEqual({ ok: true });
+    });
+
     it("should prioritize child container registrations over parent", () => {
       const parentContainer = new Container({ name: "parent" });
       const childContainer = new Container({
@@ -620,6 +750,79 @@ describe("Container", () => {
       const token = "MISSING_SERVICE";
 
       expect(() => childContainer.resolve(token)).toThrow();
+    });
+
+    it("should resolve parent tokens through observed child containers", () => {
+      const parentContainer = new Container({ name: "parent" });
+      const childContainer = new Container({
+        name: "child",
+        parent: parentContainer,
+      });
+      const observer = vi.fn();
+      const token = "PARENT_OBSERVED";
+
+      parentContainer.register(token, { useValue: "parent-observed" });
+      childContainer.observe(observer);
+
+      expect(childContainer.resolve(token)).toBe("parent-observed");
+      expect(observer).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: "resolve",
+          token,
+          details: expect.objectContaining({ success: true, source: "parent" }),
+        }),
+      );
+    });
+
+    it("should throw when async token is missing in child and parent", async () => {
+      const childContainer = new Container({ name: "child" });
+
+      await expect(
+        childContainer.resolveAsync("MISSING_ASYNC"),
+      ).rejects.toThrow(/Token not registered/);
+    });
+
+    it("should stringify async resolve failures for non-Error throws", async () => {
+      const observer = vi.fn();
+      const token = "ASYNC_STRING_ERROR";
+
+      container.register(token, {
+        useFactory: async () => {
+          throw "async string failure";
+        },
+      });
+      container.observe(observer);
+
+      await expect(container.resolveAsync(token)).rejects.toThrow();
+      expect(observer).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: "error",
+          details: expect.objectContaining({
+            message: expect.stringContaining("async string failure"),
+          }),
+        }),
+      );
+    });
+
+    it("should stringify non-Error objects rejected by resolveAsync", async () => {
+      const observer = vi.fn();
+      const token = "ASYNC_RAW_REJECTION";
+
+      container.register(token, { useValue: "unused" });
+      container.observe(observer);
+      vi.spyOn(container["resolver"], "resolveAsync").mockRejectedValue(
+        "raw async failure",
+      );
+
+      await expect(container.resolveAsync(token)).rejects.toBe(
+        "raw async failure",
+      );
+      expect(observer).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: "error",
+          details: expect.objectContaining({ message: "raw async failure" }),
+        }),
+      );
     });
   });
 

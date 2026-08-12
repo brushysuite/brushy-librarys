@@ -11,17 +11,18 @@ npm install @brushy/di-monitor @brushy/di-core
 ## Usage
 
 ```typescript
-import { Container } from "@brushy/di-core";
+import { Container, createToken } from "@brushy/di-core";
 import { monitor } from "@brushy/di-monitor";
 
 const container = new Container();
+const API = container.register(createToken("API"), { useValue: {} });
+
 const containerMonitor = monitor.create(container, {
   logToConsole: true,
   eventTypes: ["register", "resolve", "error"],
 });
 
-container.register("API", { useValue: {} });
-container.resolve("API");
+container.resolve(API);
 
 console.log(containerMonitor.getStats());
 containerMonitor.stop();

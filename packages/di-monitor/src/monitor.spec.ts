@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { Container } from "@brushy/di-core";
-import { monitor } from "./index";
+import { ContainerMonitor, monitor } from "./index";
 
 describe("ContainerMonitor", () => {
   let container: Container;
@@ -49,6 +49,20 @@ describe("ContainerMonitor", () => {
     expect(stats.byType.register).toBe(2);
     expect(stats.byType.resolve).toBe(2);
     expect(stats.errorRate).toBe(0);
+    expect(stats.resolveSuccessRate).toBe(1);
+
+    containerMonitor.stop();
+  });
+
+  it("should keep resolveSuccessRate at 1 when no resolve events were recorded", () => {
+    const containerMonitor = monitor.create(container, {
+      logToConsole: false,
+      eventTypes: ["register"],
+    });
+
+    container.register("ONLY_REGISTER", { useValue: {} });
+
+    expect(containerMonitor.getStats().resolveSuccessRate).toBe(1);
 
     containerMonitor.stop();
   });
@@ -112,5 +126,92 @@ describe("ContainerMonitor", () => {
     expect(containerMonitor.getEvents().length).toBe(0);
 
     containerMonitor.stop();
+  });
+
+  it("should ignore duplicate start and stop when not subscribed", () => {
+    const containerMonitor = new ContainerMonitor(container, { logToConsole: false });
+    const observeSpy = vi.spyOn(container, "observe");
+
+    containerMonitor.stop();
+    containerMonitor.stop();
+
+    containerMonitor.start();
+    containerMonitor.start();
+    expect(observeSpy).toHaveBeenCalledTimes(1);
+
+    containerMonitor.stop();
+  });
+
+  it("should count failed resolves when success is false in event details", () => {
+    let handler: ((event: import("@brushy/di-core").ContainerEvent) => void) | undefined;
+    vi.spyOn(container, "observe").mockImplementation((callback) => {
+      handler = callback;
+      return () => {};
+    });
+
+    const containerMonitor = monitor.create(container, {
+      logToConsole: false,
+      eventTypes: ["all"],
+    });
+
+    handler!({
+      type: "resolve",
+      token: "T",
+      details: { success: false },
+    });
+
+    expect(containerMonitor.getStats().resolveSuccessRate).toBe(0);
+
+    containerMonitor.stop();
+  });
+
+  it("should skip console logging when logToConsole is false", () => {
+    const infoSpy = vi.spyOn(console, "info");
+    const containerMonitor = monitor.create(container, { logToConsole: false });
+
+    container.register("SILENT", { useValue: {} });
+
+    expect(infoSpy).not.toHaveBeenCalled();
+    containerMonitor.stop();
+  });
+
+  it("should compute errorRate with zero events and log events without details", () => {
+    let handler: ((event: import("@brushy/di-core").ContainerEvent) => void) | undefined;
+    const infoSpy = vi.spyOn(console, "info");
+    vi.spyOn(container, "observe").mockImplementation((callback) => {
+      handler = callback;
+      return () => {};
+    });
+
+    const containerMonitor = monitor.create(container, { logToConsole: true });
+
+    expect(containerMonitor.getStats().errorRate).toBe(0);
+
+    handler!({ type: "import", token: "MODULE" });
+
+    expect(infoSpy).toHaveBeenCalledWith(
+      expect.stringContaining("[DI:import] Token: MODULE"),
+    );
+
+    containerMonitor.stop();
+  });
+
+  it("should log clear events without token details", () => {
+    const infoSpy = vi.spyOn(console, "info");
+    const containerMonitor = monitor.create(container, {
+      logToConsole: true,
+      eventTypes: ["clear"],
+    });
+
+    container.clearRequestScope();
+
+    expect(containerMonitor.getEvents().some((event) => event.type === "clear")).toBe(true);
+    expect(infoSpy).toHaveBeenCalled();
+
+    containerMonitor.stop();
+  });
+
+  it("should export monitor factory from index", () => {
+    expect(monitor.create(container, { logToConsole: false })).toBeInstanceOf(ContainerMonitor);
   });
 });

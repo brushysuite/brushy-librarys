@@ -3,8 +3,10 @@ import { DependencyError } from "./dependency-error";
 import { ROOT_SCOPE } from "./constants";
 import { getActiveScope } from "../tools/request-scope-store";
 
+export { ROOT_SCOPE } from "./constants";
+
 /**
- * Container registry with scope caching — React Native safe (Map/WeakMap only).
+ * Container registry with scope caching - React Native safe (Map/WeakMap only).
  */
 export class ContainerRegistry {
   private readonly scopedContainers = new Map<object, Container>();
@@ -68,6 +70,14 @@ export class ContainerRegistry {
     this.lastContainer = null;
   }
 
+  unregisterContainer(scope: object): void {
+    this.scopedContainers.delete(scope);
+    if (this.lastScope === scope) {
+      this.lastScope = null;
+      this.lastContainer = null;
+    }
+  }
+
   private isTransientScope(scope: object): boolean {
     if (scope === ROOT_SCOPE) return false;
     return (
@@ -77,5 +87,3 @@ export class ContainerRegistry {
     );
   }
 }
-
-export { ROOT_SCOPE };

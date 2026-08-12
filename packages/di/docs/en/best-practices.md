@@ -2,23 +2,28 @@
 
 This guide presents the best practices for using `@brushy/di` efficiently and in an organized manner.
 
+For package choice and framework setup (Express, Next.js, React Native), start with [Getting Started](./getting-started.md).
+
 ## Token Organization
 
 ### Use Symbols for Tokens
 
-Prefer using `Symbol` for tokens instead of strings, as they guarantee uniqueness and avoid collisions:
+Prefer **`createToken("…")`** or **`Symbol("…")`**. Never use plain strings. Strings can collide when two modules use the same name; **`createToken` returns `Symbol(description)` at runtime**, so every token is unique.
 
 ```typescript
-// ✅ Good: Use Symbol
+// ✅ Good: createToken (Symbol + type inference)
+const USER_SERVICE = createToken("USER_SERVICE");
+
+// ✅ OK: raw Symbol
 const USER_SERVICE = Symbol("USER_SERVICE");
 
-// ❌ Avoid: Using string
+// ❌ Avoid: string tokens
 const USER_SERVICE = "USER_SERVICE";
 ```
 
 ### Use `createToken` for Type Inference
 
-Prefer `createToken<T>()` over raw `Symbol` when you want inference in `register`, `resolve`, `useInject`, and factory `dependencies`:
+`createToken` is the recommended form of Symbol token: same collision safety, plus inference in `register`, `resolve`, `useInject`, factory `dependencies`, and `useInjectComponent` when registering with `useValue`:
 
 ```typescript
 import { createToken, deps } from "@brushy/di";
@@ -122,7 +127,7 @@ container.register(APP_STORE, {
 ### Clean Up Resources Properly
 
 ```typescript
-// Node.js — recommended: ALS middleware (cleans up on finish/close)
+// Node.js - recommended: ALS middleware (cleans up on finish/close)
 import { server } from "@brushy/di";
 app.use(server.brushyRequestScope());
 
@@ -183,6 +188,35 @@ function UserList() {
 }
 ```
 
+### Component injection (UI)
+
+Register swappable UI on the **same container** as services. Prefer `new Container({ providers: [{ provide, useValue }] })` or `container.register(createToken("…"), { useValue: Component })`. Resolve in the shell with `useInjectComponent`:
+
+```tsx
+// ✅ Good: container registration + hook (types inferred from useValue)
+const container = new Container({ name: "app" });
+
+const SIDEBAR = container.register(createToken("SIDEBAR"), {
+  useValue: AcmeSidebar,
+});
+
+function AppShell() {
+  const Sidebar = useInjectComponent(SIDEBAR);
+  return <Sidebar onNavigate={navigate} />;
+}
+
+// ❌ Avoid: registerComponent helpers when you already use a container graph
+registerComponent(SIDEBAR, AcmeSidebar);
+
+// ❌ Avoid: string tokens (use createToken / Symbol instead)
+const SIDEBAR = "SIDEBAR";
+
+// ❌ Avoid: redundant explicit generics when useValue carries the type
+const SIDEBAR = createToken<React.ComponentType<SidebarProps>>("SIDEBAR");
+```
+
+Explicit `createToken<T>()` is optional. Use it only when the token contract must exist before the implementation (shared `tokens.ts`). See [Component Injection](./component-injection.md).
+
 ## Performance
 
 ### Promise Caching
@@ -217,13 +251,10 @@ Use `useInjectLazy` to load heavy dependencies only when needed:
 
 ```tsx
 function ReportPage() {
-  const [reportService, loadReportService] = useInjectLazy(REPORT_SERVICE);
+  const reportService = useInjectLazy(REPORT_SERVICE);
 
   const generateReport = () => {
-    loadReportService();
-    if (reportService) {
-      reportService.generate();
-    }
+    reportService.generate();
   };
 
   return (

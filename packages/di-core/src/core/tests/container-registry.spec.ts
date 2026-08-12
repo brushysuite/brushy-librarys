@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { ContainerRegistry } from "../container-registry";
 import { Container } from "../container";
 import { DependencyError } from "../dependency-error";
+import { ROOT_SCOPE } from "../constants";
 
 describe("ContainerRegistry", () => {
   let registry: ContainerRegistry;
@@ -147,6 +148,15 @@ describe("ContainerRegistry", () => {
       expect(registry["weakScopedContainers"].has(regularScope)).toBe(true);
       expect(registry["scopedContainers"].has(regularScope)).toBe(false);
     });
+
+    it("should treat ROOT_SCOPE as a non-transient scope", () => {
+      const container = new Container({ name: "root-container" });
+
+      registry.registerContainer(ROOT_SCOPE, container);
+
+      expect(registry["weakScopedContainers"].has(ROOT_SCOPE)).toBe(true);
+      expect(registry["scopedContainers"].has(ROOT_SCOPE)).toBe(false);
+    });
   });
 
   describe("Cleanup of transient scopes", () => {
@@ -207,6 +217,16 @@ describe("ContainerRegistry", () => {
 
       dynamicScope = { id: "new-dynamic" };
       expect(() => registry.getContainer(dynamicScope)).toThrow();
+    });
+
+    it("should clear last scope cache when unregistering the active scope", () => {
+      registry.registerContainer(scope, container);
+      registry.getContainer(scope);
+
+      registry.unregisterContainer(scope);
+
+      expect(registry["lastScope"]).toBeNull();
+      expect(registry["lastContainer"]).toBeNull();
     });
   });
 });

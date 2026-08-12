@@ -10,5 +10,13 @@
   {
     "path": "packages/di-monitor/dist/index.mjs",
     "limit": "4 KB"
+  },
+  {
+    "path": "packages/di-otel/dist/index.mjs",
+    "limit": "3 KB"
+  },
+  {
+    "path": "packages/di/dist/index.mjs",
+    "limit": "2 KB"
   }
 ]

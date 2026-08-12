@@ -30,7 +30,7 @@ const container = new Container();
 
 container.register(AUTH, { useClass: AuthServiceImpl });
 
-// Tipo inferido automaticamente — sem genérico manual
+// Tipo inferido automaticamente - sem genérico manual
 const auth = container.resolve(AUTH);
 await auth.login("user@example.com");
 ```
@@ -79,7 +79,7 @@ import {
 
 ```typescript
 app.use(server.brushyRequestScope());
-// resolve() / inject.resolve() usam o escopo ativo — sem argumento scope manual
+// resolve() / inject.resolve() usam o escopo ativo - sem argumento scope manual
 ```
 
 ### Scripts e testes

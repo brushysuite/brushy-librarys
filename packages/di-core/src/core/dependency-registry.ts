@@ -1,7 +1,9 @@
 import { ProviderConfig, Token } from "../types";
+import type { InstanceWrapper } from "../types";
 import type { LifecycleType } from "./strategies/lifecycle";
+import { compileCreator, type CompiledCreator } from "./compiled-creator";
 
-export interface ProviderMeta {
+export interface ProviderRecord {
   config: ProviderConfig;
   lifecycle: LifecycleType;
   isUseValue: boolean;
@@ -12,64 +14,87 @@ export interface ProviderMeta {
   hasTtl: boolean;
   hasDeps: boolean;
   useClass?: new (...args: unknown[]) => unknown;
+  creator?: CompiledCreator;
+  /** Inline singleton cache - stable shape for V8 ICs on warm path. */
+  singletonWrapper?: InstanceWrapper;
+  /** Direct cached instance for O(1) warm resolve without wrapper hop. */
+  cached?: unknown;
+  isCached: boolean;
 }
 
+/** @deprecated Use ProviderRecord */
+export type ProviderMeta = ProviderRecord;
+
 /**
- * Manages provider registration — single responsibility, no side effects.
+ * Manages provider registration - single responsibility, no side effects.
  */
 export class DependencyRegistry {
-  private readonly providers = new Map<Token, ProviderConfig>();
-  private readonly meta = new Map<Token, ProviderMeta>();
+  private readonly records = new Map<Token, ProviderRecord>();
 
   register<T>(token: Token, config: ProviderConfig<T>): void {
-    this.providers.set(token, config);
-    this.meta.set(token, this.createMeta(config));
+    this.records.set(token, this.createRecord(config));
   }
 
   registerMany(entries: Array<{ token: Token; config: ProviderConfig }>): void {
     for (const { token, config } of entries) {
-      this.providers.set(token, config);
-      this.meta.set(token, this.createMeta(config));
+      this.records.set(token, this.createRecord(config));
     }
   }
 
-  private createMeta(config: ProviderConfig): ProviderMeta {
+  private createRecord(config: ProviderConfig): ProviderRecord {
     const lifecycle = (config.lifecycle ?? "singleton") as LifecycleType;
+    const useClass = config.useClass as ProviderRecord["useClass"];
+    const isUseValue = config.useValue !== undefined;
+    const deps = config.dependencies;
+
     return {
       config,
       lifecycle,
-      isUseValue: config.useValue !== undefined,
+      isUseValue,
       isTransient: lifecycle === "transient",
       isSingleton: lifecycle === "singleton",
       isScoped: lifecycle === "scoped",
       isImmutable: lifecycle === "immutable",
-      hasTtl: !!config.ttl,
-      hasDeps: !!(config.dependencies?.length),
-      useClass: config.useClass as ProviderMeta["useClass"],
+      hasTtl: config.ttl !== undefined && config.ttl !== null,
+      hasDeps: deps !== undefined && deps.length > 0,
+      useClass,
+      isCached: false,
     };
   }
 
-  getProvider(token: Token): ProviderConfig | undefined {
-    return this.providers.get(token);
+  ensureCreator(record: ProviderRecord): CompiledCreator | undefined {
+    if (record.creator !== undefined) return record.creator;
+    if (record.isUseValue || record.hasTtl) return undefined;
+    const creator = compileCreator(record.config);
+    if (creator) record.creator = creator;
+    return creator;
   }
 
-  getMeta(token: Token): ProviderMeta | undefined {
-    return this.meta.get(token);
+  getRecord(token: Token): ProviderRecord | undefined {
+    return this.records.get(token);
+  }
+
+  getProvider(token: Token): ProviderConfig | undefined {
+    return this.records.get(token)?.config;
+  }
+
+  getMeta(token: Token): ProviderRecord | undefined {
+    return this.records.get(token);
   }
 
   has(token: Token): boolean {
-    return this.providers.has(token);
+    return this.records.has(token);
   }
 
   getAllProviders(): Array<{ token: Token; config: ProviderConfig }> {
     const result: Array<{ token: Token; config: ProviderConfig }> = [];
-    for (const [token, config] of this.providers) {
-      result.push({ token, config });
+    for (const [token, record] of this.records) {
+      result.push({ token, config: record.config });
     }
     return result;
   }
 
   getAllTokens(): Token[] {
-    return [...this.providers.keys()];
+    return [...this.records.keys()];
   }
 }

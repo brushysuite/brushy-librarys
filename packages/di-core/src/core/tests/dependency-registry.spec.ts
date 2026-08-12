@@ -166,4 +166,24 @@ describe("DependencyRegistry", () => {
       });
     });
   });
+
+  describe("Bulk registration", () => {
+    it("should register many providers at once", () => {
+      registry.registerMany([
+        { token: "A", config: { useValue: 1 } },
+        { token: "B", config: { useValue: 2 } },
+      ]);
+
+      expect(registry.getProvider("A")).toEqual({ useValue: 1 });
+      expect(registry.getProvider("B")).toEqual({ useValue: 2 });
+    });
+
+    it("should expose provider metadata records", () => {
+      registry.register("META", { useValue: "meta", lifecycle: "scoped" });
+      const meta = registry.getMeta("META");
+
+      expect(meta?.config.useValue).toBe("meta");
+      expect(meta?.isScoped).toBe(true);
+    });
+  });
 });

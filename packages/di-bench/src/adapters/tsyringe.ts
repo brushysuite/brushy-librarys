@@ -1,5 +1,10 @@
 import "reflect-metadata";
-import { container, injectable, Lifecycle } from "tsyringe";
+import {
+  container as rootContainer,
+  injectable,
+  Lifecycle,
+  type DependencyContainer,
+} from "tsyringe";
 import {
   BATCH_COUNT,
   BenchService,
@@ -13,6 +18,7 @@ import {
   NodeD,
   NodeE,
 } from "../fixtures/classes.js";
+import { consumeChecksum } from "../fixtures/checksum.js";
 import type { BenchAdapter, BenchScenario, ScenarioId } from "../types.js";
 
 @injectable()
@@ -75,56 +81,98 @@ class TsyringeFactoryService extends FactoryService {
   }
 }
 
-function registerDeepGraph(): void {
-  container.register(TsyringeNodeA, { useClass: TsyringeNodeA });
-  container.register(TsyringeNodeB, { useClass: TsyringeNodeB });
-  container.register(TsyringeNodeC, { useClass: TsyringeNodeC });
-  container.register(TsyringeNodeD, { useClass: TsyringeNodeD });
-  container.register(TsyringeNodeE, { useClass: TsyringeNodeE });
+function registerDeepGraph(container: DependencyContainer): void {
+  container.register(
+    TsyringeNodeA,
+    { useClass: TsyringeNodeA },
+    { lifecycle: Lifecycle.Singleton },
+  );
+  container.register(
+    TsyringeNodeB,
+    { useClass: TsyringeNodeB },
+    { lifecycle: Lifecycle.Singleton },
+  );
+  container.register(
+    TsyringeNodeC,
+    { useClass: TsyringeNodeC },
+    { lifecycle: Lifecycle.Singleton },
+  );
+  container.register(
+    TsyringeNodeD,
+    { useClass: TsyringeNodeD },
+    { lifecycle: Lifecycle.Singleton },
+  );
+  container.register(
+    TsyringeNodeE,
+    { useClass: TsyringeNodeE },
+    { lifecycle: Lifecycle.Singleton },
+  );
 }
 
-function registerWideGraph(): void {
-  registerDeepGraph();
-  container.register(TsyringeHubService, { useClass: TsyringeHubService });
+function registerWideGraph(container: DependencyContainer): void {
+  registerDeepGraph(container);
+  container.register(
+    TsyringeHubService,
+    { useClass: TsyringeHubService },
+    { lifecycle: Lifecycle.Singleton },
+  );
 }
 
 class TsyringeScenario implements BenchScenario {
+  private container: DependencyContainer | null = null;
   private batchClasses: (new () => TsyringeBenchService)[] = [];
 
   constructor(private readonly scenario: ScenarioId) {}
 
   setup(): void {
     this.teardown();
-    container.clearInstances();
+    this.container = rootContainer.createChildContainer();
 
     switch (this.scenario) {
       case "singleton_cold":
         break;
       case "singleton_warm":
-        container.register(TsyringeBenchService, {
-          useClass: TsyringeBenchService,
-        });
+        this.container.register(
+          TsyringeBenchService,
+          { useClass: TsyringeBenchService },
+          { lifecycle: Lifecycle.Singleton },
+        );
         for (let i = 0; i < 10_000; i++) {
-          container.resolve(TsyringeBenchService);
+          consumeChecksum(this.container.resolve(TsyringeBenchService));
         }
         break;
       case "transient":
-        container.register(TsyringeBenchService, {
-          useClass: TsyringeBenchService,
-        }, { lifecycle: Lifecycle.Transient });
+        this.container.register(
+          TsyringeBenchService,
+          { useClass: TsyringeBenchService },
+          { lifecycle: Lifecycle.Transient },
+        );
         break;
       case "deep_graph":
-        registerDeepGraph();
+        registerDeepGraph(this.container);
         break;
       case "wide_graph":
-        registerWideGraph();
+        registerWideGraph(this.container);
         break;
       case "factory_deps":
-        container.register(TsyringeLogger, { useClass: TsyringeLogger });
-        container.register(TsyringeConfig, { useClass: TsyringeConfig });
-        container.register(TsyringeFactoryService, {
-          useClass: TsyringeFactoryService,
-        });
+        this.container.register(
+          TsyringeLogger,
+          { useClass: TsyringeLogger },
+          { lifecycle: Lifecycle.Singleton },
+        );
+        this.container.register(
+          TsyringeConfig,
+          { useClass: TsyringeConfig },
+          { lifecycle: Lifecycle.Singleton },
+        );
+        this.container.register(
+          TsyringeFactoryService,
+          { useClass: TsyringeFactoryService },
+          { lifecycle: Lifecycle.Singleton },
+        );
+        for (let i = 0; i < 10_000; i++) {
+          consumeChecksum(this.container.resolve(TsyringeFactoryService));
+        }
         break;
       case "register_batch":
         this.batchClasses = Array.from(
@@ -138,42 +186,43 @@ class TsyringeScenario implements BenchScenario {
     }
   }
 
-  run(): void {
+  run(): number {
+    const container = this.container!;
+
     switch (this.scenario) {
       case "singleton_cold": {
-        container.clearInstances();
-        container.register(TsyringeBenchService, {
-          useClass: TsyringeBenchService,
-        });
-        container.resolve(TsyringeBenchService);
-        break;
+        const c = rootContainer.createChildContainer();
+        c.register(
+          TsyringeBenchService,
+          { useClass: TsyringeBenchService },
+          { lifecycle: Lifecycle.Singleton },
+        );
+        return consumeChecksum(c.resolve(TsyringeBenchService));
       }
       case "singleton_warm":
-        container.resolve(TsyringeBenchService);
-        break;
+        return consumeChecksum(container.resolve(TsyringeBenchService));
       case "transient":
-        container.resolve(TsyringeBenchService);
-        break;
+        return consumeChecksum(container.resolve(TsyringeBenchService));
       case "deep_graph":
-        container.resolve(TsyringeNodeE);
-        break;
+        return consumeChecksum(container.resolve(TsyringeNodeE).d.c.b.a.value);
       case "wide_graph":
-        container.resolve(TsyringeHubService);
-        break;
+        return consumeChecksum(container.resolve(TsyringeHubService).e.d.c.b.a.value);
       case "factory_deps":
-        container.resolve(TsyringeFactoryService);
-        break;
-      case "register_batch":
-        container.clearInstances();
+        return consumeChecksum(container.resolve(TsyringeFactoryService));
+      case "register_batch": {
+        const c = rootContainer.createChildContainer();
         for (const cls of this.batchClasses) {
-          container.register(cls, { useClass: cls });
+          c.register(cls, { useClass: cls }, { lifecycle: Lifecycle.Singleton });
         }
-        break;
+        return consumeChecksum(BATCH_COUNT);
+      }
     }
+    return 0;
   }
 
   teardown(): void {
-    container.clearInstances();
+    this.container?.clearInstances();
+    this.container = null;
     this.batchClasses = [];
   }
 }

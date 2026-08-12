@@ -7,7 +7,7 @@ export interface CachedPromise<T = unknown> {
 }
 
 /**
- * Unified promise cache — single source of truth for async method deduplication.
+ * Unified promise cache - single source of truth for async method deduplication.
  */
 export class PromiseCache {
   private store = new Map<string, CachedPromise>();

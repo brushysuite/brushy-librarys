@@ -2,6 +2,7 @@ import {
   asClass,
   asFunction,
   createContainer,
+  InjectionMode,
   type AwilixContainer,
   Lifetime,
 } from "awilix";
@@ -19,7 +20,12 @@ import {
   NodeE,
   ScopedService,
 } from "../fixtures/classes.js";
+import { consumeChecksum } from "../fixtures/checksum.js";
 import type { BenchAdapter, BenchScenario, ScenarioId } from "../types.js";
+
+function createAwilixContainer(): AwilixContainer {
+  return createContainer({ injectionMode: InjectionMode.CLASSIC });
+}
 
 function registerDeepGraph(container: AwilixContainer): void {
   container.register({
@@ -46,7 +52,7 @@ class AwilixScenario implements BenchScenario {
 
   setup(): void {
     this.teardown();
-    this.container = createContainer();
+    this.container = createAwilixContainer();
 
     switch (this.scenario) {
       case "singleton_cold":
@@ -56,7 +62,7 @@ class AwilixScenario implements BenchScenario {
           bench: asClass(BenchService).singleton(),
         });
         for (let i = 0; i < 10_000; i++) {
-          this.container.resolve("bench");
+          consumeChecksum(this.container.resolve("bench"));
         }
         break;
       case "transient":
@@ -74,11 +80,14 @@ class AwilixScenario implements BenchScenario {
         this.container.register({
           logger: asClass(Logger).singleton(),
           config: asClass(Config).singleton(),
+          // CLASSIC mode: positional params by name (not PROXY object destructuring).
           factory: asFunction(
-            ({ logger, config }: { logger: Logger; config: Config }) =>
-              new FactoryService(logger, config),
+            (logger: Logger, config: Config) => new FactoryService(logger, config),
           ).singleton(),
         });
+        for (let i = 0; i < 10_000; i++) {
+          consumeChecksum(this.container.resolve("factory"));
+        }
         break;
       case "register_batch":
         this.batchNames = Array.from({ length: BATCH_COUNT }, (_, i) => `batch${i}`);
@@ -91,44 +100,41 @@ class AwilixScenario implements BenchScenario {
     }
   }
 
-  run(): void {
+  run(): number {
     const container = this.container!;
 
     switch (this.scenario) {
       case "singleton_cold": {
-        const c = createContainer();
+        const c = createAwilixContainer();
         c.register({ bench: asClass(BenchService).singleton() });
-        c.resolve("bench");
-        break;
+        return consumeChecksum(c.resolve("bench"));
       }
       case "singleton_warm":
-        container.resolve("bench");
-        break;
+        return consumeChecksum(container.resolve("bench"));
       case "transient":
-        container.resolve("bench");
-        break;
+        return consumeChecksum(container.resolve("bench"));
       case "deep_graph":
-        container.resolve("e");
-        break;
+        return consumeChecksum(container.resolve("e").d.c.b.a.value);
       case "wide_graph":
-        container.resolve("hub");
-        break;
+        return consumeChecksum(container.resolve("hub").e.d.c.b.a.value);
       case "factory_deps":
-        container.resolve("factory");
-        break;
+        return consumeChecksum(container.resolve("factory"));
       case "register_batch": {
-        const c = createContainer();
+        const c = createAwilixContainer();
         for (let i = 0; i < BATCH_COUNT; i++) {
           c.register({
-            [this.batchNames[i]]: asClass(BenchService).singleton(),
+            [this.batchNames[i]!]: asClass(BenchService).singleton(),
           });
         }
-        break;
+        return consumeChecksum(BATCH_COUNT);
       }
       case "request_scope": {
         const scope = container.createScope();
-        scope.resolve("scoped");
-        break;
+        try {
+          return consumeChecksum(scope.resolve("scoped").id);
+        } finally {
+          scope.dispose();
+        }
       }
     }
   }

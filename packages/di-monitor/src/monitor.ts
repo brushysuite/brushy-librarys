@@ -59,8 +59,16 @@ export class ContainerMonitor {
 
     const errors = stats.byType["error"] || 0;
     stats.errorRate = errors / (stats.totalEvents || 1);
-    const resolves = stats.byType["resolve"] || 0;
-    stats.resolveSuccessRate = resolves ? (resolves - errors) / resolves : 1;
+
+    const resolveEvents = this.events.filter((event) => event.type === "resolve");
+    const successfulResolves = resolveEvents.filter((event) => {
+      const details = event.details as { success?: boolean } | undefined;
+      return details?.success !== false;
+    }).length;
+
+    stats.resolveSuccessRate = resolveEvents.length
+      ? successfulResolves / resolveEvents.length
+      : 1;
 
     return stats;
   }

@@ -1,5 +1,7 @@
 # Server Utilities
 
+> **New project?** See [Getting Started](./getting-started.md) for install order and Express / Fastify / Next.js recipes.
+
 `@brushy/di` provides specific utilities for managing dependency injection on the server side, especially useful in Node.js applications and frameworks like Next.js, Express, NestJS, etc.
 
 ## server
@@ -49,7 +51,7 @@ await database.connect();
 
 ### Automatic Request Scope (AsyncLocalStorage)
 
-On Node.js, prefer `server.brushyRequestScope()` or `runInRequestScope()` — they bind the active request scope via `AsyncLocalStorage`, so `resolve()` / `inject.resolve()` pick up scoped instances without passing a scope manually.
+On Node.js, prefer `server.brushyRequestScope()` or `runInRequestScope()` - they bind the active request scope via `AsyncLocalStorage`, so `resolve()` / `inject.resolve()` pick up scoped instances without passing a scope manually.
 
 ```typescript
 import express from "express";
@@ -201,7 +203,7 @@ server.setServerContainer(serverContainer);
 // Create Express application
 const app = express();
 
-// Middleware — ALS request scope (recommended)
+// Middleware - ALS request scope (recommended)
 app.use(server.brushyRequestScope());
 
 // Route to get users

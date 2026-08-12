@@ -14,21 +14,23 @@
     "test": "turbo run test --filter='@brushy/di*'",
     "test:coverage": "turbo run test:coverage --filter='@brushy/di*'",
     "size-limit": "size-limit",
-    "publint": "publint packages/di-core packages/di-react packages/di-monitor packages/di",
-    "check:boundaries": "depcruise packages/di-core/src --config .dependency-cruiser.cjs",
+    "publint": "publint packages/di-core packages/di-react packages/di-monitor packages/di-otel packages/di",
+    "check:boundaries": "depcruise packages/di-core/src packages/di-react/src packages/di-monitor/src packages/di-otel/src --config .dependency-cruiser.cjs",
+    "bench:quick": "npm run bench:quick --workspace=@brushy/di-bench",
     "changeset": "npx changeset",
     "version-packages": "npx changeset version",
     "release": "npm run build-packages && changeset publish"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.27.1",
+    "@changesets/cli": "^2.31.1",
+    "@size-limit/file": "^11.2.0",
     "dependency-cruiser": "^16.9.0",
+    "esbuild": "0.27.2",
     "jsdom": "^26.0.0",
     "prettier": "^3.5.3",
     "publint": "^0.3.12",
     "size-limit": "^11.2.0",
-    "@size-limit/file": "^11.2.0",
-    "turbo": "^2.10.4",
+    "turbo": "^2.10.9",
     "typescript": "5.8.2"
   },
   "engines": {
@@ -44,7 +46,20 @@
   },
   "overrides": {
     "glob": "^10.5.0",
-    "form-data": "^4.0.5"
+    "form-data": "^4.0.6",
+    "esbuild": "0.27.2",
+    "brace-expansion": "^2.1.4",
+    "minimatch": "^9.0.9",
+    "js-yaml": "^4.3.1",
+    "lodash": "^4.18.1",
+    "postcss": "^8.5.26",
+    "yaml": "^2.9.0",
+    "flatted": "^3.4.4",
+    "nanoid": "^3.3.18",
+    "ajv": "^8.20.0",
+    "tmp": "^0.2.7",
+    "@tootallnate/once": "^2.0.1",
+    "on-headers": "^1.1.0"
   },
   "lint-staged": {
     "*.{js,ts,json}": "prettier --write \"src/**/*.ts\""

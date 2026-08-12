@@ -1,5 +1,13 @@
 {
-  "entryPoints": ["../di-core/src/index.ts", "../di-react/src/index.ts"],
+  "entryPoints": [
+    "src/index.ts",
+    "src/core.ts",
+    "src/react.ts",
+    "src/monitor.ts",
+    "src/otel.ts",
+    "../di-core/src/index.ts",
+    "../di-react/src/index.ts"
+  ],
   "out": "api-reference",
   "name": "@brushy/di",
   "readme": "en/README.md",

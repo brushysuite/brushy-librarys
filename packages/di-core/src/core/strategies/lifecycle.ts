@@ -1,10 +1,11 @@
 import { InstanceWrapper, ProviderConfig, Token } from "../../types";
+import { getScopeBucket } from "../scoped-cache";
 
 export type LifecycleType = NonNullable<ProviderConfig["lifecycle"]>;
 
 export interface LifecycleCache {
   singletons: Map<Token, InstanceWrapper>;
-  scoped: Map<Token, InstanceWrapper>;
+  scoped: Map<object, Map<Token, InstanceWrapper>>;
   immutable: Map<Token, unknown>;
 }
 
@@ -40,8 +41,8 @@ const singletonStrategy: LifecycleStrategy = {
     }
     return wrapper.instance;
   },
-  set(cache, token, instance, _ttl) {
-    cache.singletons.set(token, { instance, lastUsed: now() });
+  set(cache, token, instance, ttl) {
+    cache.singletons.set(token, { instance, lastUsed: ttl ? now() : 0 });
   },
 };
 
@@ -49,11 +50,10 @@ const scopedStrategy: LifecycleStrategy = {
   type: "scoped",
   skipsStorage: false,
   get(cache, token) {
-    const wrapper = cache.scoped.get(token);
-    return wrapper?.instance;
+    return getScopeBucket(cache).get(token)?.instance;
   },
   set(cache, token, instance) {
-    cache.scoped.set(token, { instance, lastUsed: now() });
+    getScopeBucket(cache).set(token, { instance, lastUsed: 0 });
   },
 };
 

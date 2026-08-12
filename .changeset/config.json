@@ -12,7 +12,8 @@
       "@brushy/di",
       "@brushy/di-core",
       "@brushy/di-react",
-      "@brushy/di-monitor"
+      "@brushy/di-monitor",
+      "@brushy/di-otel"
     ]
   ],
   "ignore": ["**/apps/**", "@brushy/localstorage"]

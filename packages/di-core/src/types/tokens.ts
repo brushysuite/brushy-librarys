@@ -2,8 +2,18 @@ export type Token = string | symbol | Function;
 
 export type Lifecycle = "singleton" | "transient" | "scoped" | "immutable";
 
+declare const INJECTION_TOKEN_TYPE: unique symbol;
+declare const UNTYPED_TOKEN_TYPE: unique symbol;
+
 /** Token com tipo embutido (compile-time only) */
-export type InjectionToken<T> = symbol & { readonly __type?: T };
+export type InjectionToken<T> = symbol & {
+  readonly [INJECTION_TOKEN_TYPE]: T;
+};
+
+/** Token criado sem genérico - recebe o tipo do provider retornado por `register`. */
+export type UntypedInjectionToken = symbol & {
+  readonly [UNTYPED_TOKEN_TYPE]: true;
+};
 
 /** Infere o tipo resolvido a partir do token */
 export type ResolveType<T> = T extends InjectionToken<infer U>
@@ -42,7 +52,6 @@ export interface ProviderConfigBase {
     subscribe: (callback: (value: unknown) => void) => () => void;
     unsubscribe: () => void;
   };
-  lazy?: boolean;
 }
 
 export type ValueProviderConfig<T> = ProviderConfigBase & {
@@ -72,7 +81,9 @@ export type ClassProviderConfig<
   useFactory?: never;
 };
 
-/** Cria token tipado — runtime: Symbol(description) */
-export function createToken<T>(description?: string): InjectionToken<T> {
-  return Symbol(description) as InjectionToken<T>;
+/** Cria token tipado - runtime: Symbol(description) */
+export function createToken(description?: string): UntypedInjectionToken;
+export function createToken<T>(description?: string): InjectionToken<T>;
+export function createToken(description?: string): symbol {
+  return Symbol(description);
 }

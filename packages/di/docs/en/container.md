@@ -63,7 +63,7 @@ container.register(USER_SERVICE, {
   lifecycle: "scoped",
 });
 
-const userService = container.resolve(USER_SERVICE); // UserService — no manual generic
+const userService = container.resolve(USER_SERVICE); // UserService - no manual generic
 ```
 
 Legacy tokens (`string` / `Symbol`) still work but need an explicit generic: `container.resolve<UserService>("USER_SERVICE")`.

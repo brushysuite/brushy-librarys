@@ -51,9 +51,9 @@ npm run bench:quick -w @brushy/di-bench
 
 Após rodar, consulte:
 
-- `results/latest.json` — dados brutos
-- `results/latest.md` — relatório comparativo
-- `results/latest.csv` — export para planilha
+- `results/latest.json` - dados brutos
+- `results/latest.md` - relatório comparativo
+- `results/latest.csv` - export para planilha
 
 ## Notas
 
