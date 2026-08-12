@@ -2,7 +2,6 @@
   "$schema": "https://unpkg.com/@changesets/config@3.1.1/schema.json",
   "changelog": "@changesets/cli/changelog",
   "commit": false,
-  "fixed": [],
   "linked": [],
   "access": "public",
   "baseBranch": "main",
@@ -16,5 +15,5 @@
       "@brushy/di-otel"
     ]
   ],
-  "ignore": ["**/apps/**", "@brushy/localstorage"]
-} 
+  "ignore": ["@brushy/localstorage", "@brushy/di-bench"]
+}
