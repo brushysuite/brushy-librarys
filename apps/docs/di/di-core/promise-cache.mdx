@@ -1,0 +1,84 @@
+---
+title: "Promise cache"
+description: "Async deduplication, promiseTtl, and cache utility."
+---
+
+`@brushy/di-core` deduplicates concurrent async resolves and caches method-level promises to prevent duplicate network or DB calls.
+
+## `PromiseCache` class
+
+```typescript
+import { PromiseCache } from "@brushy/di-core";
+
+const pc = new PromiseCache();
+const key = pc.createKey(MY_SERVICE, "fetchAll", []);
+const existing = pc.get(key);
+if (!existing) {
+  pc.set(key, myService.fetchAll(), 5000);
+}
+```
+
+| Method | Description |
+|--------|-------------|
+| `createKey(token, method, args)` | Stable string key |
+| `get(key)` | Returns cached promise or `undefined` if expired |
+| `set(key, promise, ttl?)` | Cache with TTL ms (default from `DEFAULT_PROMISE_TTL`) |
+| `clear(token?)` | Clear all or entries for a token prefix |
+
+## Global `promiseCache`
+
+```typescript
+import { promiseCache } from "@brushy/di-core";
+
+promiseCache.clear(USER_SERVICE);
+```
+
+`PromiseCacheSystem` and `promiseCacheSystem` are deprecated aliases.
+
+## Provider `promiseTtl`
+
+Per-provider TTL for cached async method results:
+
+```typescript
+container.register(API_CLIENT, {
+  useClass: ApiClient,
+  lifecycle: "singleton",
+  promiseTtl: 10_000,
+});
+```
+
+## `container.getPromise`
+
+```typescript
+const result = await container.getPromise<User[]>(
+  USER_SERVICE,
+  "list",
+  [filter],
+);
+```
+
+Uses the resolver's integrated promise cache for the token/method/args tuple.
+
+## `cache` utility
+
+General-purpose TTL cache (separate from DI lifecycle):
+
+```typescript
+import { cache } from "@brushy/di-core";
+
+cache.set("config", config, 60_000);
+cache.get("config");
+cache.clear();
+
+await cache.promise("users", () => fetchUsers(), 30_000);
+```
+
+`cache.clear(token?)` also clears `promiseCache` entries for the token.
+
+## Use cases
+
+| Scenario | Mechanism |
+|----------|-----------|
+| Duplicate parallel `resolveAsync` | Resolver promise cache |
+| Expensive async method on singleton | `promiseTtl` + `getPromise` |
+| Ad-hoc app caching | `cache` utility |

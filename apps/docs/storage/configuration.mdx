@@ -1,0 +1,89 @@
+---
+title: "Configuration"
+description: "StorageOptions for createStorage."
+---
+
+Every option passed to `createStorage()` is optional. Defaults are tuned for in-memory caching with periodic expiry scans.
+
+```typescript
+import { createStorage } from "@brushy/storage";
+
+const cache = createStorage({
+  id: "my-app",
+  prefix: "@myapp:",
+  stdTTL: 0,
+  checkperiod: 600,
+  useClones: false,
+  deleteOnExpire: true,
+  maxKeys: -1,
+  persist: false,
+  compress: false,
+  onError: (error) => console.error(error),
+});
+```
+
+## Options reference
+
+<ParamField path="id" type="string" default="prefix or @brushy:">
+  Unique instance id. Instances with the same `id` share a single in-process object and sync invalidation via the registry bus.
+</ParamField>
+
+<ParamField path="prefix" type="string" default="@brushy:">
+  Prepended to keys in the persist layer. Does not affect in-memory key names.
+</ParamField>
+
+<ParamField path="stdTTL" type="number | string" default="0">
+  Default TTL in seconds for `set()` when no per-key TTL is given. `0` = unlimited. Bare numeric strings use **milliseconds** for `stdTTL` (node-cache compatible). See [TTL](/storage/ttl).
+</ParamField>
+
+<ParamField path="checkperiod" type="number" default="600">
+  Interval in **seconds** to scan for expired keys. Set to `0` to disable the background timer.
+</ParamField>
+
+<ParamField path="useClones" type="boolean" default="false">
+  When `true`, values are deep-cloned on `get`/`set` via `structuredClone` (falls back to `JSON.parse`/`stringify`).
+</ParamField>
+
+<ParamField path="deleteOnExpire" type="boolean" default="true">
+  When `true`, expired keys are removed and `expired` + `del` events fire. When `false`, the value remains with expiry cleared.
+</ParamField>
+
+<ParamField path="maxKeys" type="number" default="-1">
+  Maximum in-memory keys. `-1` = unlimited. Throws `StorageError` (`MaxKeys`) when exceeded.
+</ParamField>
+
+<ParamField path="persist" type="false | 'local' | 'session' | SyncPersist" default="false">
+  Write-through persistence. See [Persist adapters](/storage/persist).
+</ParamField>
+
+<ParamField path="bus" type="CacheBus">
+  Custom invalidation bus merged with built-in registry and `BroadcastChannel` buses. See [Cache bus](/storage/cache-bus).
+</ParamField>
+
+<ParamField path="compress" type="boolean" default="false">
+  LZ-string compress persist payloads larger than 1 KB.
+</ParamField>
+
+<ParamField path="onError" type="(error: StorageError) => void">
+  Handler for persist quota, serialization, and max-keys errors.
+</ParamField>
+
+## Singleton instances
+
+`createStorage({ id: "app" })` returns the same object on subsequent calls with the same `id`. Use distinct ids when you need isolated caches (e.g. feature-specific namespaces).
+
+<Tip>
+  For browser persist across tabs, use a stable `id` **and** `persist: "local"` or `"session"`.
+</Tip>
+
+## SetOptions (per-key)
+
+Passed as the third argument to `set()` or via `useStorage` options:
+
+<ParamField path="ttl" type="number | string">
+  Per-key TTL. Bare numeric strings are interpreted as **seconds**.
+</ParamField>
+
+<ParamField path="compress" type="boolean">
+  Override instance-level `compress` for this write.
+</ParamField>

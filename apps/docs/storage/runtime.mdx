@@ -1,0 +1,68 @@
+---
+title: "Node vs browser"
+description: "Runtime differences, SSR, and instance registry."
+---
+
+`@brushy/storage` is isomorphic: one API for Node.js, browsers, React Native, and SSR.
+
+## Runtime matrix
+
+| Feature | Node.js | Browser | SSR (no storage) |
+|---------|---------|---------|------------------|
+| In-memory cache | ✅ | ✅ | ✅ |
+| `persist: "local"` | ❌ (no-op) | ✅ | ❌ |
+| `persist: "session"` | ❌ (no-op) | ✅ | ❌ |
+| `BroadcastChannel` bus | ❌ | ✅ | ❌ |
+| Registry bus | ✅ | ✅ | ✅ |
+| Expiry timer `unref()` | ✅ | N/A | ✅ |
+
+## SSR with React
+
+`@brushy/storage-react` uses `getServerSnapshot` to return the `initialValue` on the server, avoiding hydration mismatches:
+
+```tsx
+const { value } = useStorage("theme", "light");
+// Server: always "light"
+// Client: reads from storage after hydration
+```
+
+Create the storage instance once per app (singleton `id`) and pass it to `StorageProvider`.
+
+## Instance registry
+
+- `createStorage({ id })` returns a shared instance per process for the same `id`
+- `getStorageInstance(id)` retrieves without creating
+- `close()` removes from registry; next `createStorage` creates fresh
+
+## Node.js timers
+
+The expiry `checkperiod` interval calls `unref()` when available so background scans do not block process exit.
+
+## Cloning
+
+`useClones: true` uses `structuredClone` when available. In older environments it falls back to JSON round-trip (functions and `undefined` in objects are lost).
+
+## DI integration
+
+Register storage as a singleton in your DI container:
+
+```typescript
+import { createStorage } from "@brushy/storage";
+import { createToken, defineModule } from "@brushy/di-core";
+
+export const APP_CACHE = createToken("APP_CACHE");
+
+export const cacheModule = defineModule({
+  cache: {
+    useFactory: () =>
+      createStorage({
+        id: "my-app",
+        prefix: "@myapp:",
+        persist: "local",
+      }),
+    lifecycle: "singleton",
+  },
+});
+```
+
+See [Examples](/examples/overview) for Vite, Expo, Express, and Fastify layouts.

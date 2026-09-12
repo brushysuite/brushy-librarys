@@ -1,0 +1,60 @@
+---
+title: "Scoped containers"
+description: "ScopedContainer, createScope, and manual scope buckets."
+---
+
+Besides automatic request scope, `@brushy/di-core` exposes explicit scope APIs for tests, background jobs, and non-HTTP workflows.
+
+## `createScope(scopeKey?)`
+
+Returns a `ScopedContainer` bound to a scope object:
+
+```typescript
+const scope = container.createScope();
+const svc = scope.resolve(USER_SERVICE);
+
+scope.dispose(); // clears scoped instances for this bucket
+```
+
+Pass a custom `scopeKey` to share a bucket across callers:
+
+```typescript
+const key = { jobId: "batch-42" };
+const scopeA = container.createScope(key);
+const scopeB = container.createScope(key);
+// Both resolve the same scoped instances for tokens registered as scoped
+```
+
+## `ScopedContainer` API
+
+```typescript
+class ScopedContainer {
+  resolve<T>(token): T;
+  dispose(): void;
+}
+```
+
+`dispose()` calls `container.clearScopedInstances(scopeKey)`.
+
+## Low-level scope bucket
+
+```typescript
+const bucket = container.getOrCreateScopeBucket(scopeKey);
+container.resolveInScope(USER_SERVICE, scopeKey, bucket);
+container.clearScopedInstances(scopeKey);
+```
+
+## When to use explicit scopes
+
+| Scenario | Approach |
+|----------|----------|
+| HTTP requests (Node) | `brushyRequestScope()` middleware: automatic |
+| Unit tests | `runInRequestScope(() => …)` or `createScope()` |
+| WebSocket sessions | `createScope({ connectionId })` per connection |
+| Batch jobs | `runInRequestScope({ scope: { jobId } }, fn)` |
+
+## Cleanup
+
+Request scope middleware and `runInRequestScope` call `container.clearRequestScope()` on exit unless `skipRequestScopeCleanup: true`.
+
+For manual scopes, always call `scope.dispose()` or `clearScopedInstances` when the unit of work ends.

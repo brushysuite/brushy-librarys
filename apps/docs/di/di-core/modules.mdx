@@ -1,0 +1,125 @@
+---
+title: "Modules"
+description: "defineModule, container.import, and createBrushyApp."
+---
+
+Modules group related providers into composable units with inferred tokens.
+
+## `defineModule`
+
+```typescript
+import { defineModule } from "@brushy/di-core";
+
+class AuthService {
+  login(email: string) { /* … */ }
+}
+
+class AuditLogger {
+  log(action: string) { console.log(action); }
+}
+
+export const authModule = defineModule({
+  auth: { useClass: AuthService, lifecycle: "singleton" },
+  audit: { useClass: AuditLogger, lifecycle: "singleton" },
+});
+
+// Inferred tokens
+export const AUTH = authModule.tokens.auth;
+export const AUDIT = authModule.tokens.audit;
+```
+
+Register on any container:
+
+```typescript
+const container = new Container({ name: "app" });
+authModule.register(container);
+
+const auth = container.resolve(authModule.tokens.auth);
+```
+
+### `DefinedModule` shape
+
+```typescript
+interface DefinedModule<T> {
+  tokens: { [K in keyof T]: InjectionToken<…> };
+  types: { [K in keyof T]: InferredServiceType };
+  register(container: Container): void;
+}
+```
+
+`types` is a compile-time map for documentation; it is not populated at runtime.
+
+## Child containers with `import`
+
+Compose feature containers with internal dependencies:
+
+```typescript
+import { Container, createToken, deps } from "@brushy/di-core";
+
+const usersContainer = new Container({ name: "users" });
+
+const USER_REPO = usersContainer.register(createToken("USER_REPO"), {
+  useClass: UserRepository,
+  lifecycle: "scoped",
+});
+
+export const USER_SERVICE = usersContainer.register(createToken("USER_SERVICE"), {
+  useClass: UserService,
+  dependencies: deps([USER_REPO]),
+  lifecycle: "scoped",
+});
+```
+
+Merge into the app root:
+
+```typescript
+const app = new Container({ name: "app" });
+app.import(usersContainer);
+```
+
+### Import options
+
+```typescript
+app.import(featureContainer, {
+  overrideExisting: true,
+  prefix: "feature", // renames tokens to feature.TOKEN
+});
+```
+
+Emits an `import` container event when observers are attached.
+
+## `createBrushyApp`
+
+Shortcut for bootstrapping a single root module:
+
+```typescript
+import { createBrushyApp } from "@brushy/di-core";
+
+const { container, module } = createBrushyApp({
+  auth: { useClass: AuthService },
+  logger: { useValue: console },
+});
+
+const auth = container.resolve(module.tokens.auth);
+```
+
+In development, `enableBrushyDebug(container)` is called automatically.
+
+## Export / introspection
+
+```typescript
+const providers = container.exportProviders();
+// [{ token, config }, …]
+```
+
+Used by debug tooling and [Container monitor](/di/monitor/overview).
+
+## Patterns
+
+| Pattern | When |
+|---------|------|
+| `defineModule` | Flat feature bundles with typed `tokens.*` |
+| Child `Container` + `import` | Encapsulated dependency graphs |
+| `createBrushyApp` | Scripts, prototypes, small services |
+
+See [Container](/di/container) for `register`, `resolve`, and parent/child hierarchy.

@@ -1,0 +1,90 @@
+---
+title: "Dependency Injection"
+sidebarTitle: "@brushy/di"
+description: "Umbrella package for Brushy dependency injection."
+---
+
+A fast, typed dependency injection system for JavaScript/TypeScript with first-class React support.
+
+## Packages (v2)
+
+| Package | Description |
+|---------|-------------|
+| [`@brushy/di`](/di/entrypoints) | Umbrella: core + react + monitor |
+| [`@brushy/di-core`](/di/di-core/overview) | Zero-React core engine |
+| `@brushy/di-react` | React / React Native hooks |
+| [`@brushy/di-monitor`](/di/monitor/overview) | Container monitoring |
+| `@brushy/di-otel` | OpenTelemetry (optional subpath) |
+
+## Documentation map
+
+### Introduction
+
+- [Package entrypoints](/di/entrypoints): imports and subpaths
+- [Getting Started](/di/getting-started)
+- [Introduction](/di/introduction)
+
+### @brushy/di-core
+
+- [Overview](/di/di-core/overview): all public exports
+- [Tokens & providers](/di/di-core/tokens-providers)
+- [Lifecycle](/di/di-core/lifecycle)
+- [Scoped containers](/di/di-core/scoped-containers)
+- [Request scope](/di/di-core/request-scope)
+- [Modules](/di/di-core/modules)
+- [resolve & inject](/di/di-core/resolve-inject)
+- [Promise cache](/di/di-core/promise-cache)
+- [Container events](/di/di-core/events)
+- [Container registry](/di/di-core/container-registry)
+- [Debug API](/di/di-core/debug)
+- [DependencyError](/di/di-core/errors)
+
+### Guides
+
+- [Container](/di/container)
+- [Server](/di/server)
+- [Utilities](/di/utilities)
+- [Best Practices](/di/best-practices)
+- [Benchmarks](/di/benchmarks): comparative results vs other DI libraries
+
+### Monitor
+
+- [Overview](/di/monitor/overview)
+- [API reference](/di/monitor/api-reference)
+
+### React
+
+- [React Hooks](/di/react-hooks)
+- [Component Injection](/di/component-injection)
+
+### Migration
+
+- [Migration v2](/di/migration-v2)
+
+## Main exports
+
+```typescript
+import {
+  Container,
+  createToken,
+  defineModule,
+  createBrushyApp,
+  resolve,
+  inject,
+  server,
+  cache,
+  monitor,
+  useInject,
+  useInjectLazy,
+  BrushyDIProvider,
+} from "@brushy/di";
+```
+
+Granular imports:
+
+```typescript
+import { Container, createToken } from "@brushy/di/core";
+import { useInject } from "@brushy/di/react";
+import { monitor } from "@brushy/di/monitor";
+import { traceContainer } from "@brushy/di/otel";
+```

@@ -30,7 +30,8 @@ out/
 build/
 dist/
 **/dist/
-apps/
+apps/*
+!apps/docs/
 
 # Expo / React Native local state
 .expo/
@@ -52,4 +53,3 @@ yarn-error.log*
 # Package manager configs
 .npmrc
 .yarnrc.yml
-/apps

@@ -1,0 +1,87 @@
+---
+title: "Cache bus"
+description: "Cross-tab and cross-runtime cache invalidation."
+---
+
+The cache bus propagates **invalidation events**, not full values. Instances with the same `id` stay consistent across tabs, workers, and custom transports.
+
+## Built-in buses
+
+Every `createStorage()` instance composes three buses:
+
+1. **Registry channel**: in-process sync between instances sharing `id`
+2. **BroadcastChannel**: cross-tab sync in browsers (`@brushy/storage:{id}`)
+3. **Custom bus**: optional `options.bus`
+
+```typescript
+const cache = createStorage({ id: "product-catalog" });
+// Tabs with the same id invalidate each other automatically
+```
+
+## `CacheBus` interface
+
+```typescript
+interface CacheEvent {
+  type: "set" | "del" | "flush" | "expired";
+  key?: string;
+  version: number;
+  source?: string; // ignored when handling own events
+}
+
+interface CacheBus {
+  publish(event: CacheEvent): void;
+  subscribe(handler: (event: CacheEvent) => void): () => void;
+}
+```
+
+## Custom server ↔ client bus
+
+Use WebSockets, SSE, or message queues to invalidate keys after mutations on the server:
+
+```typescript
+import { createStorage, type CacheBus } from "@brushy/storage";
+
+const bus: CacheBus = {
+  publish: (event) => ws.send(JSON.stringify(event)),
+  subscribe: (handler) => {
+    const onMessage = (raw: string) => handler(JSON.parse(raw));
+    ws.on("message", onMessage);
+    return () => ws.off("message", onMessage);
+  },
+};
+
+createStorage({ id: "product", bus });
+```
+
+<Warning>
+  Design custom buses to **invalidate** keys. Remote `set` events drop the local copy without fetching the remote value; replicate values explicitly if needed.
+</Warning>
+
+## Composing buses
+
+```typescript
+import { composeBuses, createBroadcastBus, getRegistryChannel } from "@brushy/storage";
+
+const bus = composeBuses(
+  getRegistryChannel("my-app"),
+  createBroadcastBus("@brushy/storage:my-app"),
+  customBus,
+);
+```
+
+| Export | Purpose |
+|--------|---------|
+| `getRegistryChannel(id)` | In-process pub/sub keyed by instance id |
+| `createBroadcastBus(name)` | `BroadcastChannel` wrapper; `null` when unavailable |
+| `composeBuses(...buses)` | Fan-out publish, merged subscribe |
+| `resetBusRegistry()` | Clear registry listeners (tests) |
+
+## Event handling
+
+| Remote event | Local effect |
+|--------------|--------------|
+| `del`, `expired` | Remove key from memory + persist; notify React subscribers |
+| `flush` | `flushAll` equivalent without re-publishing |
+| `set` | Invalidate in-memory copy; subscribers re-read from persist or fallback |
+
+Events include `source` so the originating instance ignores its own broadcasts.

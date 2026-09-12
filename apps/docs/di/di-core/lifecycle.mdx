@@ -1,0 +1,98 @@
+---
+title: "Lifecycle strategies"
+description: "singleton, transient, scoped, immutable, TTL, and garbage collection."
+---
+
+Every provider declares a **lifecycle** that controls instance caching and sharing.
+
+## Lifecycle types
+
+| Lifecycle | Behavior | Use for |
+|-----------|----------|---------|
+| `singleton` | One instance per container (cached) | Shared services, config readers |
+| `transient` | New instance every resolve | Lightweight stateless helpers |
+| `scoped` | One instance per request scope | Per-request DB connections, user context |
+| `immutable` | Created once, integrity-checked | Config objects that must not mutate |
+
+```typescript
+container.register(DB, { useClass: Database, lifecycle: "scoped" });
+container.register(ID_GENERATOR, { useClass: IdGen, lifecycle: "transient" });
+container.register(APP_CONFIG, { useValue: config, lifecycle: "immutable" });
+```
+
+## Scoped dependencies
+
+`scoped` resolves against the active request scope (AsyncLocalStorage on Node) or an explicit scope object:
+
+```typescript
+import { runInRequestScope } from "@brushy/di-core";
+
+runInRequestScope(() => {
+  const a = container.resolve(REQUEST_CTX);
+  const b = container.resolve(REQUEST_CTX);
+  // a === b within this scope
+});
+```
+
+See [Request scope](/di/di-core/request-scope) and [Scoped containers](/di/di-core/scoped-containers).
+
+## Singleton TTL
+
+Optional `ttl` (milliseconds) expires cached singletons lazily on the next `resolve`:
+
+```typescript
+container.register(CACHE, {
+  useClass: MemoryCache,
+  lifecycle: "singleton",
+  ttl: 60_000, // refresh after 60s idle
+});
+```
+
+## Immutable integrity
+
+`immutable` providers are cached permanently. In development, `verifyImmutableIntegrity()` returns a checker that warns if the same token resolves to different object references:
+
+```typescript
+const check = container.verifyImmutableIntegrity();
+check(APP_CONFIG); // logs error in dev if instance changed
+```
+
+## Garbage collector
+
+Evict idle scoped/singleton wrappers from internal caches:
+
+```typescript
+container.startGarbageCollector(60_000, 30_000);
+// ttl: 60s idle, scan every 30s
+
+container.stopGarbageCollector();
+```
+
+Useful for long-running servers with many ephemeral scope keys.
+
+## Cache invalidation
+
+```typescript
+container.invalidateCache(USER_SERVICE);
+```
+
+Clears the resolver cache for a token and resets the container's last-resolve micro-cache.
+
+## Parent containers
+
+Child containers inherit unresolved tokens from `parent`. Register overrides on the child; resolves fall through to the parent when the token is not local.
+
+```typescript
+const parent = new Container();
+const child = new Container({ parent });
+```
+
+## Choosing a lifecycle
+
+<Tip>
+  **API servers:** `singleton` for infrastructure, `scoped` for per-request services, `transient` for cheap stateless objects.
+</Tip>
+
+<Tip>
+  **React client:** Usually `singleton` for services. Use `scoped` only when mirroring server request isolation in tests.
+</Tip>

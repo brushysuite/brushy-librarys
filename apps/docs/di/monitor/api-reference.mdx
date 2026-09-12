@@ -1,0 +1,97 @@
+---
+title: "Monitor API reference"
+description: "ContainerMonitor methods and MonitorOptions."
+---
+
+## `monitor.create(container, options?)`
+
+```typescript
+import { monitor, ContainerMonitor } from "@brushy/di-monitor";
+
+const m: ContainerMonitor = monitor.create(container, options);
+```
+
+## `MonitorOptions`
+
+<ParamField path="eventTypes" type="MonitorEventType[]" default='["all"]'>
+  Filter events. Values: `register`, `resolve`, `error`, `import`, `clear`, `all`.
+</ParamField>
+
+<ParamField path="logToConsole" type="boolean" default="true">
+  Log filtered events to `console.info` with `[DI:type]` prefix.
+</ParamField>
+
+<ParamField path="maxEvents" type="number" default="100">
+  Ring buffer size. Oldest events are dropped when exceeded.
+</ParamField>
+
+## `ContainerMonitor` methods
+
+### `start()`
+
+Attaches to `container.observe`. Called automatically by the constructor. Idempotent.
+
+### `stop()`
+
+Unsubscribes from container events. Call when monitoring is no longer needed to reduce resolve overhead.
+
+### `clearHistory()`
+
+Empties the in-memory event buffer without stopping observation.
+
+### `getEvents()`
+
+Returns a shallow copy of buffered `ContainerEvent[]`:
+
+```typescript
+interface ContainerEvent {
+  type: "register" | "resolve" | "error" | "import" | "clear";
+  token?: Token;
+  timestamp: number;
+  details?: unknown;
+}
+```
+
+### `getStats()`
+
+```typescript
+const stats = monitor.getStats();
+// {
+//   totalEvents: number;
+//   byType: Record<string, number>;
+//   errorRate: number;           // errors / totalEvents
+//   resolveSuccessRate: number;  // successful resolves / resolve events
+// }
+```
+
+`resolveSuccessRate` inspects `details.success` on `resolve` events.
+
+## Console output format
+
+```
+[DI:resolve] Token: Symbol(API) - {"success":true,"source":"self"}
+```
+
+## Example: test assertions
+
+```typescript
+const m = monitor.create(container, { logToConsole: false });
+
+container.resolve(USER_SERVICE);
+
+const resolves = m.getEvents().filter((e) => e.type === "resolve");
+expect(resolves).toHaveLength(1);
+expect(m.getStats().errorRate).toBe(0);
+
+m.stop();
+```
+
+## Import paths
+
+```typescript
+import { monitor } from "@brushy/di-monitor";
+import { monitor } from "@brushy/di";
+import { monitor } from "@brushy/di/monitor";
+```
+
+All resolve to the same implementation.

@@ -1,0 +1,57 @@
+---
+title: "Debug API"
+description: "enableBrushyDebug and globalThis.__BRUSHY_DI__."
+---
+
+Development helpers expose the active container on `globalThis` for console debugging and browser DevTools.
+
+## `enableBrushyDebug`
+
+```typescript
+import { Container, enableBrushyDebug } from "@brushy/di-core";
+
+const container = new Container({ name: "app", debug: true });
+const api = enableBrushyDebug(container);
+```
+
+Sets `globalThis.__BRUSHY_DI__` with:
+
+```typescript
+interface BrushyDebugAPI {
+  container: Container;
+  exportProviders: () => ReturnType<Container["exportProviders"]>;
+  resolve: Container["resolve"];
+}
+```
+
+## `getBrushyDebug`
+
+```typescript
+import { getBrushyDebug } from "@brushy/di-core";
+
+const api = getBrushyDebug();
+if (api) {
+  api.exportProviders().forEach(({ token }) => console.log(token));
+}
+```
+
+## Auto-enable in `createBrushyApp`
+
+`createBrushyApp` calls `enableBrushyDebug` when `IS_DEV` is true.
+
+## Container `debug` flag
+
+Constructor option `debug: true` enables verbose resolver logging via the internal `Logger`, separate from the global debug API.
+
+## Browser console
+
+After `enableBrushyDebug`:
+
+```javascript
+__BRUSHY_DI__.resolve(YOUR_TOKEN)
+__BRUSHY_DI__.exportProviders()
+```
+
+<Warning>
+  Do not enable in production builds. The debug API exposes full container access.
+</Warning>

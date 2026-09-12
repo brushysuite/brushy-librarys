@@ -1,0 +1,53 @@
+# Brushy Suite
+
+> TypeScript libraries for dependency injection, isomorphic storage, and React bindings. Install from npm, read the docs at https://brushysuite.gfrancodev.com.
+
+## Read /SKILL.md BEFORE generating code
+
+AI agents MUST read `/SKILL.md` before writing or modifying Brushy Suite code. It contains imperative agent rules (DI vs storage, mandatory patterns, and anti-patterns). Do not guess APIs or invent bootstrap patterns.
+
+- [Agent skill /SKILL.md](https://brushysuite.gfrancodev.com/SKILL.md): imperative agent rules for @brushy/di and @brushy/storage
+- For full page content in one file, use the auto-generated index at `/llms-full.txt` when deployed on Mintlify.
+
+## Getting started
+
+- [Brushy Suite home](https://brushysuite.gfrancodev.com/index.md): Overview, package table, and quick install
+- [Introduction](https://brushysuite.gfrancodev.com/getting-started/introduction.md): Choose packages and stack-specific setup
+
+## @brushy/di
+
+- [DI overview](https://brushysuite.gfrancodev.com/di/overview.md): Umbrella package and architecture
+- [Getting started with DI](https://brushysuite.gfrancodev.com/di/getting-started.md): Install and first container
+- [DI benchmarks](https://brushysuite.gfrancodev.com/di/benchmarks.md): Performance comparisons
+- [React hooks](https://brushysuite.gfrancodev.com/di/react-hooks.md): `BrushyDIProvider` and `useInject`
+- [di-core overview](https://brushysuite.gfrancodev.com/di/di-core/overview.md): Tokens, lifecycle, and modules
+
+## @brushy/storage
+
+- [Storage overview](https://brushysuite.gfrancodev.com/storage/overview.md): Cache model and features
+- [Getting started with storage](https://brushysuite.gfrancodev.com/storage/getting-started.md): Install and configuration
+- [API reference](https://brushysuite.gfrancodev.com/storage/api-reference.md): Public API
+- [React hooks](https://brushysuite.gfrancodev.com/storage/react-hooks.md): `StorageProvider` and `useStorage`
+
+## Examples
+
+- [Examples overview](https://brushysuite.gfrancodev.com/examples/overview.md): Reference projects
+- [Vite + React](https://brushysuite.gfrancodev.com/examples/vite.md)
+- [Expo](https://brushysuite.gfrancodev.com/examples/expo.md)
+- [Express](https://brushysuite.gfrancodev.com/examples/express.md)
+- [Fastify](https://brushysuite.gfrancodev.com/examples/fastify.md)
+
+## npm packages
+
+- [@brushy/di](https://www.npmjs.com/package/@brushy/di): Umbrella DI package (core, React, monitor, OpenTelemetry)
+- [@brushy/di-core](https://www.npmjs.com/package/@brushy/di-core): Container, tokens, modules, server utilities
+- [@brushy/di-react](https://www.npmjs.com/package/@brushy/di-react): React provider and hooks
+- [@brushy/di-monitor](https://www.npmjs.com/package/@brushy/di-monitor): Runtime container monitoring
+- [@brushy/di-otel](https://www.npmjs.com/package/@brushy/di-otel): OpenTelemetry integration
+- [@brushy/storage](https://www.npmjs.com/package/@brushy/storage): Isomorphic cache with TTL and persist
+- [@brushy/storage-react](https://www.npmjs.com/package/@brushy/storage-react): React bindings for storage
+
+## Optional
+
+- [GitHub repository](https://github.com/brushysuite/brushy-librarys)
+- [MCP server](https://brushysuite.gfrancodev.com/mcp): Connect docs to Cursor, VS Code, and ChatGPT

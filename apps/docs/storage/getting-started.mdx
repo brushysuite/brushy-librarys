@@ -1,0 +1,54 @@
+---
+title: "Getting started"
+description: "Install @brushy/storage and create your first cache instance."
+---
+
+## Install
+
+```bash
+npm install @brushy/storage
+```
+
+For React applications, also install the bindings package:
+
+```bash
+npm install @brushy/storage-react react
+```
+
+## Create a cache
+
+```typescript
+import { createStorage } from "@brushy/storage";
+
+export const cache = createStorage({
+  prefix: "@myapp:",
+  stdTTL: 3600,
+  checkperiod: 600,
+});
+```
+
+Use `cache.set`, `cache.get`, and `cache.del` anywhere in your app; the same API works on the server and in the browser.
+
+## Persist in the browser
+
+Add `persist` when you want values to survive reloads:
+
+```typescript
+const cache = createStorage({
+  id: "my-app",
+  persist: "local",
+  prefix: "@myapp:",
+});
+```
+
+<Tip>
+  Give persisted instances a stable `id` so the invalidation bus can sync keys across tabs.
+</Tip>
+
+## Wire React
+
+Wrap your tree with `StorageProvider` and read values with `useStorage`. See [React hooks](/storage/react-hooks) for the full setup.
+
+## Use with DI
+
+The Brushy Suite example projects register storage as a DI token in `shared/cache/` and inject it into feature services. See [Examples](/examples/overview) for Vite, Expo, Express, and Fastify layouts.

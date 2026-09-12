@@ -1,0 +1,35 @@
+---
+title: "Introduction"
+description: "Overview of Brushy Suite packages and where to start."
+---
+
+Brushy Suite is a collection of libraries for dependency injection and client-side storage in TypeScript applications.
+
+## What you get
+
+- **@brushy/di**: typed tokens, container lifecycles, React hooks, and server request scope for Express, Fastify, and Next.js.
+- **@brushy/storage**: NodeCache-style API with optional browser persist, cross-tab invalidation, and React hooks via `@brushy/storage-react`.
+- **Examples**: minimal Vite, Expo, Express, and Fastify apps that compose features with shared providers.
+
+## Recommended path
+
+<Steps>
+  <Step title="Pick your runtime">
+    Web, React Native, Node API, or full stack: each stack has a minimal install command in the DI getting started guide.
+  </Step>
+  <Step title="Set up DI">
+    Create a `Container`, register tokens, and wire `BrushyDIProvider` or `server.brushyRequestScope()` for your framework.
+  </Step>
+  <Step title="Add storage (optional)">
+    Use `createStorage` for cache and `StorageProvider` when you need persisted UI state or cross-tab sync.
+  </Step>
+  <Step title="Explore examples">
+    Clone patterns from the examples tab; each project mirrors production feature-module layout.
+  </Step>
+</Steps>
+
+## Next steps
+
+- [DI getting started](/di/getting-started): install commands and stack recipes
+- [Storage overview](/storage/overview): cache API and React setup
+- [Examples](/examples/overview): runnable example projects

@@ -1,0 +1,121 @@
+---
+title: "Request scope"
+description: "AsyncLocalStorage, middleware, and runInRequestScope."
+---
+
+Request scope binds **scoped** lifecycle providers to a single unit of work, typically one HTTP request on Node.js.
+
+## Support detection
+
+```typescript
+import { isRequestScopeSupported } from "@brushy/di-core";
+
+if (isRequestScopeSupported()) {
+  // AsyncLocalStorage available (Node 16+)
+}
+```
+
+In browsers and React Native, `runInRequestScope` still runs the callback but scoped resolution uses explicit scope objects when ALS is unavailable.
+
+## Express / Connect middleware
+
+```typescript
+import { server } from "@brushy/di-core";
+import { container } from "./container";
+
+server.setServerContainer(container);
+app.use(server.brushyRequestScope());
+
+app.get("/users", (_req, res) => {
+  res.json(server.resolve(USER_SERVICE).list());
+});
+```
+
+`brushyRequestScope` creates a unique scope per request and clears scoped instances when the response finishes.
+
+### Options
+
+```typescript
+app.use(
+  server.brushyRequestScope({
+    onCleanup: (container) => container.clearRequestScope(),
+  }),
+);
+```
+
+## Manual scope (scripts & tests)
+
+```typescript
+import { runInRequestScope, runInRequestScopeAsync } from "@brushy/di-core";
+
+runInRequestScope(() => {
+  const a = resolve(USER_SERVICE);
+  const b = resolve(USER_SERVICE);
+  // same scoped instance
+});
+
+await runInRequestScopeAsync(async () => {
+  await resolveAsync(DATABASE).connect();
+});
+```
+
+### `RequestScopeOptions`
+
+<ParamField path="scope" type="object">
+  Custom scope key. Auto-generated when omitted.
+</ParamField>
+
+<ParamField path="container" type="Container">
+  Container to clean up. Defaults to registry default.
+</ParamField>
+
+<ParamField path="onEnter" type="(scope) => void">
+  Called when scope is entered.
+</ParamField>
+
+<ParamField path="onCleanup" type="() => void">
+  Custom cleanup instead of `clearRequestScope`.
+</ParamField>
+
+<ParamField path="skipRequestScopeCleanup" type="boolean" default="false">
+  Skip automatic scope cleanup on exit.
+</ParamField>
+
+## `getActiveScope`
+
+```typescript
+import { getActiveScope } from "@brushy/di-core";
+
+const scope = getActiveScope(); // current ALS scope or undefined
+```
+
+`containerRegistry.getContainer()` uses the active scope to pick scoped containers when registered.
+
+## Register scoped services
+
+```typescript
+container.register(USER_REPO, {
+  useClass: UserRepository,
+  lifecycle: "scoped",
+});
+
+container.register(USER_SERVICE, {
+  useClass: UserService,
+  dependencies: deps([USER_REPO]),
+  lifecycle: "scoped",
+});
+```
+
+## Fastify & async handlers
+
+Use `runInRequestScopeAsync` inside route handlers when middleware is not available:
+
+```typescript
+fastify.get("/users", async () => {
+  return runInRequestScopeAsync(async () => {
+    return resolve(USER_SERVICE).list();
+  });
+});
+```
+
+See also [Server utilities](/di/server).

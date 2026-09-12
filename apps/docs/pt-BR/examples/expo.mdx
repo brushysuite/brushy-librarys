@@ -1,0 +1,64 @@
+---
+title: "Expo + React Native"
+description: "App Expo orientada a features com useInject, storage em memória e erro customizado no RN."
+---
+
+Mesma estrutura orientada a features do exemplo Vite. Entrada em `index.js` → `src/providers/root`.
+
+**Código:** [examples/expo](https://github.com/brushysuite/brushy-librarys/tree/main/examples/expo) · [README.md](https://github.com/brushysuite/brushy-librarys/blob/main/examples/expo/README.md)
+
+## O que demonstra
+
+- `useInject` e `useStorage` em React Native
+- Storage em memória (sem persistência local)
+- Renderer de erro customizado para React Native via injeção de componentes
+
+## Como executar
+
+Na raiz do repositório, compile as bibliotecas primeiro:
+
+```bash
+npm run build-packages
+```
+
+Depois, em `examples/expo`:
+
+```bash
+npm start
+```
+
+Isso limpa o cache do Metro e define `EXPO_NO_METRO_WORKSPACE_ROOT=1`.
+
+Ou use o atalho na raiz:
+
+```bash
+npm run example:expo
+```
+
+Requer **Expo Go SDK 57** (compatível com `expo` ~57 no `package.json`). Se aparecer incompatibilidade de SDK:
+
+1. Pare todos os processos Metro (`Ctrl+C`, ou `lsof -i :8081`).
+2. Execute `npm start` novamente em `examples/expo`.
+3. No Expo Go, remova o projeto antigo em **Recently opened** e escaneie o novo QR code.
+
+<Note>
+  O servidor de desenvolvimento do Expo não roda no CI. Valide localmente com `npx expo start`.
+</Note>
+
+## Estrutura
+
+```text
+index.js
+src/
+  container.ts
+  screens/App.tsx
+  features/users/
+  shared/logger/
+  providers/
+```
+
+## Documentação relacionada
+
+- [Injeção em componentes](/di/component-injection): padrão de renderer de erro no Expo
+- [Hooks React](/di/react-hooks)
+- [Hooks React do storage](/storage/react-hooks)

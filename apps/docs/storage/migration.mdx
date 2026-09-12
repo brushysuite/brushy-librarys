@@ -1,0 +1,40 @@
+---
+title: "Migration from @brushy/localstorage"
+description: "Map v1 localstorage APIs to @brushy/storage and @brushy/storage-react."
+---
+
+`@brushy/localstorage` is deprecated. Use `@brushy/storage` for the cache API and `@brushy/storage-react` for hooks.
+
+## API mapping
+
+| v1 (`@brushy/localstorage`) | v2 (`@brushy/storage`) |
+| --- | --- |
+| `new LocalStorage(prefix)` | `createStorage({ prefix, persist: "local" })` |
+| `useStorage` / `useJSONStorage` / `useLazyStorage` | `useStorage` from `@brushy/storage-react` |
+| `updateFields(patch)` | `set(prev => ({ ...prev, ...patch }))` |
+| `JSONStorage`, `LazyStorage`, `getJSONSchema` | Removed: use `createStorage` + `set`/`get` |
+| Tuple return `[value, set, remove]` | Object `{ value, set, remove }` |
+
+<Warning>
+  The v1 on-disk envelope is **not** read automatically. Plan a one-time migration or accept fresh keys when upgrading.
+</Warning>
+
+## Hook migration example
+
+**Before (v1):**
+
+```tsx
+const [theme, setTheme, removeTheme] = useStorage("ui:theme", "light");
+```
+
+**After (v2):**
+
+```tsx
+const { value: theme, set, remove } = useStorage("ui:theme", "light");
+```
+
+## Next steps
+
+- [Storage getting started](/storage/getting-started)
+- [React hooks](/storage/react-hooks)
+- [DI getting started](/di/getting-started): compose storage with dependency injection

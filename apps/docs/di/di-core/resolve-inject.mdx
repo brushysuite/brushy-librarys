@@ -1,0 +1,77 @@
+---
+title: "resolve & inject"
+description: "Global resolution facades and container registry."
+---
+
+Two facades resolve dependencies without passing a `Container` reference everywhere: `resolve` (functional) and `inject` (object API).
+
+## `resolve(token, scope?)`
+
+Uses `containerRegistry` to find the active container (default or ALS-bound scope):
+
+```typescript
+import { resolve } from "@brushy/di-core";
+import { inject } from "@brushy/di-core";
+
+// Set default container once at bootstrap
+inject.setGlobalContainer(container);
+
+const logger = resolve(LOGGER);
+const scoped = resolve(USER_SERVICE, customScopeObject);
+```
+
+Equivalent to `containerRegistry.getContainer(scope).resolve(token)`.
+
+## `inject` API
+
+```typescript
+inject.setGlobalContainer(container, {
+  autoCleanRequestScope: true, // Node: clear on process beforeExit
+});
+
+inject.getGlobalContainer();
+inject.resolve(LOGGER);
+await inject.resolveAsync(DATABASE);
+inject.clearRequestScope();
+```
+
+| Method | Description |
+|--------|-------------|
+| `setGlobalContainer` | Register default container in `containerRegistry` |
+| `getGlobalContainer` | Throws if no default set |
+| `resolve` / `resolveAsync` | Resolve from default container |
+| `clearRequestScope` | Clear scoped instances on default container |
+
+## `server` facade
+
+Separate singleton for HTTP servers. See [Server utilities](/di/server):
+
+```typescript
+import { server } from "@brushy/di-core";
+
+server.setServerContainer(container);
+server.resolve(USER_SERVICE);
+server.brushyRequestScope();
+```
+
+## When to use which
+
+| API | Prefer when |
+|-----|-------------|
+| `container.resolve` | You hold the container (libraries, tests) |
+| `resolve` / `inject` | App bootstrap, handlers after `setGlobalContainer` |
+| `server` | Express/Fastify with dedicated server container |
+
+## Container reference vs facade
+
+```typescript
+// Explicit: best for libraries
+export function createUserRouter(container: Container) {
+  return Router().get("/", () => container.resolve(USER_SERVICE).list());
+}
+
+// Facade: best for app code after bootstrap
+app.get("/users", () => resolve(USER_SERVICE).list());
+```
+
+See [Container registry](/di/di-core/container-registry) for multi-container setups.

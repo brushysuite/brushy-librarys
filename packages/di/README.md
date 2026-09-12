@@ -13,9 +13,9 @@
 
 </div>
 
-Umbrella package for **Brushy DI v2**: typed dependency injection for Node.js, browsers, React, and React Native. Re-exports `@brushy/di-core`, `@brushy/di-react`, and `@brushy/di-monitor` from one install. OpenTelemetry lives in `@brushy/di/otel` (subpath only).
+Umbrella package for **Brushy DI v2.0**: typed dependency injection for Node.js, browsers, React, and React Native. Re-exports `@brushy/di-core`, `@brushy/di-react`, and `@brushy/di-monitor` from one install. OpenTelemetry lives in `@brushy/di/otel` (subpath only).
 
-**Documentation:** [brushysuite.gfrancodev.com/docs/di](https://brushysuite.gfrancodev.com/docs/di) · [Full docs (source)](../../apps/docs/di/overview.mdx) · [Example projects](../../examples/README.md)
+**Documentation:** [brushysuite.gfrancodev.com/docs/di](https://brushysuite.gfrancodev.com/docs/di) · [Examples](https://github.com/brushysuite/brushy-librarys/tree/main/examples)
 
 ## Features
 
@@ -44,7 +44,7 @@ Umbrella package for **Brushy DI v2**: typed dependency injection for Node.js, b
 | `@brushy/storage-react` | React hooks for storage (`useStorage`) |
 | `@brushy/localstorage` | **Deprecated.** Use `@brushy/storage` + `@brushy/storage-react` |
 
-Examples combine DI with `@brushy/storage` (see [Vite](../../examples/vite) and [Express](../../examples/express)).
+Examples combine DI with `@brushy/storage` ([Vite](https://github.com/brushysuite/brushy-librarys/tree/main/examples/vite), [Express](https://github.com/brushysuite/brushy-librarys/tree/main/examples/express)).
 
 ## Installation
 
@@ -65,7 +65,7 @@ npm install @brushy/di react
 | Monitor (optional) | `npm install @brushy/di-monitor` |
 | OpenTelemetry (optional) | `npm install @brushy/di-otel @opentelemetry/api` |
 
-Granular install (without umbrella): `@brushy/di-core` + `@brushy/di-react`. Full setup guide: [Getting Started](../../apps/docs/di/getting-started.mdx).
+Granular install: `@brushy/di-core` + `@brushy/di-react`. Setup guide: [Getting Started](https://brushysuite.gfrancodev.com/docs/di/getting-started).
 
 ## Quick start
 
@@ -139,15 +139,15 @@ import { monitor } from "@brushy/di/monitor";
 import { traceContainer } from "@brushy/di/otel"; // not re-exported from main entry
 ```
 
-Runtime guide: [Package entrypoints](../../apps/docs/di/entrypoints.mdx).
+Runtime guide: [Package entrypoints](https://brushysuite.gfrancodev.com/docs/di/entrypoints).
 
 ## Benchmark
 
 **@brushy/di-core ranked #1** among DI libraries (tsyringe, InversifyJS, awilix) in **8/8 scenarios**. Baseline (`new` direct) is measured separately as overhead reference, not ranked against DI runtimes.
 
-**Last run:** 2026-09-12 · Node v22.23.2 · linux x64 · `time=3000ms`, `runs=5` (full suite)
+**Last run:** 2026-09-12 · Node v22.23.2 · linux x64 · 16 CPUs · `time=3000ms`, `runs=5` (full suite)
 
-> Published numbers come from the full suite (5 runs × 3s per task). Local quick runs: `npm run bench:quick`; full runs: `npm run bench:report`.
+> Published numbers come from the full suite (5 runs x 3s per task). Quick run: `npm run bench:quick`; full run: `npm run bench:report`.
 
 ### Speed advantage over best competitor
 
@@ -174,29 +174,18 @@ xychart-beta
 
 `request_scope`: tsyringe and inversify have no native request scope (N/A). Bars are scaled per row (Brushy = 10 blocks).
 
-Full numbers, methodology, and CI refresh policy: [Benchmarks docs](https://brushysuite.gfrancodev.com/docs/di/benchmarks) · [`BENCHMARK.md`](../di-bench/results/BENCHMARK.md) · [`METHODOLOGY.md`](../di-bench/METHODOLOGY.md)
-
-```bash
-npm run bench:quick   # from repository root
-```
+Full numbers and methodology: [Benchmarks docs](https://brushysuite.gfrancodev.com/docs/di/benchmarks) · [`BENCHMARK.md`](../di-bench/results/BENCHMARK.md) · [`METHODOLOGY.md`](../di-bench/METHODOLOGY.md)
 
 ## Example projects
 
-Runnable demos in [`examples/`](../../examples/README.md):
+Runnable demos on GitHub: [examples/](https://github.com/brushysuite/brushy-librarys/tree/main/examples)
 
 | Example | Stack | Highlights |
 | --- | --- | --- |
-| [vite](../../examples/vite) | Vite + React | `useInject`, `@brushy/storage-react` |
-| [expo](../../examples/expo) | Expo + RN | same + RN error renderer |
-| [express](../../examples/express) | Express | `brushyRequestScope`, scoped services |
-| [fastify](../../examples/fastify) | Fastify | `runInRequestScopeAsync` |
-
-```bash
-npm run build-packages
-npm run example:vite      # http://localhost:5173
-npm run example:express   # http://localhost:3001/users
-npm run example:fastify   # http://localhost:3002/users
-```
+| [vite](https://github.com/brushysuite/brushy-librarys/tree/main/examples/vite) | Vite + React | `useInject`, `@brushy/storage-react` |
+| [expo](https://github.com/brushysuite/brushy-librarys/tree/main/examples/expo) | Expo + RN | same + RN error renderer |
+| [express](https://github.com/brushysuite/brushy-librarys/tree/main/examples/express) | Express | `brushyRequestScope`, scoped services |
+| [fastify](https://github.com/brushysuite/brushy-librarys/tree/main/examples/fastify) | Fastify | `runInRequestScopeAsync` |
 
 ## Migration from v1
 
@@ -214,33 +203,13 @@ import { Container, createToken } from "@brushy/di-core";
 import { useInject, BrushyDIProvider } from "@brushy/di-react";
 ```
 
-Breaking changes: `useLazyInject` → `useInjectLazy`; typed tokens via `createToken` (avoid string tokens). Full guide: [Migration v2](../../apps/docs/di/migration-v2.mdx).
+Breaking changes: `useLazyInject` → `useInjectLazy`; typed tokens via `createToken` (avoid string tokens). Full guide: [Migration v2](https://brushysuite.gfrancodev.com/docs/di/migration-v2).
 
 ## Documentation
 
-| Topic | Link |
-| --- | --- |
-| Overview | [apps/docs/di/overview.mdx](../../apps/docs/di/overview.mdx) |
-| Getting Started | [apps/docs/di/getting-started.mdx](../../apps/docs/di/getting-started.mdx) |
-| Container & modules | [apps/docs/di/container.mdx](../../apps/docs/di/container.mdx) |
-| Server & request scope | [apps/docs/di/server.mdx](../../apps/docs/di/server.mdx) |
-| React hooks | [apps/docs/di/react-hooks.mdx](../../apps/docs/di/react-hooks.mdx) |
-| Component injection | [apps/docs/di/component-injection.mdx](../../apps/docs/di/component-injection.mdx) |
-| Best practices | [apps/docs/di/best-practices.mdx](../../apps/docs/di/best-practices.mdx) |
-| Benchmarks | [apps/docs/di/benchmarks.mdx](../../apps/docs/di/benchmarks.mdx) · [Published docs](https://brushysuite.gfrancodev.com/docs/di/benchmarks) |
-| Monitor | [apps/docs/di/monitor/overview.mdx](../../apps/docs/di/monitor/overview.mdx) |
+[Overview](https://brushysuite.gfrancodev.com/docs/di/overview) · [Getting Started](https://brushysuite.gfrancodev.com/docs/di/getting-started) · [Container](https://brushysuite.gfrancodev.com/docs/di/container) · [Server](https://brushysuite.gfrancodev.com/docs/di/server) · [React hooks](https://brushysuite.gfrancodev.com/docs/di/react-hooks) · [Component injection](https://brushysuite.gfrancodev.com/docs/di/component-injection) · [Best practices](https://brushysuite.gfrancodev.com/docs/di/best-practices) · [Benchmarks](https://brushysuite.gfrancodev.com/docs/di/benchmarks) · [Monitor](https://brushysuite.gfrancodev.com/docs/di/monitor/overview)
 
-Local docs site: `npm run docs:dev` from the repository root (Mintlify in `apps/docs`).
-
-## Related packages
-
-| Package | README |
-| --- | --- |
-| `@brushy/di-core` | [packages/di-core/README.md](../di-core/README.md) |
-| `@brushy/di-react` | [packages/di-react/README.md](../di-react/README.md) |
-| `@brushy/di-monitor` | [packages/di-monitor/README.md](../di-monitor/README.md) |
-| `@brushy/di-otel` | [packages/di-otel/README.md](../di-otel/README.md) |
-| `@brushy/storage` | [packages/storage/README.md](../storage/README.md) |
+Related: [`@brushy/di-core`](../di-core/README.md) · [`@brushy/di-react`](../di-react/README.md) · [`@brushy/di-monitor`](../di-monitor/README.md) · [`@brushy/di-otel`](../di-otel/README.md) · [`@brushy/storage`](../storage/README.md)
 
 ## License
 

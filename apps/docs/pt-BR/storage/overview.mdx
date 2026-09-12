@@ -1,0 +1,83 @@
+---
+title: "Visão geral"
+sidebarTitle: "@brushy/storage"
+description: "Cache isomórfico em memória com persistência opcional e bus de invalidação."
+---
+
+O `@brushy/storage` oferece uma API no estilo NodeCache que funciona em Node, navegador e contextos SSR. Adaptadores de persistência opcionais gravam em `localStorage` ou `sessionStorage`, e um bus de invalidação integrado mantém abas sincronizadas quando instâncias compartilham o mesmo `id`.
+
+Os bindings React ficam em [**@brushy/storage-react**](/storage/react-hooks) (pacote separado).
+
+## Instalação
+
+```bash
+npm install @brushy/storage
+
+# Hooks React (pacote separado)
+npm install @brushy/storage-react react
+```
+
+## Exemplo rápido
+
+```typescript
+import { createStorage } from "@brushy/storage";
+
+const cache = createStorage({
+  id: "my-app",
+  stdTTL: 0,
+  checkperiod: 600,
+  prefix: "@myapp:",
+  persist: "local",
+});
+
+cache.set("session", { token: "abc" }, 3600);
+cache.get("session");
+cache.del("session");
+```
+
+## Documentação
+
+### Primeiros passos
+
+- [Primeiros passos](/storage/getting-started): instalação e primeira instância
+- [Configuração](/storage/configuration): todas as `StorageOptions`
+- [Referência da API](/storage/api-reference): cada método de `Storage`
+
+### Recursos
+
+- [TTL](/storage/ttl): parsing de duração e expiração
+- [Eventos](/storage/events): `on` / `off` e assinaturas no React
+- [Adaptadores de persistência](/storage/persist): local, session, `SyncPersist` customizado
+- [Cache bus](/storage/cache-bus): invalidação entre abas e customizada
+- [Erros](/storage/errors): códigos de `StorageError`
+- [Node vs navegador](/storage/runtime): SSR, registry e matriz de runtime
+
+### React e migração
+
+- [Hooks React](/storage/react-hooks): `StorageProvider`, `useStorage`
+- [Migração de @brushy/localstorage](/storage/migration): v1 para v2
+
+<Note>
+  As páginas detalhadas abaixo ainda estão em inglês. Os links acima apontam para a documentação em inglês até que a tradução seja concluída.
+</Note>
+
+## Exports públicos
+
+```typescript
+import {
+  createStorage,
+  getStorageInstance,
+  resetStorageRegistry,
+  composeBuses,
+  createBroadcastBus,
+  getRegistryChannel,
+  resetBusRegistry,
+  createLocalPersist,
+  createSessionPersist,
+  createMemoryPersist,
+  resolvePersist,
+  parseTtlToSeconds,
+  expireAtFromTtlSeconds,
+  StorageError,
+} from "@brushy/storage";
+```

@@ -1,0 +1,65 @@
+---
+title: "Events"
+description: "Storage event listeners and React subscriptions."
+---
+
+`Storage` emits four event types and exposes subscription helpers for React `useSyncExternalStore`.
+
+## Event types
+
+| Event | When it fires | Callback args |
+|-------|---------------|---------------|
+| `set` | After a successful `set` | `(key, value)` |
+| `del` | After `del` or expiry removal | `(key, undefined)` |
+| `expired` | Key passed expiry (before optional delete) | `(key, value)` |
+| `flush` | After `flushAll` | `("", undefined)` |
+
+## `on` / `off`
+
+```typescript
+const cache = createStorage();
+
+cache.on("set", (key, value) => {
+  console.log("set", key, value);
+});
+
+cache.on("expired", (key, value) => {
+  console.log("expired", key, value);
+});
+
+const handler = (key: string) => console.log("deleted", key);
+cache.on("del", handler);
+cache.off("del", handler);
+```
+
+<Note>
+  Event listeners are in-process only. Cross-tab invalidation uses the [cache bus](/storage/cache-bus), not these callbacks.
+</Note>
+
+## React subscriptions
+
+`subscribe` and `subscribeAll` notify `useSyncExternalStore` without exposing values in the callback (read via `getSnapshot` instead).
+
+```typescript
+const cache = createStorage();
+
+// Per-key
+const unsub = cache.subscribe("ui:theme", () => {
+  console.log("theme changed", cache.get("ui:theme"));
+});
+
+// Global
+cache.subscribeAll(() => console.log("any change"));
+```
+
+`@brushy/storage-react` wires these internally; you rarely call them directly unless building custom hooks.
+
+## Remote invalidation events
+
+When a [cache bus](/storage/cache-bus) delivers remote events, the instance:
+
+- **`del` / `expired`**: removes the key from memory and persist, notifies subscribers
+- **`flush`**: clears all keys
+- **`set`**: drops the in-memory copy (invalidates without replicating the remote value)
+
+This keeps tabs and runtimes consistent without broadcasting full payloads by default.

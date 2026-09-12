@@ -1,0 +1,69 @@
+---
+title: "Brushy Suite"
+description: "Injeção de dependência, storage e exemplos para TypeScript, React e Node.js."
+---
+
+Bem-vindo à documentação oficial da **Brushy Suite**, um conjunto modular de bibliotecas para construir aplicações tipadas e testáveis em web, mobile e servidores.
+
+**Agentes de IA:** leia [`/SKILL.md`](/SKILL.md) antes de gerar código. O arquivo contém regras obrigatórias para DI, storage e padrões React.
+
+<CardGroup cols={2}>
+  <Card title="Instalar @brushy/di" icon="package" href="https://www.npmjs.com/package/@brushy/di">
+    Pacote principal de DI: core, React, monitor e OpenTelemetry.
+  </Card>
+  <Card title="Instalar @brushy/storage" icon="database" href="https://www.npmjs.com/package/@brushy/storage">
+    Cache isomórfico com TTL, persistência e hooks React opcionais.
+  </Card>
+</CardGroup>
+
+<Columns cols={2}>
+  <Card title="Primeiros passos" icon="rocket" href="/pt-BR/getting-started/introduction">
+    Escolha pacotes, comandos de instalação e receitas por stack.
+  </Card>
+  <Card title="@brushy/di" icon="box" href="/pt-BR/di/overview">
+    Core de DI sem dependências, com hooks React e request scope no servidor.
+  </Card>
+  <Card title="@brushy/storage" icon="database" href="/pt-BR/storage/overview">
+    Cache isomórfico com persistência opcional e bindings React.
+  </Card>
+  <Card title="Exemplos" icon="code" href="/pt-BR/examples/overview">
+    Projetos de referência com Vite, Expo, Express e Fastify.
+  </Card>
+</Columns>
+
+## Pacotes
+
+| Pacote | npm | Descrição |
+| --- | --- | --- |
+| [`@brushy/di`](/pt-BR/di/overview) | [npm](https://www.npmjs.com/package/@brushy/di) | Pacote principal: core, React, monitor e OpenTelemetry |
+| [`@brushy/di-core`](/di/di-core/overview) | [npm](https://www.npmjs.com/package/@brushy/di-core) | Container, tokens, módulos e utilitários de servidor |
+| [`@brushy/di-react`](/di/react-hooks) | [npm](https://www.npmjs.com/package/@brushy/di-react) | `BrushyDIProvider`, `useInject` e injeção em componentes |
+| [`@brushy/di-monitor`](/di/monitor/overview) | [npm](https://www.npmjs.com/package/@brushy/di-monitor) | Monitoramento do container e métricas em runtime |
+| [`@brushy/di-otel`](/pt-BR/di/overview) | [npm](https://www.npmjs.com/package/@brushy/di-otel) | Integração OpenTelemetry para DI |
+| [`@brushy/storage`](/pt-BR/storage/overview) | [npm](https://www.npmjs.com/package/@brushy/storage) | Cache em memória com TTL, persistência e [referência da API](/storage/api-reference) |
+| [`@brushy/storage-react`](/storage/react-hooks) | [npm](https://www.npmjs.com/package/@brushy/storage-react) | `StorageProvider` e hooks `useStorage` |
+
+<Note>
+  Algumas páginas ainda estão disponíveis apenas em inglês. Use o seletor de idioma no topo para alternar entre português e inglês.
+</Note>
+
+## Servidor MCP
+
+Conecte ferramentas de IA a esta documentação pelo menu contextual no cabeçalho da página. Use **Conectar ao Cursor**, **Conectar ao VS Code** ou **Copiar URL do servidor MCP**. Quando publicado na Mintlify, o endpoint fica em `https://<url-do-site>/mcp`.
+
+## Instalação rápida
+
+```bash
+npm install @brushy/di
+npm install @brushy/storage @brushy/storage-react
+```
+
+## Skill para agentes
+
+Instale a skill da Brushy Suite para que ferramentas de IA saibam quando usar DI ou storage:
+
+<Prompt description="Instalar a skill de agente da Brushy Suite." actions={["copy", "cursor"]}>
+npx skills add https://brushysuite.gfrancodev.com
+</Prompt>
+
+Veja também [`/SKILL.md`](https://brushysuite.gfrancodev.com/SKILL.md) (regras de agente) e [`/llms.txt`](https://brushysuite.gfrancodev.com/llms.txt).

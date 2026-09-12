@@ -1,0 +1,59 @@
+---
+title: "Vite + React"
+description: "App React orientada a features com useInject e useStorage."
+---
+
+App React orientada a features. Cada feature possui seus tokens, providers, service e UI.
+
+**Código:** [examples/vite](https://github.com/brushysuite/brushy-librarys/tree/main/examples/vite) · [README.md](https://github.com/brushysuite/brushy-librarys/blob/main/examples/vite/README.md)
+
+## O que demonstra
+
+- `useInject` para resolução tipada de dependências em componentes React
+- `useStorage` com persistência local via `@brushy/storage`
+- DI por feature: tokens, providers e services em `features/`
+
+## Como executar
+
+Na raiz do repositório, compile as bibliotecas primeiro:
+
+```bash
+npm run build-packages
+```
+
+Depois, em `examples/vite`:
+
+```bash
+npm run dev
+```
+
+Ou use o atalho na raiz:
+
+```bash
+npm run example:vite
+```
+
+Abra [http://localhost:5173](http://localhost:5173)
+
+## Estrutura
+
+```text
+src/
+  main.tsx
+  app/
+    container.ts
+    App.tsx
+  features/users/
+    user.service.ts
+    users.tokens.ts
+    users.providers.ts
+    ui/user-list.tsx
+  shared/logger/
+  providers/
+```
+
+## Documentação relacionada
+
+- [Injeção em componentes](/di/component-injection)
+- [Hooks React](/di/react-hooks)
+- [Hooks React do storage](/storage/react-hooks)
