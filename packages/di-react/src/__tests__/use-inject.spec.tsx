@@ -1,16 +1,8 @@
-import React from "react";
-import {
-  describe,
-  it,
-  expect,
-  expectTypeOf,
-  vi,
-  beforeEach,
-  afterEach,
-} from "vitest";
-import { renderHook } from "@testing-library/react";
-import { useInject } from "../use-inject";
 import { Container, createToken, DependencyError } from "@brushy/di-core";
+import { renderHook } from "@testing-library/react";
+import React from "react";
+import { afterEach, beforeEach, describe, expect, expectTypeOf, it, vi } from "vitest";
+import { useInject } from "../use-inject";
 
 const mockGetContainer = vi.fn();
 const mockCreateCacheKey = vi.fn();
@@ -30,9 +22,7 @@ vi.mock("../context", () => ({
 }));
 
 vi.mock("@brushy/di-core", async () => {
-  const actual = await vi.importActual<typeof import("@brushy/di-core")>(
-    "@brushy/di-core",
-  );
+  const actual = await vi.importActual<typeof import("@brushy/di-core")>("@brushy/di-core");
   return {
     ...actual,
     promiseCache: {
@@ -301,9 +291,7 @@ describe("useInject", () => {
 
   it("should keep the same proxy under React Strict Mode double mount", () => {
     const { result, rerender } = renderHook(() => useInject<MockService>(mockToken), {
-      wrapper: ({ children }) => (
-        <React.StrictMode>{children}</React.StrictMode>
-      ),
+      wrapper: ({ children }) => <React.StrictMode>{children}</React.StrictMode>,
     });
 
     const first = result.current;

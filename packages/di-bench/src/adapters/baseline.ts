@@ -1,3 +1,4 @@
+import { consumeChecksum } from "../fixtures/checksum.js";
 import {
   BATCH_COUNT,
   BenchService,
@@ -11,7 +12,6 @@ import {
   NodeD,
   NodeE,
 } from "../fixtures/classes.js";
-import { consumeChecksum } from "../fixtures/checksum.js";
 import type { BenchAdapter, BenchScenario, ScenarioId } from "../types.js";
 
 function buildDeepGraph(): NodeE {

@@ -1,7 +1,7 @@
 import { describe, expectTypeOf, it } from "vitest";
 import { Container } from "../core/container";
-import { createToken } from "./tokens";
 import { defineModule } from "../tools/module";
+import { createToken } from "./tokens";
 
 class AuthService {
   login(): string {
@@ -35,13 +35,15 @@ describe("type inference", () => {
       import("./tokens").InjectionToken<AuthService>
     >();
     expectTypeOf(module.types.auth).toEqualTypeOf<AuthService>();
-    expectTypeOf(module.types.logger).toEqualTypeOf<{ log: (msg: string) => string }>();
+    expectTypeOf(module.types.logger).toEqualTypeOf<{
+      log: (msg: string) => string;
+    }>();
   });
 
   it("should require manual generic for legacy symbol tokens", () => {
     const LEGACY = Symbol("LEGACY");
 
-    function resolveLegacy<T>(token: typeof LEGACY): T {
+    function resolveLegacy<T>(_token: typeof LEGACY): T {
       return null as unknown as T;
     }
 

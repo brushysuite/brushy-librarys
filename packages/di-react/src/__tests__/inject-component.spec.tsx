@@ -1,24 +1,22 @@
-import React from "react";
-import { describe, it, expect, vi, afterEach, beforeEach } from "vitest";
-import { render, screen, renderHook } from "@testing-library/react";
-import "@testing-library/jest-dom";
+import { render, renderHook, screen } from "@testing-library/react";
+import type React from "react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import "@testing-library/jest-dom/vitest";
 import { Container, createToken, inject, isDev } from "@brushy/di-core";
-import { BrushyDIProvider } from "../provider";
 import {
-  useInjectComponent,
-  registerComponent,
-  registerComponents,
   createComponentsProvider,
-  renderErrorUI,
-  setInjectComponentErrorRenderer,
   handleComponentNotFound,
   handleResolveError,
+  registerComponent,
+  registerComponents,
+  renderErrorUI,
+  setInjectComponentErrorRenderer,
+  useInjectComponent,
 } from "../inject-component";
+import { BrushyDIProvider } from "../provider";
 
 vi.mock("@brushy/di-core", async () => {
-  const actual = await vi.importActual<typeof import("@brushy/di-core")>(
-    "@brushy/di-core",
-  );
+  const actual = await vi.importActual<typeof import("@brushy/di-core")>("@brushy/di-core");
   return {
     ...actual,
     isDev: vi.fn(() => true),
@@ -186,7 +184,9 @@ describe("useInjectComponent", () => {
     const container = new Container();
     const NOT_A_COMPONENT = createToken<typeof MockComponent>("NOT_A_COMPONENT");
 
-    container.register(NOT_A_COMPONENT, { useValue: "not-a-component" as unknown as typeof MockComponent });
+    container.register(NOT_A_COMPONENT, {
+      useValue: "not-a-component" as unknown as typeof MockComponent,
+    });
 
     const Wrapper = () => {
       const Component = useInjectComponent(NOT_A_COMPONENT, FallbackComponent);
@@ -243,7 +243,7 @@ describe("error handlers", () => {
 
   it("should stringify non-Error resolve failures in dev", () => {
     const token = createToken("STRING_ERROR");
-    render(<>{handleResolveError(token, "plain failure", true)}</>);
+    render(handleResolveError(token, "plain failure", true));
 
     expect(screen.getByText("plain failure")).toBeInTheDocument();
   });
@@ -265,15 +265,13 @@ describe("renderErrorUI", () => {
       </div>
     ));
 
-    render(<>{renderErrorUI("missing token", "details here")}</>);
+    render(renderErrorUI("missing token", "details here"));
 
-    expect(screen.getByTestId("custom-error")).toHaveTextContent(
-      "missing tokendetails here",
-    );
+    expect(screen.getByTestId("custom-error")).toHaveTextContent("missing tokendetails here");
   });
 
   it("should render default DOM error UI in jsdom when no custom renderer is set", () => {
-    render(<>{renderErrorUI("missing token", "extra details")}</>);
+    render(renderErrorUI("missing token", "extra details"));
 
     expect(screen.getByText("Component Loading Error")).toBeInTheDocument();
     expect(screen.getByText("missing token")).toBeInTheDocument();

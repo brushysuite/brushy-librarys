@@ -1,8 +1,8 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { Container } from "../core/container";
+import { containerRegistry } from "../registry";
 import { inject } from "./inject";
 import { resolve } from "./resolve";
-import { containerRegistry } from "../registry";
 
 describe("facades", () => {
   beforeEach(() => {

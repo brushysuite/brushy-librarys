@@ -1,9 +1,9 @@
-import { describe, expect, it, beforeEach, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { Container } from "../core/container";
 import { containerRegistry } from "../registry";
+import { createToken } from "../types/tokens";
 import { inject } from "./inject";
 import { server } from "./server";
-import { createToken } from "../types/tokens";
 
 describe("inject facade", () => {
   beforeEach(() => {

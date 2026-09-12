@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { Container } from "../container";
 import { LifecycleManager } from "../life-cycle-manager";
 import { Logger } from "../logger";
@@ -625,9 +625,7 @@ describe("Container", () => {
         errorCaught = true;
         expect(error).toBeInstanceOf(Error);
 
-        expect(error.message).toContain(
-          `Failed to resolve dependency '${token}'`,
-        );
+        expect(error.message).toContain(`Failed to resolve dependency '${token}'`);
       }
       expect(errorCaught).toBe(true);
     });
@@ -777,9 +775,9 @@ describe("Container", () => {
     it("should throw when async token is missing in child and parent", async () => {
       const childContainer = new Container({ name: "child" });
 
-      await expect(
-        childContainer.resolveAsync("MISSING_ASYNC"),
-      ).rejects.toThrow(/Token not registered/);
+      await expect(childContainer.resolveAsync("MISSING_ASYNC")).rejects.toThrow(
+        /Token not registered/,
+      );
     });
 
     it("should stringify async resolve failures for non-Error throws", async () => {
@@ -810,13 +808,9 @@ describe("Container", () => {
 
       container.register(token, { useValue: "unused" });
       container.observe(observer);
-      vi.spyOn(container["resolver"], "resolveAsync").mockRejectedValue(
-        "raw async failure",
-      );
+      vi.spyOn(container["resolver"], "resolveAsync").mockRejectedValue("raw async failure");
 
-      await expect(container.resolveAsync(token)).rejects.toBe(
-        "raw async failure",
-      );
+      await expect(container.resolveAsync(token)).rejects.toBe("raw async failure");
       expect(observer).toHaveBeenCalledWith(
         expect.objectContaining({
           type: "error",
@@ -875,10 +869,7 @@ describe("Container", () => {
 
       container.register(token, { useClass: ArgsService });
 
-      const promise = container.getPromise(token, "fetchWithArgs", [
-        "test",
-        123,
-      ]);
+      const promise = container.getPromise(token, "fetchWithArgs", ["test", 123]);
       const result = await promise;
 
       expect(result).toEqual({ arg1: "test", arg2: 123 });
@@ -1054,8 +1045,7 @@ describe("Container", () => {
 
       verifier(TOKEN);
 
-      const immutableInstances = (container["resolver"] as any)
-        .immutableInstances;
+      const immutableInstances = (container["resolver"] as any).immutableInstances;
       immutableInstances.set(TOKEN, new ViolationService());
 
       const errorSpy = vi.spyOn(Logger, "error");
@@ -1087,8 +1077,7 @@ describe("Container", () => {
 
       verifier(TOKEN);
 
-      const immutableInstances = (container["resolver"] as any)
-        .immutableInstances;
+      const immutableInstances = (container["resolver"] as any).immutableInstances;
       immutableInstances.set(TOKEN, new ProdService());
 
       const errorSpy = vi.spyOn(Logger, "error");

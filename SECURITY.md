@@ -4,9 +4,9 @@
 
 | Version | Packages | Supported |
 | --- | --- | --- |
-| 2.x | `@brushy/di`, `@brushy/di-core`, `@brushy/di-react`, `@brushy/di-monitor`, `@brushy/di-otel` | Yes |
+| 2.x | `@brushy/di`, `@brushy/di-core`, `@brushy/di-react`, `@brushy/di-monitor`, `@brushy/di-otel`, `@brushy/storage`, `@brushy/storage-react` | Yes |
 | 1.x | `@brushy/di` only | No. Upgrade to 2.0.0. See [Migration v2](packages/di/docs/en/migration-v2.md). |
-| 1.x | `@brushy/localstorage` | Yes (separate package, independent lifecycle) |
+| 1.x | `@brushy/localstorage` | Deprecated. Use `@brushy/storage` 2.x. |
 
 Security fixes are released for supported versions only. We recommend running the latest 2.x of the DI packages.
 
@@ -19,7 +19,9 @@ Reports are accepted for published npm packages in this repository:
 - `@brushy/di-react`
 - `@brushy/di-monitor`
 - `@brushy/di-otel`
-- `@brushy/localstorage`
+- `@brushy/storage`
+- `@brushy/storage-react`
+- `@brushy/localstorage` (deprecated)
 
 Out of scope: `@brushy/di-bench` (private monorepo tooling, not published).
 

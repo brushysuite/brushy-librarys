@@ -1,5 +1,6 @@
-import { Container, createToken, deps } from "@brushy/di-core";
 import type { InjectionToken } from "@brushy/di-core";
+import { Container, createToken, deps } from "@brushy/di-core";
+import { consumeChecksum } from "../fixtures/checksum.js";
 import {
   BATCH_COUNT,
   BenchService,
@@ -14,7 +15,6 @@ import {
   NodeE,
   ScopedService,
 } from "../fixtures/classes.js";
-import { consumeChecksum } from "../fixtures/checksum.js";
 import type { BenchAdapter, BenchScenario, ScenarioId } from "../types.js";
 
 const SINGLETON = createToken<BenchService>("SINGLETON");
@@ -126,14 +126,16 @@ class BrushyScenario implements BenchScenario {
         registerWideGraph(this.container);
         break;
       case "factory_deps":
-        this.container.register(LOGGER, { useClass: Logger, lifecycle: "singleton" });
+        this.container.register(LOGGER, {
+          useClass: Logger,
+          lifecycle: "singleton",
+        });
         this.container.register(CONFIG, {
           useValue: new Config(),
           lifecycle: "singleton",
         });
         this.container.register(FACTORY, {
-          useFactory: (logger: Logger, config: Config) =>
-            new FactoryService(logger, config),
+          useFactory: (logger: Logger, config: Config) => new FactoryService(logger, config),
           dependencies: deps([LOGGER, CONFIG]),
           lifecycle: "singleton",
         });
@@ -168,7 +170,10 @@ class BrushyScenario implements BenchScenario {
     switch (this.scenario) {
       case "singleton_cold": {
         const c = new Container();
-        c.register(SINGLETON, { useClass: BenchService, lifecycle: "singleton" });
+        c.register(SINGLETON, {
+          useClass: BenchService,
+          lifecycle: "singleton",
+        });
         return consumeChecksum(c.resolve(SINGLETON));
       }
       case "singleton_warm":

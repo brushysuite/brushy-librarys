@@ -43,10 +43,7 @@ export function aggregateMetrics(
     const meanP50 = p50Values.reduce((a, b) => a + b, 0) / p50Values.length;
     const sdP50 =
       valid.length > 1
-        ? Math.sqrt(
-            p50Values.reduce((sum, v) => sum + (v - meanP50) ** 2, 0) /
-              (valid.length - 1),
-          )
+        ? Math.sqrt(p50Values.reduce((sum, v) => sum + (v - meanP50) ** 2, 0) / (valid.length - 1))
         : 0;
     const cvPct = meanP50 > 0 ? (sdP50 / meanP50) * 100 : 0;
     const medianRun = [...valid].sort((a, b) => a.throughputP50 - b.throughputP50)[
@@ -87,8 +84,7 @@ export function aggregateMetrics(
 
     const brushy = brushyByScenario.get(row.scenario);
     if (brushy && row.lib !== "brushy" && !row.error && brushy.throughputP50 > 0) {
-      row.vsBrushyPct =
-        ((row.throughputP50 - brushy.throughputP50) / brushy.throughputP50) * 100;
+      row.vsBrushyPct = ((row.throughputP50 - brushy.throughputP50) / brushy.throughputP50) * 100;
     }
   }
 
@@ -107,8 +103,7 @@ export function aggregateMetrics(
     if (rows.length >= 2) {
       const first = rows[0]!;
       const second = rows[1]!;
-      const gap =
-        ((first.throughputP50 - second.throughputP50) / second.throughputP50) * 100;
+      const gap = ((first.throughputP50 - second.throughputP50) / second.throughputP50) * 100;
       const tied = Math.abs(gap) <= TIE_MARGIN_PCT;
 
       for (const row of rows) {
@@ -127,8 +122,7 @@ export function aggregateMetrics(
 export function buildReportMeta(scenariosRun: ScenarioId[]): BenchReportMeta {
   const unique = [...new Set(scenariosRun)];
   const allScenariosExpected =
-    unique.length === ALL_SCENARIOS.length &&
-    ALL_SCENARIOS.every((s) => unique.includes(s));
+    unique.length === ALL_SCENARIOS.length && ALL_SCENARIOS.every((s) => unique.includes(s));
 
   return {
     isPartialRun: !allScenariosExpected,
@@ -153,4 +147,4 @@ export function buildReport(
   };
 }
 
-export { TIE_MARGIN_PCT, DI_LIBS };
+export { DI_LIBS, TIE_MARGIN_PCT };

@@ -8,46 +8,66 @@
     "build": "turbo build",
     "build-packages": "turbo run build --filter=./packages/*",
     "dev": "turbo run dev",
-    "lint": "turbo run lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "format": "biome format --write .",
+    "format:check": "biome format .",
     "check-types": "turbo run check-types",
-    "test": "turbo run test --filter='@brushy/di*'",
-    "test:coverage": "turbo run test:coverage --filter='@brushy/di*'",
+    "test": "turbo run test --filter='@brushy/di*' --filter='@brushy/storage*'",
+    "test:coverage": "turbo run test:coverage --filter='@brushy/di*' --filter='@brushy/storage*'",
     "size-limit": "size-limit",
-    "publint": "publint packages/di-core packages/di-react packages/di-monitor packages/di-otel packages/di",
+    "publint": "publint packages/di-core packages/di-react packages/di-monitor packages/di-otel packages/di packages/storage packages/storage-react",
     "check:boundaries": "depcruise packages/di-core/src packages/di-react/src packages/di-monitor/src packages/di-otel/src --config .dependency-cruiser.cjs",
+    "bench": "npm run bench --workspace=@brushy/di-bench",
     "bench:quick": "npm run bench:quick --workspace=@brushy/di-bench",
+    "bench:report": "npm run bench:report --workspace=@brushy/di-bench",
     "changeset": "npx changeset",
     "version-packages": "npx changeset version",
-    "release": "npm run build-packages && changeset publish"
+    "release": "npm run build-packages && changeset publish",
+    "example:vite": "npm run dev --workspace=@brushy-examples/vite",
+    "example:expo": "npm start --workspace=@brushy-examples/expo",
+    "example:express": "npm run dev --workspace=@brushy-examples/express",
+    "example:fastify": "npm run dev --workspace=@brushy-examples/fastify",
+    "docs:dev": "npm run dev --prefix apps/docs",
+    "docs:validate": "npm run validate --prefix apps/docs",
+    "check-types:examples": "turbo run check-types --filter='@brushy-examples/vite' --filter='@brushy-examples/expo' --filter='@brushy-examples/express' --filter='@brushy-examples/fastify'",
+    "test:examples": "turbo run test --filter='@brushy-examples/*'"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.31.1",
-    "@size-limit/file": "^11.2.0",
-    "dependency-cruiser": "^16.9.0",
-    "esbuild": "0.27.2",
-    "jsdom": "^26.0.0",
-    "prettier": "^3.5.3",
-    "publint": "^0.3.12",
-    "size-limit": "^11.2.0",
-    "turbo": "^2.10.9",
-    "typescript": "5.8.2"
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "@biomejs/biome": "^2.5.13",
+    "@changesets/cli": "^3.0.2",
+    "@size-limit/file": "^13.1.1",
+    "@swc/core": "^1.16.2",
+    "dependency-cruiser": "^18.2.0",
+    "esbuild": "0.28.2",
+    "jsdom": "^30.0.1",
+    "publint": "^0.3.24",
+    "size-limit": "^13.1.1",
+    "turbo": "^2.10.12",
+    "typescript": "5.9.3",
+    "unplugin-swc": "^1.6.0",
+    "vitest": "^5.0.0"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=22"
   },
-  "packageManager": "npm@10.9.2",
+  "packageManager": "npm@10.9.9",
   "workspaces": [
-    "apps/*",
-    "packages/*"
+    "packages/*",
+    "examples/*"
   ],
   "dependencies": {
-    "@testing-library/dom": "^10.4.0"
+    "@testing-library/dom": "^10.4.1"
   },
   "overrides": {
+    "typescript": "5.9.3",
+    "tinybench": "6.2.0",
+    "vitest": "^5.0.0",
     "glob": "^10.5.0",
     "form-data": "^4.0.6",
-    "esbuild": "0.27.2",
+    "esbuild": "0.28.2",
     "brace-expansion": "^2.1.4",
     "minimatch": "^9.0.9",
     "js-yaml": "^4.3.1",
@@ -59,9 +79,25 @@
     "ajv": "^8.20.0",
     "tmp": "^0.2.7",
     "@tootallnate/once": "^2.0.1",
-    "on-headers": "^1.1.0"
+    "on-headers": "^1.1.0",
+    "@types/react": "19.3.0",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "@brushy-examples/expo": {
+      "react": "19.2.3",
+      "@types/react": "~19.2.4",
+      "react-native": "0.86.3"
+    },
+    "@mintlify/previewing": {
+      "react": "19.3.0",
+      "react-dom": "19.3.0"
+    },
+    "@mintlify/cli": {
+      "react": "19.3.0",
+      "react-dom": "19.3.0"
+    }
   },
   "lint-staged": {
-    "*.{js,ts,json}": "prettier --write \"src/**/*.ts\""
+    "*.{js,jsx,ts,tsx,json}": "biome check --write --no-errors-on-unmatched"
   }
 }

@@ -1,10 +1,10 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { DependencyResolver } from "../dependency-resolver";
-import { DependencyRegistry } from "../dependency-registry";
-import { DependencyError } from "../dependency-error";
-import { Token } from "../types";
 import React from "react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { DependencyError } from "../dependency-error";
+import { DependencyRegistry } from "../dependency-registry";
+import { DependencyResolver } from "../dependency-resolver";
 import { Logger } from "../logger";
+import type { Token } from "../types";
 
 const accessPrivateMethod = (instance: any, methodName: string) => {
   return (...args: any[]) => {
@@ -222,9 +222,7 @@ describe("DependencyResolver", () => {
         dependencies: [tokenA],
       });
 
-      expect(() => resolver.resolve(tokenA)).toThrow(
-        /Circular dependency detected/,
-      );
+      expect(() => resolver.resolve(tokenA)).toThrow(/Circular dependency detected/);
     });
   });
 
@@ -393,9 +391,7 @@ describe("DependencyResolver", () => {
 
       printDependencyRelationships();
 
-      expect(debugSpy).toHaveBeenCalledWith(
-        expect.stringContaining("No dependents"),
-      );
+      expect(debugSpy).toHaveBeenCalledWith(expect.stringContaining("No dependents"));
       expect(debugSpy).toHaveBeenCalledWith(expect.stringContaining("Used by"));
     });
 
@@ -446,9 +442,7 @@ describe("DependencyResolver", () => {
       (resolver as any).requestScopeInstances.clear();
 
       resolver.resolve(token);
-      expect(debugSpy).toHaveBeenCalledWith(
-        expect.stringContaining("Creating instance of"),
-      );
+      expect(debugSpy).toHaveBeenCalledWith(expect.stringContaining("Creating instance of"));
     });
 
     it("should test getFromCache method with debug logging", () => {
@@ -665,9 +659,7 @@ describe("DependencyResolver", () => {
         },
       });
 
-      const resolveInstanceAsync = (resolver as any).resolveInstanceAsync.bind(
-        resolver,
-      );
+      const resolveInstanceAsync = (resolver as any).resolveInstanceAsync.bind(resolver);
 
       const promise1 = resolveInstanceAsync(token);
 
@@ -704,9 +696,7 @@ describe("DependencyResolver", () => {
         },
       });
 
-      const resolveInstanceAsync = (resolver as any).resolveInstanceAsync.bind(
-        resolver,
-      );
+      const resolveInstanceAsync = (resolver as any).resolveInstanceAsync.bind(resolver);
 
       const mockPromise = Promise.resolve(value);
       (resolver as any).asyncResolvingPromises.set(token, mockPromise);
@@ -729,15 +719,11 @@ describe("DependencyResolver", () => {
         },
       });
 
-      const resolveInstanceAsync = (resolver as any).resolveInstanceAsync.bind(
-        resolver,
-      );
+      const resolveInstanceAsync = (resolver as any).resolveInstanceAsync.bind(resolver);
 
       (resolver as any).resolvingStack.push(token);
 
-      await expect(resolveInstanceAsync(token)).rejects.toThrow(
-        "Circular dependency detected",
-      );
+      await expect(resolveInstanceAsync(token)).rejects.toThrow("Circular dependency detected");
 
       (resolver as any).resolvingStack.pop();
     });
@@ -766,27 +752,19 @@ describe("DependencyResolver", () => {
       const entry = { instance: value, ttl: Date.now() + 60000 };
       requestScope.set(token, entry);
 
-      const originalGetInstanceFromRequestScope = (resolver as any)
-        .getInstanceFromRequestScope;
-      (resolver as any).getInstanceFromRequestScope = vi
-        .fn()
-        .mockReturnValue(entry);
+      const originalGetInstanceFromRequestScope = (resolver as any).getInstanceFromRequestScope;
+      (resolver as any).getInstanceFromRequestScope = vi.fn().mockReturnValue(entry);
 
       try {
-        const resolveInstanceAsync = (
-          resolver as any
-        ).resolveInstanceAsync.bind(resolver);
+        const resolveInstanceAsync = (resolver as any).resolveInstanceAsync.bind(resolver);
 
         const result = await resolveInstanceAsync(token);
 
-        expect(
-          (resolver as any).getInstanceFromRequestScope,
-        ).toHaveBeenCalledWith(token);
+        expect((resolver as any).getInstanceFromRequestScope).toHaveBeenCalledWith(token);
 
         expect(result).toBe(value);
       } finally {
-        (resolver as any).getInstanceFromRequestScope =
-          originalGetInstanceFromRequestScope;
+        (resolver as any).getInstanceFromRequestScope = originalGetInstanceFromRequestScope;
       }
     });
 
@@ -801,14 +779,9 @@ describe("DependencyResolver", () => {
       (resolver as any).asyncResolvingPromises = new Map();
       (resolver as any).asyncResolvingPromises.set(token, mockPromise);
 
-      const resolveInstanceAsync = (resolver as any).resolveInstanceAsync.bind(
-        resolver,
-      );
+      const resolveInstanceAsync = (resolver as any).resolveInstanceAsync.bind(resolver);
 
-      const checkCircularSpy = vi.spyOn(
-        resolver as any,
-        "checkCircularDependency",
-      );
+      const checkCircularSpy = vi.spyOn(resolver as any, "checkCircularDependency");
 
       try {
         const result = await resolveInstanceAsync(token);
@@ -850,9 +823,7 @@ describe("DependencyResolver", () => {
       const localContext = new Map<any, any>();
       localContext.set(token, contextValue);
 
-      const resolveInstanceAsync = (resolver as any).resolveInstanceAsync.bind(
-        resolver,
-      );
+      const resolveInstanceAsync = (resolver as any).resolveInstanceAsync.bind(resolver);
 
       const result = await resolveInstanceAsync(token, localContext);
 
@@ -880,9 +851,7 @@ describe("DependencyResolver", () => {
 
       const tokenName = (debugResolver as any).formatToken(token);
       if ((debugResolver as any).debug) {
-        Logger.debug(
-          `Returning from resolution context: ${Logger.formatToken(tokenName)}`,
-        );
+        Logger.debug(`Returning from resolution context: ${Logger.formatToken(tokenName)}`);
       }
 
       expect(debugSpy).toHaveBeenCalledWith(
@@ -945,10 +914,7 @@ describe("DependencyResolver", () => {
     });
 
     it("should create promise cache keys correctly", () => {
-      const createPromiseCacheKey = accessPrivateMethod(
-        resolver,
-        "createPromiseCacheKey",
-      );
+      const createPromiseCacheKey = accessPrivateMethod(resolver, "createPromiseCacheKey");
 
       const token = "TEST_TOKEN";
       const method = "testMethod";
@@ -959,16 +925,11 @@ describe("DependencyResolver", () => {
 
       const symbolToken = Symbol("SYMBOL_TOKEN");
       const symbolKey = createPromiseCacheKey(symbolToken, method, args);
-      expect(symbolKey).toBe(
-        `Symbol(SYMBOL_TOKEN):testMethod:[1,"test",{"a":1}]`,
-      );
+      expect(symbolKey).toBe(`Symbol(SYMBOL_TOKEN):testMethod:[1,"test",{"a":1}]`);
     });
 
     it("should check if promise cache is expired", () => {
-      const isPromiseCacheExpired = accessPrivateMethod(
-        resolver,
-        "isPromiseCacheExpired",
-      );
+      const isPromiseCacheExpired = accessPrivateMethod(resolver, "isPromiseCacheExpired");
 
       const validCache = {
         promise: Promise.resolve(),
@@ -1072,10 +1033,7 @@ describe("DependencyResolver", () => {
       const infoSpy = vi.spyOn(Logger, "info");
       const debugSpy = vi.spyOn(Logger, "debug");
 
-      const printDependencyGraph = accessPrivateMethod(
-        resolver,
-        "printDependencyGraph",
-      );
+      const printDependencyGraph = accessPrivateMethod(resolver, "printDependencyGraph");
 
       vi.clearAllMocks();
 
@@ -1093,10 +1051,7 @@ describe("DependencyResolver", () => {
 
       const warnSpy = vi.spyOn(Logger, "warn");
 
-      const printDependencyGraph = accessPrivateMethod(
-        emptyResolver,
-        "printDependencyGraph",
-      );
+      const printDependencyGraph = accessPrivateMethod(emptyResolver, "printDependencyGraph");
 
       vi.clearAllMocks();
 
@@ -1118,10 +1073,7 @@ describe("DependencyResolver", () => {
       const warnSpy = vi.spyOn(Logger, "warn");
       const debugSpy = vi.spyOn(Logger, "debug");
 
-      const printDependencyGraph = accessPrivateMethod(
-        testResolver,
-        "printDependencyGraph",
-      );
+      const printDependencyGraph = accessPrivateMethod(testResolver, "printDependencyGraph");
 
       vi.clearAllMocks();
 
@@ -1148,10 +1100,7 @@ describe("DependencyResolver", () => {
       const infoSpy = vi.spyOn(Logger, "info");
       const debugSpy = vi.spyOn(Logger, "debug");
 
-      const printCachedInstances = accessPrivateMethod(
-        testResolver,
-        "printCachedInstances",
-      );
+      const printCachedInstances = accessPrivateMethod(testResolver, "printCachedInstances");
 
       vi.clearAllMocks();
 
@@ -1174,9 +1123,7 @@ describe("DependencyResolver", () => {
 
       registry.register(token, {} as any);
 
-      await expect(resolver.resolveAsync(token)).rejects.toThrow(
-        "Invalid provider config",
-      );
+      await expect(resolver.resolveAsync(token)).rejects.toThrow("Invalid provider config");
     });
 
     it("should create instance asynchronously with class and dependencies", async () => {
@@ -1239,9 +1186,7 @@ describe("DependencyResolver", () => {
       const errorSpy = vi.spyOn(Logger, "error");
 
       expect(() => resolver.resolve(token)).toThrow(/Factory error test/);
-      expect(errorSpy).toHaveBeenCalledWith(
-        expect.stringContaining("Factory error"),
-      );
+      expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("Factory error"));
     });
 
     it("should handle circular dependency in resolveAsync", async () => {
@@ -1266,9 +1211,7 @@ describe("DependencyResolver", () => {
         dependencies: [tokenA],
       });
 
-      await expect(resolver.resolveAsync(tokenA)).rejects.toThrow(
-        /Circular dependency detected/,
-      );
+      await expect(resolver.resolveAsync(tokenA)).rejects.toThrow(/Circular dependency detected/);
     });
 
     it("should handle class instantiation errors", () => {
@@ -1284,12 +1227,8 @@ describe("DependencyResolver", () => {
 
       const errorSpy = vi.spyOn(Logger, "error");
 
-      expect(() => resolver.resolve(token)).toThrow(
-        /Class instantiation error test/,
-      );
-      expect(errorSpy).toHaveBeenCalledWith(
-        expect.stringContaining("Class instantiation error"),
-      );
+      expect(() => resolver.resolve(token)).toThrow(/Class instantiation error test/);
+      expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("Class instantiation error"));
     });
 
     it("should handle token info for factory without instance", () => {
@@ -1316,9 +1255,7 @@ describe("DependencyResolver", () => {
 
       registry.register(token, { useFactory: nullFactory });
 
-      await expect(resolver.resolveAsync(token)).rejects.toThrow(
-        /Failed to instantiate/,
-      );
+      await expect(resolver.resolveAsync(token)).rejects.toThrow(/Failed to instantiate/);
     });
 
     it("should handle debug mode in createInstance", () => {
@@ -1332,9 +1269,7 @@ describe("DependencyResolver", () => {
 
       resolver.resolve(token);
 
-      expect(debugSpy).toHaveBeenCalledWith(
-        expect.stringContaining("Creating using factory"),
-      );
+      expect(debugSpy).toHaveBeenCalledWith(expect.stringContaining("Creating using factory"));
     });
 
     it('should return "unknown" for tokens with invalid config in getTokenInfo', () => {
@@ -1382,14 +1317,11 @@ describe("DependencyResolver", () => {
         inject: [dependencyToken],
       } as any);
 
-      const originalResolveInstanceAsync = (resolver as any)
-        .resolveInstanceAsync;
-      const mockResolveInstanceAsync = vi
-        .fn()
-        .mockImplementation(async (token: any) => {
-          (resolver as any).resolvingStack = [];
-          return originalResolveInstanceAsync.call(resolver, token);
-        });
+      const originalResolveInstanceAsync = (resolver as any).resolveInstanceAsync;
+      const mockResolveInstanceAsync = vi.fn().mockImplementation(async (token: any) => {
+        (resolver as any).resolvingStack = [];
+        return originalResolveInstanceAsync.call(resolver, token);
+      });
       (resolver as any).resolveInstanceAsync = mockResolveInstanceAsync;
 
       try {
@@ -1417,9 +1349,9 @@ describe("DependencyResolver", () => {
       requestScope.set(token, entry);
       (resolver as any).requestScope = requestScope;
 
-      const getInstanceFromRequestScope = (
-        resolver as any
-      ).getInstanceFromRequestScope.bind(resolver);
+      const getInstanceFromRequestScope = (resolver as any).getInstanceFromRequestScope.bind(
+        resolver,
+      );
 
       const result = getInstanceFromRequestScope(token);
 
@@ -1435,17 +1367,13 @@ describe("DependencyResolver", () => {
     it("should test checkCircularDependency method", () => {
       const token = Symbol("CIRCULAR_CHECK_TOKEN");
 
-      const checkCircularDependency = (
-        resolver as any
-      ).checkCircularDependency.bind(resolver);
+      const checkCircularDependency = (resolver as any).checkCircularDependency.bind(resolver);
 
       expect(() => checkCircularDependency(token)).not.toThrow();
 
       (resolver as any).resolvingStack.push(token);
 
-      expect(() => checkCircularDependency(token)).toThrow(
-        "Circular dependency detected",
-      );
+      expect(() => checkCircularDependency(token)).toThrow("Circular dependency detected");
 
       (resolver as any).resolvingStack.pop();
     });
@@ -1458,9 +1386,7 @@ describe("DependencyResolver", () => {
       });
 
       const originalGetConfig = (resolver as any).getConfig;
-      (resolver as any).getConfig = vi
-        .fn()
-        .mockReturnValue({ useValue: undefined });
+      (resolver as any).getConfig = vi.fn().mockReturnValue({ useValue: undefined });
 
       try {
         expect(() => resolver.resolve(token)).toThrow(
@@ -1477,18 +1403,13 @@ describe("DependencyResolver", () => {
 
       const originalResolveInstance = (resolver as any).resolveInstance;
 
-      (resolver as any).resolveInstance = function (
-        token: Token,
-        context?: Map<Token, any>,
-      ) {
+      (resolver as any).resolveInstance = function (token: Token, context?: Map<Token, any>) {
         const localContext = context || new Map<Token, any>();
         const tokenName = this.formatToken(token);
 
         if (localContext.has(token)) {
           if (this.debug)
-            Logger.debug(
-              `Returning from resolution context: ${Logger.formatToken(tokenName)}`,
-            );
+            Logger.debug(`Returning from resolution context: ${Logger.formatToken(tokenName)}`);
           return localContext.get(token);
         }
 
@@ -1519,9 +1440,7 @@ describe("DependencyResolver", () => {
       const createInstanceSpy = vi.spyOn(resolver as any, "createInstance");
       createInstanceSpy.mockReturnValueOnce(null);
 
-      expect(() => resolver.resolve(token)).toThrow(
-        `Failed to instantiate '${String(token)}'`,
-      );
+      expect(() => resolver.resolve(token)).toThrow(`Failed to instantiate '${String(token)}'`);
     });
 
     it("should cover lines 238-243 in resolveInstanceAsync", async () => {
@@ -1539,9 +1458,7 @@ describe("DependencyResolver", () => {
 
       if (localContext.has(token)) {
         if ((debugResolver as any).debug) {
-          Logger.debug(
-            `Returning from resolution context: ${Logger.formatToken(tokenName)}`,
-          );
+          Logger.debug(`Returning from resolution context: ${Logger.formatToken(tokenName)}`);
         }
         const result = localContext.get(token);
         expect(result).toBe(contextValue);
@@ -1590,18 +1507,16 @@ describe("DependencyResolver", () => {
 
       const originalDebug = resolver["debug"];
 
-      //@ts-ignore
+      //@ts-expect-error
       resolver["debug"] = true;
 
       if (context.has(token)) {
         if (resolver["debug"]) {
-          Logger.debug(
-            `Returning from resolution context: ${Logger.formatToken(tokenName)}`,
-          );
+          Logger.debug(`Returning from resolution context: ${Logger.formatToken(tokenName)}`);
         }
       }
 
-      //@ts-ignore
+      //@ts-expect-error
       resolver["debug"] = originalDebug;
 
       expect(debugSpy).toHaveBeenCalledWith(
@@ -1618,8 +1533,7 @@ describe("DependencyResolver", () => {
 
       registry.register(token, { useValue: "original-value" });
 
-      const originalResolveInstance =
-        resolver["resolveInstance"].bind(resolver);
+      const originalResolveInstance = resolver["resolveInstance"].bind(resolver);
       resolver["resolveInstance"] = function (
         this: any,
         tokenArg: Token,
@@ -1627,25 +1541,19 @@ describe("DependencyResolver", () => {
       ) {
         const config = this.getConfig(tokenArg);
         if (!config) {
-          throw new DependencyError(
-            `Token não registrado: ${String(tokenArg)}`,
-          );
+          throw new DependencyError(`Token não registrado: ${String(tokenArg)}`);
         }
 
         const localContext = contextArg || new Map<Token, any>();
         const tokenName = this.formatToken(tokenArg);
 
         if (this.debug) {
-          Logger.debug(
-            `Starting resolution of dependency: ${Logger.formatToken(tokenName)}`,
-          );
+          Logger.debug(`Starting resolution of dependency: ${Logger.formatToken(tokenName)}`);
         }
 
         if (localContext.has(tokenArg)) {
           if (this.debug)
-            Logger.debug(
-              `Returning from resolution context: ${Logger.formatToken(tokenName)}`,
-            );
+            Logger.debug(`Returning from resolution context: ${Logger.formatToken(tokenName)}`);
           return localContext.get(tokenArg);
         }
 
@@ -1667,9 +1575,7 @@ describe("DependencyResolver", () => {
 
       const context = new Map<Token, any>([[token, expectedValue]]);
 
-      const contextInstance = context.has(token)
-        ? context.get(token)
-        : undefined;
+      const contextInstance = context.has(token) ? context.get(token) : undefined;
 
       expect(contextInstance).toBe(expectedValue);
     });

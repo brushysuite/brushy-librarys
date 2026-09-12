@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { Container, monitor } from "../index";
 
 describe("Monitor", () => {
@@ -83,7 +83,7 @@ describe("Monitor", () => {
 
     try {
       container.resolve("NON_EXISTENT_TOKEN");
-    } catch (error) {}
+    } catch (_error) {}
 
     const events = errorMonitor.getEvents();
     expect(events.length).toBe(1);

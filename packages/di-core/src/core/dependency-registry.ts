@@ -1,7 +1,6 @@
-import { ProviderConfig, Token } from "../types";
-import type { InstanceWrapper } from "../types";
+import type { InstanceWrapper, ProviderConfig, Token } from "../types";
+import { type CompiledCreator, compileCreator } from "./compiled-creator";
 import type { LifecycleType } from "./strategies/lifecycle";
-import { compileCreator, type CompiledCreator } from "./compiled-creator";
 
 export interface ProviderRecord {
   config: ProviderConfig;

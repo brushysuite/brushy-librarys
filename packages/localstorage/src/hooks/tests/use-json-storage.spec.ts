@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { renderHook, act } from "@testing-library/react";
-import { useJSONStorage } from "../use-json-storage";
+import { act, renderHook } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { JSONStorage } from "../../lib/json-storage";
+import { useJSONStorage } from "../use-json-storage";
 
 const createMockStorage = (customMocks = {}) => {
   return {
@@ -23,7 +23,7 @@ vi.mock("../../lib/json-storage", () => ({
 describe("useJSONStorage", () => {
   const key = "testKey";
   const initialValue = { name: "John", age: 30 };
-  const options = { reviver: (key: string, value: any) => value };
+  const options = { reviver: (_key: string, value: any) => value };
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -37,9 +37,7 @@ describe("useJSONStorage", () => {
 
     (JSONStorage as any).mockImplementation(() => mockStorage);
 
-    const { result } = renderHook(() =>
-      useJSONStorage(key, initialValue, options),
-    );
+    const { result } = renderHook(() => useJSONStorage(key, initialValue, options));
 
     expect(result.current.value).toEqual(storedValue);
     expect(mockStorage.getJSON).toHaveBeenCalledWith(key, {
@@ -54,9 +52,7 @@ describe("useJSONStorage", () => {
 
     (JSONStorage as any).mockImplementation(() => mockStorage);
 
-    const { result } = renderHook(() =>
-      useJSONStorage(key, initialValue, options),
-    );
+    const { result } = renderHook(() => useJSONStorage(key, initialValue, options));
 
     expect(result.current.value).toEqual(initialValue);
     expect(mockStorage.getJSON).toHaveBeenCalledWith(key, {
@@ -68,9 +64,7 @@ describe("useJSONStorage", () => {
     const mockStorage = createMockStorage();
     (JSONStorage as any).mockImplementation(() => mockStorage);
 
-    const { result } = renderHook(() =>
-      useJSONStorage(key, initialValue, options),
-    );
+    const { result } = renderHook(() => useJSONStorage(key, initialValue, options));
     const newValue = { name: "Jane", age: 25 };
 
     act(() => {
@@ -89,20 +83,14 @@ describe("useJSONStorage", () => {
 
     (JSONStorage as any).mockImplementation(() => mockStorage);
 
-    const { result } = renderHook(() =>
-      useJSONStorage(key, initialValue, options),
-    );
+    const { result } = renderHook(() => useJSONStorage(key, initialValue, options));
 
     act(() => {
       result.current.updateFields({ name: "Jane" });
     });
 
     expect(result.current.value).toEqual(updatedValue);
-    expect(mockStorage.updateJSON).toHaveBeenCalledWith(
-      key,
-      { name: "Jane" },
-      options,
-    );
+    expect(mockStorage.updateJSON).toHaveBeenCalledWith(key, { name: "Jane" }, options);
   });
 
   it("should merge arrays correctly", () => {
@@ -117,9 +105,7 @@ describe("useJSONStorage", () => {
 
     (JSONStorage as any).mockImplementation(() => mockStorage);
 
-    const { result } = renderHook(() =>
-      useJSONStorage(key, initialArray, options),
-    );
+    const { result } = renderHook(() => useJSONStorage(key, initialArray, options));
 
     act(() => {
       result.current.mergeArrays(["c", "d"]);
@@ -153,9 +139,7 @@ describe("useJSONStorage", () => {
 
     (JSONStorage as any).mockImplementation(() => mockStorage);
 
-    const { result } = renderHook(() =>
-      useJSONStorage(key, initialArray, options),
-    );
+    const { result } = renderHook(() => useJSONStorage(key, initialArray, options));
 
     const comparator = (a: any, b: any) => a.id === b.id;
 
@@ -177,9 +161,7 @@ describe("useJSONStorage", () => {
     const mockStorage = createMockStorage();
     (JSONStorage as any).mockImplementation(() => mockStorage);
 
-    const { result } = renderHook(() =>
-      useJSONStorage(key, initialValue, options),
-    );
+    const { result } = renderHook(() => useJSONStorage(key, initialValue, options));
 
     act(() => {
       result.current.remove();
@@ -198,9 +180,7 @@ describe("useJSONStorage", () => {
 
     (JSONStorage as any).mockImplementation(() => mockStorage);
 
-    const { result } = renderHook(() =>
-      useJSONStorage(key, initialValue, options),
-    );
+    const { result } = renderHook(() => useJSONStorage(key, initialValue, options));
 
     expect(() => {
       act(() => {
@@ -219,9 +199,7 @@ describe("useJSONStorage", () => {
 
     (JSONStorage as any).mockImplementation(() => mockStorage);
 
-    const { result } = renderHook(() =>
-      useJSONStorage(key, ["a", "b"], options),
-    );
+    const { result } = renderHook(() => useJSONStorage(key, ["a", "b"], options));
 
     expect(() => {
       act(() => {
@@ -239,9 +217,7 @@ describe("useJSONStorage", () => {
 
     (JSONStorage as any).mockImplementation(() => mockStorage);
 
-    const { result } = renderHook(() =>
-      useJSONStorage(key, initialValue, options),
-    );
+    const { result } = renderHook(() => useJSONStorage(key, initialValue, options));
 
     expect(() => {
       act(() => {
@@ -273,9 +249,7 @@ describe("useJSONStorage", () => {
 
     (JSONStorage as any).mockImplementation(() => mockStorage);
 
-    const { result } = renderHook(() =>
-      useJSONStorage(key, initialValue, options),
-    );
+    const { result } = renderHook(() => useJSONStorage(key, initialValue, options));
 
     expect(() => {
       act(() => {
@@ -293,9 +267,7 @@ describe("useJSONStorage", () => {
 
     (JSONStorage as any).mockImplementation(() => mockStorage);
 
-    const { result } = renderHook(() =>
-      useJSONStorage(key, initialValue, options),
-    );
+    const { result } = renderHook(() => useJSONStorage(key, initialValue, options));
 
     expect(() => {
       act(() => {
@@ -313,9 +285,7 @@ describe("useJSONStorage", () => {
 
     (JSONStorage as any).mockImplementation(() => mockStorage);
 
-    const { result } = renderHook(() =>
-      useJSONStorage(key, initialValue, options),
-    );
+    const { result } = renderHook(() => useJSONStorage(key, initialValue, options));
 
     expect(() => {
       act(() => {
@@ -332,9 +302,7 @@ describe("useJSONStorage", () => {
 
     (JSONStorage as any).mockImplementation(() => mockStorage);
 
-    const { result } = renderHook(() =>
-      useJSONStorage(key, initialValue, options),
-    );
+    const { result } = renderHook(() => useJSONStorage(key, initialValue, options));
 
     expect(result.current.isValid).toBe(true);
     expect(mockStorage.getJSON).toHaveBeenCalled();
@@ -348,9 +316,7 @@ describe("useJSONStorage", () => {
 
     (JSONStorage as any).mockImplementation(() => mockStorage);
 
-    const { result } = renderHook(() =>
-      useJSONStorage(key, initialValue, options),
-    );
+    const { result } = renderHook(() => useJSONStorage(key, initialValue, options));
 
     expect(result.current.isValid).toBe(false);
     expect(mockStorage.getJSON).toHaveBeenCalled();
@@ -368,9 +334,7 @@ describe("useJSONStorage", () => {
 
     (JSONStorage as any).mockImplementation(() => mockStorage);
 
-    const { result } = renderHook(() =>
-      useJSONStorage(key, initialValue, options),
-    );
+    const { result } = renderHook(() => useJSONStorage(key, initialValue, options));
 
     expect(result.current.schema).toEqual(expectedSchema);
     expect(mockStorage.getJSON).toHaveBeenCalled();
@@ -385,9 +349,7 @@ describe("useJSONStorage", () => {
 
     (JSONStorage as any).mockImplementation(() => mockStorage);
 
-    const { result } = renderHook(() =>
-      useJSONStorage(key, initialValue, options),
-    );
+    const { result } = renderHook(() => useJSONStorage(key, initialValue, options));
 
     expect(result.current.schema).toBeNull();
     expect(mockStorage.getJSON).toHaveBeenCalled();
@@ -409,9 +371,7 @@ describe("useJSONStorage", () => {
 
     (JSONStorage as any).mockImplementation(() => mockStorage);
 
-    const { result } = renderHook(() =>
-      useJSONStorage(key, initialValue, options),
-    );
+    const { result } = renderHook(() => useJSONStorage(key, initialValue, options));
 
     act(() => {
       result.current.setValue(newValue);
@@ -435,9 +395,7 @@ describe("useJSONStorage", () => {
 
     (JSONStorage as any).mockImplementation(() => mockStorage);
 
-    const { result } = renderHook(() =>
-      useJSONStorage(key, initialValue, options),
-    );
+    const { result } = renderHook(() => useJSONStorage(key, initialValue, options));
 
     expect(result.current.isValid).toBe(false);
   });
@@ -451,9 +409,7 @@ describe("useJSONStorage", () => {
 
     (JSONStorage as any).mockImplementation(() => mockStorage);
 
-    const { result } = renderHook(() =>
-      useJSONStorage(key, initialValue, options),
-    );
+    const { result } = renderHook(() => useJSONStorage(key, initialValue, options));
 
     expect(result.current.schema).toBeNull();
   });

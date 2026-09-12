@@ -1,24 +1,18 @@
-import { useMemo, useRef } from "react";
+import type { InjectionToken, InjectOptions, Token } from "@brushy/di-core";
 import { DependencyError } from "@brushy/di-core";
-import type { InjectOptions, Token } from "@brushy/di-core";
-import type { InjectionToken } from "@brushy/di-core";
+import { useMemo, useRef } from "react";
 import { useDIContainer } from "./context";
 
 export function useInjectLazy<T extends object>(
   token: InjectionToken<T>,
   options?: InjectOptions,
 ): T;
-export function useInjectLazy<
-  C extends abstract new (...args: any[]) => object,
->(token: C, options?: InjectOptions): InstanceType<C>;
-export function useInjectLazy<T extends object>(
-  token: Token,
+export function useInjectLazy<C extends abstract new (...args: any[]) => object>(
+  token: C,
   options?: InjectOptions,
-): T;
-export function useInjectLazy<T extends object>(
-  token: Token,
-  options?: InjectOptions,
-): T {
+): InstanceType<C>;
+export function useInjectLazy<T extends object>(token: Token, options?: InjectOptions): T;
+export function useInjectLazy<T extends object>(token: Token, options?: InjectOptions): T {
   if (!token) {
     throw new DependencyError("Token is required for lazy injection");
   }

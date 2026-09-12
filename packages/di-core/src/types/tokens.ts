@@ -16,11 +16,14 @@ export type UntypedInjectionToken = symbol & {
 };
 
 /** Infere o tipo resolvido a partir do token */
-export type ResolveType<T> = T extends InjectionToken<infer U>
-  ? U
-  : T extends abstract new (...args: any[]) => infer R
-    ? R
-    : unknown;
+export type ResolveType<T> =
+  T extends InjectionToken<infer U>
+    ? U
+    : T extends abstract new (
+          ...args: any[]
+        ) => infer R
+      ? R
+      : unknown;
 
 /** Infere tipos de dependências a partir de um tuple de tokens */
 export type InferDependencies<D extends readonly Token[]> = {

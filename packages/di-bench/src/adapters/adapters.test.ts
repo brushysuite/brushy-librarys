@@ -1,8 +1,8 @@
 import "reflect-metadata";
 import { describe, expect, it } from "vitest";
-import { ALL_ADAPTERS } from "./index.js";
 import type { ScenarioId } from "../types.js";
 import { ALL_SCENARIOS } from "../types.js";
+import { ALL_ADAPTERS } from "./index.js";
 
 const SCENARIO_MATRIX: ScenarioId[] = ALL_SCENARIOS;
 
@@ -86,10 +86,13 @@ describe("adapter invariants", () => {
   });
 
   it("returns zero for adapters with explicit default branches", () => {
-    for (const adapter of [ALL_ADAPTERS.find((a) => a.id === "baseline")!, ALL_ADAPTERS.find((a) => a.id === "inversify")!, ALL_ADAPTERS.find((a) => a.id === "tsyringe")!]) {
+    for (const adapter of [
+      ALL_ADAPTERS.find((a) => a.id === "baseline")!,
+      ALL_ADAPTERS.find((a) => a.id === "inversify")!,
+      ALL_ADAPTERS.find((a) => a.id === "tsyringe")!,
+    ]) {
       const scenario = adapter.createScenario("transient");
-      (scenario as { scenario: ScenarioId }).scenario =
-        "unsupported_scenario" as ScenarioId;
+      (scenario as { scenario: ScenarioId }).scenario = "unsupported_scenario" as ScenarioId;
       scenario.setup();
       expect(scenario.run()).toBe(0);
       scenario.teardown();

@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import * as root from "../index";
 import * as core from "../core";
-import * as react from "../react";
+import * as root from "../index";
 import * as monitorEntry from "../monitor";
 import * as otelEntry from "../otel";
+import * as react from "../react";
 
 describe("@brushy/di umbrella exports", () => {
   it("should expose core APIs from the root entrypoint", () => {

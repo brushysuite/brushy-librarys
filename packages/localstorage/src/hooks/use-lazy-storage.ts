@@ -1,6 +1,6 @@
-import { useState, useCallback, useRef } from "react";
-import { LazyStorage, LazyStorageOptions } from "../lib/lazy-storage";
+import { useCallback, useRef, useState } from "react";
 import type { CompressionOptions } from "../core/types";
+import { LazyStorage, type LazyStorageOptions } from "../lib/lazy-storage";
 
 /**
  * A React hook for managing lazy-loaded data in localStorage with support for compression and field-specific operations.
@@ -83,9 +83,7 @@ export function useLazyStorage<T extends object>(
     (newValue: T | ((prev: T) => T)) => {
       setValue((prev) => {
         const resolvedValue =
-          typeof newValue === "function"
-            ? (newValue as (prev: T) => T)(prev)
-            : newValue;
+          typeof newValue === "function" ? (newValue as (prev: T) => T)(prev) : newValue;
 
         const defaultCompression: CompressionOptions = {
           mode: undefined,
@@ -108,7 +106,7 @@ export function useLazyStorage<T extends object>(
         return resolvedValue;
       });
     },
-    [key, options],
+    [key, options, storage.setLazy],
   );
 
   /**
@@ -123,7 +121,7 @@ export function useLazyStorage<T extends object>(
         loadedFields.current.add(field);
       }
     },
-    [key],
+    [key, storage.preload],
   );
 
   /**
@@ -132,10 +130,7 @@ export function useLazyStorage<T extends object>(
    * @param field - The field to check.
    * @returns True if the field has been loaded, false otherwise.
    */
-  const isFieldLoaded = useCallback(
-    (field: string) => loadedFields.current.has(field),
-    [],
-  );
+  const isFieldLoaded = useCallback((field: string) => loadedFields.current.has(field), []);
 
   /**
    * Removes the stored data and resets to the initial value.
@@ -144,7 +139,7 @@ export function useLazyStorage<T extends object>(
     storage.remove(key);
     setValue(initialValue);
     loadedFields.current.clear();
-  }, [key, initialValue]);
+  }, [key, initialValue, storage.remove]);
 
   return {
     value,

@@ -35,9 +35,7 @@ describe("lifecycle strategies", () => {
   it("should fall back to singleton strategy for unknown lifecycles", () => {
     expect(resolveLifecycleStrategy(undefined)).toBe(LIFECYCLE_STRATEGIES.singleton);
     expect(resolveLifecycleStrategy("singleton")).toBe(LIFECYCLE_STRATEGIES.singleton);
-    expect(resolveLifecycleStrategy("unknown" as never)).toBe(
-      LIFECYCLE_STRATEGIES.singleton,
-    );
+    expect(resolveLifecycleStrategy("unknown" as never)).toBe(LIFECYCLE_STRATEGIES.singleton);
   });
 
   it("should expose transient strategy storage hooks", () => {

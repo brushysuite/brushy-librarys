@@ -35,13 +35,11 @@ describe("factory dependencies type inference", () => {
 
     const registration = registerAuth(
       AUTH,
-      (logger, config) => new AuthService(logger),
+      (logger, _config) => new AuthService(logger),
       deps([LOGGER, CONFIG]),
     );
 
-    expectTypeOf(registration.factory).parameters.toEqualTypeOf<
-      [Logger, Config]
-    >();
+    expectTypeOf(registration.factory).parameters.toEqualTypeOf<[Logger, Config]>();
   });
 
   it("should infer resolve type from factory registration", () => {

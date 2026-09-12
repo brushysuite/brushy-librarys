@@ -1,14 +1,20 @@
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { defineConfig } from "vitest/config";
-import react from "@vitejs/plugin-react";
-import { resolve } from "path";
+import { vitestReactAlias, vitestReactDeps } from "../../scripts/vitest-react-alias";
+import { vitestSwc } from "../../scripts/vitest-swc";
+
+const packageDir = dirname(fileURLToPath(import.meta.url));
+const reactResolve = vitestReactAlias(packageDir);
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [vitestSwc()],
   test: {
     globals: true,
     environment: "jsdom",
     include: ["src/**/*.spec.ts", "src/**/*.spec.tsx", "src/__tests__/**/*.spec.tsx"],
     setupFiles: ["src/__tests__/setup.ts"],
+    ...vitestReactDeps,
     coverage: {
       provider: "v8",
       reporter: ["text", "json-summary"],
@@ -23,11 +29,10 @@ export default defineConfig({
     },
   },
   resolve: {
-    dedupe: ["react", "react-dom"],
+    ...reactResolve,
     alias: {
-      "@brushy/di-core": resolve(__dirname, "../di-core/src/index.ts"),
-      react: resolve(__dirname, "../../node_modules/react"),
-      "react-dom": resolve(__dirname, "../../node_modules/react-dom"),
+      ...reactResolve.alias,
+      "@brushy/di-core": resolve(packageDir, "../di-core/src/index.ts"),
     },
   },
 });

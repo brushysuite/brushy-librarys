@@ -1,5 +1,5 @@
-import { describe, it, expect, vi } from "vitest";
 import { Container } from "@brushy/di-core";
+import { describe, expect, it, vi } from "vitest";
 
 vi.mock("node:module", () => ({
   createRequire: () => () => {

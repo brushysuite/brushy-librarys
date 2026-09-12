@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { compileCreator } from "../compiled-creator";
 import { createToken } from "../../types/tokens";
+import { compileCreator } from "../compiled-creator";
 
 const dep = (index: number) => createToken(`DEP_${index}`);
 

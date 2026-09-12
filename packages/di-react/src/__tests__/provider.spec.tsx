@@ -1,14 +1,12 @@
-import React, { useContext } from "react";
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, cleanup } from "@testing-library/react";
+import { Container, containerRegistry, createToken } from "@brushy/di-core";
+import { cleanup, render } from "@testing-library/react";
+import { useContext } from "react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { bridgeContainer, DIContext } from "../context";
 import { BrushyDIProvider } from "../provider";
-import { DIContext, bridgeContainer } from "../context";
-import { containerRegistry, Container, createToken } from "@brushy/di-core";
 
 vi.mock("@brushy/di-core", async () => {
-  const actual = await vi.importActual<typeof import("@brushy/di-core")>(
-    "@brushy/di-core",
-  );
+  const actual = await vi.importActual<typeof import("@brushy/di-core")>("@brushy/di-core");
   return {
     ...actual,
     containerRegistry: {

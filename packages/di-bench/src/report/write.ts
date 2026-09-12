@@ -33,6 +33,7 @@ export async function writeReportArtifacts(
   if (fullRun) {
     await writeFile(join(RESULTS_DIR, "latest.json"), json, "utf8");
     await writeFile(join(RESULTS_DIR, "latest.md"), md, "utf8");
+    await writeFile(join(RESULTS_DIR, "BENCHMARK.md"), md, "utf8");
     await writeFile(join(RESULTS_DIR, "latest.csv"), csv, "utf8");
   } else {
     const partialBase = `partial-${stamp}`;
@@ -42,12 +43,11 @@ export async function writeReportArtifacts(
 
     try {
       await readFile(join(RESULTS_DIR, "latest.json"));
-      console.log(
-        `Partial run saved as results/${partialBase}.* - latest.* unchanged.`,
-      );
+      console.log(`Partial run saved as results/${partialBase}.* - latest.* unchanged.`);
     } catch {
       await writeFile(join(RESULTS_DIR, "latest.json"), json, "utf8");
       await writeFile(join(RESULTS_DIR, "latest.md"), md, "utf8");
+      await writeFile(join(RESULTS_DIR, "BENCHMARK.md"), md, "utf8");
       await writeFile(join(RESULTS_DIR, "latest.csv"), csv, "utf8");
     }
   }

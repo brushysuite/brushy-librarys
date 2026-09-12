@@ -1,4 +1,4 @@
-import { Container } from "../core/container";
+import type { Container } from "../core/container";
 
 export interface BrushyDebugAPI {
   container: Container;

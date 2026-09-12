@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { Container } from "../core/container";
 import { createToken, deps } from "./tokens";
 
@@ -37,8 +37,6 @@ describe("factory dependencies inference", () => {
       logger: { useClass: Logger },
     });
 
-    expect(app.container.resolve(app.module.tokens.logger)).toBeInstanceOf(
-      Logger,
-    );
+    expect(app.container.resolve(app.module.tokens.logger)).toBeInstanceOf(Logger);
   });
 });

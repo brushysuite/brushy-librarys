@@ -1,5 +1,5 @@
-import { describe, expect, it, vi } from "vitest";
 import os from "node:os";
+import { describe, expect, it, vi } from "vitest";
 import { captureEnvironment } from "./env.js";
 
 vi.mock("node:module", () => ({

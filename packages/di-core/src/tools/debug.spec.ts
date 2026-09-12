@@ -6,7 +6,9 @@ import { enableBrushyDebug, getBrushyDebug } from "./debug";
 describe("debug tools", () => {
   it("should expose the debug API after enabling", () => {
     const container = new Container();
-    const TOKEN = container.register(createToken("DEBUG_VALUE"), { useValue: "ok" });
+    const TOKEN = container.register(createToken("DEBUG_VALUE"), {
+      useValue: "ok",
+    });
 
     const api = enableBrushyDebug(container);
 

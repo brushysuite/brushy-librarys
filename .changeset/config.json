@@ -7,13 +7,14 @@
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
   "fixed": [
-    [
-      "@brushy/di",
-      "@brushy/di-core",
-      "@brushy/di-react",
-      "@brushy/di-monitor",
-      "@brushy/di-otel"
-    ]
+    ["@brushy/di", "@brushy/di-core", "@brushy/di-react", "@brushy/di-monitor", "@brushy/di-otel"],
+    ["@brushy/storage", "@brushy/storage-react"]
   ],
-  "ignore": ["@brushy/localstorage", "@brushy/di-bench"]
+  "ignore": [
+    "@brushy/di-bench",
+    "@brushy-examples/vite",
+    "@brushy-examples/expo",
+    "@brushy-examples/express",
+    "@brushy-examples/fastify"
+  ]
 }

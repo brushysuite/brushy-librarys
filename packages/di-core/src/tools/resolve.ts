@@ -1,5 +1,5 @@
 import { containerRegistry } from "../registry";
-import { Token } from "../types";
+import type { Token } from "../types";
 import type { InjectionToken } from "../types/tokens";
 
 export function resolve<T>(token: InjectionToken<T>, scope?: object): T;

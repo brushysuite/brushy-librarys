@@ -1,16 +1,16 @@
-import { Token, ProviderConfig } from "../types";
+import type { ProviderConfig, Token } from "../types";
+import { DEFAULT_PROMISE_TTL, isNodeDev } from "./constants";
 import { DependencyError } from "./dependency-error";
-import { DependencyRegistry, type ProviderRecord } from "./dependency-registry";
+import type { DependencyRegistry, ProviderRecord } from "./dependency-registry";
 import { Logger } from "./logger";
 import { PromiseCache } from "./promise-cache";
+import { clearScopeBucket, getScopeBucket, getScopeBucketForKey } from "./scoped-cache";
 import {
   createLifecycleCache,
-  LifecycleCache,
+  type LifecycleCache,
   resolveLifecycleStrategy,
 } from "./strategies/lifecycle";
 import { createFromProvider } from "./strategies/provider";
-import { DEFAULT_PROMISE_TTL, isNodeDev } from "./constants";
-import { clearScopeBucket, getScopeBucket, getScopeBucketForKey } from "./scoped-cache";
 
 const EMPTY_CONTEXT = new Map<Token, unknown>();
 const FAST_MISS = Symbol("brushyFastMiss");
@@ -131,9 +131,7 @@ export class DependencyResolver {
     try {
       const result = this.resolveInstance<T>(token, context);
       if (this.debug && !this.graphPrinted) {
-        Logger.debug(
-          `Resolved ${Logger.formatToken(this.formatToken(token))} synchronously`,
-        );
+        Logger.debug(`Resolved ${Logger.formatToken(this.formatToken(token))} synchronously`);
         this.printDependencyGraph();
         this.graphPrinted = true;
       }
@@ -170,26 +168,18 @@ export class DependencyResolver {
   async resolveAsync<T>(token: Token, context?: Map<Token, unknown>): Promise<T> {
     const result = await this.resolveInstanceAsync<T>(token, context);
     if (this.debug) {
-      Logger.debug(
-        `Resolved ${Logger.formatToken(this.formatToken(token))} asynchronously`,
-      );
+      Logger.debug(`Resolved ${Logger.formatToken(this.formatToken(token))} asynchronously`);
       this.printDependencyGraph();
     }
     return result;
   }
 
-  getCachedPromise<T>(
-    token: Token,
-    methodName: string,
-    args: unknown[] = [],
-  ): Promise<T> {
+  getCachedPromise<T>(token: Token, methodName: string, args: unknown[] = []): Promise<T> {
     const instance = this.resolve(token) as Record<string, unknown>;
     const method = instance?.[methodName];
 
     if (typeof method !== "function") {
-      throw new DependencyError(
-        `Cannot call method '${methodName}' on token '${String(token)}'`,
-      );
+      throw new DependencyError(`Cannot call method '${methodName}' on token '${String(token)}'`);
     }
 
     const key = this.createPromiseCacheKey(token, methodName, args);
@@ -209,10 +199,7 @@ export class DependencyResolver {
       );
     }
 
-    const promise = (method as (...a: unknown[]) => Promise<T>).apply(
-      instance,
-      args,
-    );
+    const promise = (method as (...a: unknown[]) => Promise<T>).apply(instance, args);
     const config = this.getConfig(token);
     this.getPromiseCache().set(key, promise, config?.promiseTtl ?? DEFAULT_PROMISE_TTL);
     return promise;
@@ -226,9 +213,7 @@ export class DependencyResolver {
   clearTokenPromiseCache(token: Token): void {
     this.promiseCache?.clear(token);
     if (this.debug) {
-      Logger.debug(
-        `Promise cache cleared for ${Logger.formatToken(this.formatToken(token))}`,
-      );
+      Logger.debug(`Promise cache cleared for ${Logger.formatToken(this.formatToken(token))}`);
     }
   }
 
@@ -240,9 +225,7 @@ export class DependencyResolver {
     clearScopeBucket(this.lifecycleCache, scopeKey);
   }
 
-  getOrCreateScopeBucket(
-    scopeKey: object,
-  ): Map<Token, { instance: unknown; lastUsed: number }> {
+  getOrCreateScopeBucket(scopeKey: object): Map<Token, { instance: unknown; lastUsed: number }> {
     return getScopeBucketForKey(this.lifecycleCache, scopeKey);
   }
 
@@ -271,12 +254,7 @@ export class DependencyResolver {
     const cache = this.lifecycleCache;
     for (const token of this.registry.getAllTokens()) {
       const record = this.registry.getRecord(token);
-      if (
-        !record ||
-        !record.isCached ||
-        !record.isSingleton ||
-        cache.singletons.has(token)
-      ) {
+      if (!record || !record.isCached || !record.isSingleton || cache.singletons.has(token)) {
         continue;
       }
       const stored = { instance: record.cached, lastUsed: 0 };
@@ -355,16 +333,11 @@ export class DependencyResolver {
     if (cached !== undefined) return cached;
 
     const resolvedRecord = record ?? this.registry.getRecord(token);
-    const creator = resolvedRecord
-      ? this.registry.ensureCreator(resolvedRecord)
-      : undefined;
+    const creator = resolvedRecord ? this.registry.ensureCreator(resolvedRecord) : undefined;
     return this.createAndStore<T>(token, config, creator);
   }
 
-  private async resolveInstanceAsync<T>(
-    token: Token,
-    context?: Map<Token, unknown>,
-  ): Promise<T> {
+  private async resolveInstanceAsync<T>(token: Token, context?: Map<Token, unknown>): Promise<T> {
     const localContext = context ?? EMPTY_CONTEXT;
 
     if (localContext.has(token)) {
@@ -424,17 +397,12 @@ export class DependencyResolver {
 
   private handleDirectValue<T>(token: Token, config: ProviderConfig): T {
     if (this.debug) {
-      Logger.debug(
-        `Using direct value for ${Logger.formatToken(this.formatToken(token))}`,
-      );
+      Logger.debug(`Using direct value for ${Logger.formatToken(this.formatToken(token))}`);
     }
     return config.useValue as T;
   }
 
-  private getFromCache<T>(
-    token: Token,
-    config?: ProviderConfig,
-  ): T | undefined {
+  private getFromCache<T>(token: Token, config?: ProviderConfig): T | undefined {
     const resolvedConfig = config ?? this.getConfig(token);
     const immutable = this.lifecycleCache.immutable.get(token);
     if (immutable !== undefined) {
@@ -449,11 +417,7 @@ export class DependencyResolver {
     if (!resolvedConfig) return undefined;
 
     const strategy = resolveLifecycleStrategy(resolvedConfig.lifecycle);
-    const fromSingleton = strategy.get(
-      this.lifecycleCache,
-      token,
-      resolvedConfig.ttl,
-    );
+    const fromSingleton = strategy.get(this.lifecycleCache, token, resolvedConfig.ttl);
     if (fromSingleton !== undefined) {
       if (this.debug) {
         Logger.debug(
@@ -497,9 +461,7 @@ export class DependencyResolver {
       }
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
-      Logger.error(
-        `Failed to resolve ${Logger.formatToken(this.formatToken(token))}: ${message}`,
-      );
+      Logger.error(`Failed to resolve ${Logger.formatToken(this.formatToken(token))}: ${message}`);
       throw new DependencyError(
         `Failed to resolve dependency '${String(token)}'. Error: ${message}`,
       );
@@ -542,15 +504,11 @@ export class DependencyResolver {
 
     if (!config.dependencies?.length) return new config.useClass();
 
-    const deps = await Promise.all(
-      config.dependencies.map((dep) => this.resolveAsync(dep)),
-    );
+    const deps = await Promise.all(config.dependencies.map((dep) => this.resolveAsync(dep)));
     return new config.useClass(...deps);
   }
 
-  private async resolveDependenciesForFactoryAsync(
-    config: ProviderConfig,
-  ): Promise<unknown[]> {
+  private async resolveDependenciesForFactoryAsync(config: ProviderConfig): Promise<unknown[]> {
     if (!config.dependencies?.length) return [];
     return Promise.all(config.dependencies.map((dep) => this.resolveAsync(dep)));
   }
@@ -568,31 +526,20 @@ export class DependencyResolver {
     });
   }
 
-  private storeInstance(
-    token: Token,
-    instance: unknown,
-    config: ProviderConfig,
-  ): void {
+  private storeInstance(token: Token, instance: unknown, config: ProviderConfig): void {
     const strategy = resolveLifecycleStrategy(config.lifecycle);
     if (strategy.skipsStorage) return;
     strategy.set(this.lifecycleCache, token, instance, config.ttl);
 
     const record = this.registry.getRecord(token);
-    if (
-      record &&
-      record.isSingleton &&
-      !record.hasTtl &&
-      !record.isCached
-    ) {
+    if (record && record.isSingleton && !record.hasTtl && !record.isCached) {
       record.singletonWrapper = { instance, lastUsed: 0 };
       record.cached = instance;
       record.isCached = true;
     }
 
     if (this.debug && config.lifecycle === "immutable") {
-      Logger.debug(
-        `Stored immutable instance for ${Logger.formatToken(this.formatToken(token))}`,
-      );
+      Logger.debug(`Stored immutable instance for ${Logger.formatToken(this.formatToken(token))}`);
     }
   }
 
@@ -669,10 +616,7 @@ export class DependencyResolver {
     return creator(resolveDep) as T;
   }
 
-  private tryFastResolveFromRecord<T>(
-    token: Token,
-    record: ProviderRecord,
-  ): T | typeof FAST_MISS {
+  private tryFastResolveFromRecord<T>(token: Token, record: ProviderRecord): T | typeof FAST_MISS {
     if (record.isUseValue) {
       return record.config.useValue as T;
     }
@@ -735,13 +679,11 @@ export class DependencyResolver {
     }
 
     if (record.isScoped) {
-      const scopeBucket =
-        bucket ?? getScopeBucketForKey(this.lifecycleCache, scopeKey);
+      const scopeBucket = bucket ?? getScopeBucketForKey(this.lifecycleCache, scopeKey);
       const wrapper = scopeBucket.get(token);
       if (wrapper) return wrapper.instance as T;
-      const instance = this.resolveWithCreator(
-        record,
-        (dep) => this.resolveInScope(dep, scopeKey, scopeBucket),
+      const instance = this.resolveWithCreator(record, (dep) =>
+        this.resolveInScope(dep, scopeKey, scopeBucket),
       );
       if (instance === FAST_MISS) return FAST_MISS;
       scopeBucket.set(token, { instance, lastUsed: 0 });
@@ -767,16 +709,12 @@ export class DependencyResolver {
     }
 
     if (config.lifecycle === "scoped") {
-      const scopeBucket =
-        bucket ?? getScopeBucketForKey(this.lifecycleCache, scopeKey);
+      const scopeBucket = bucket ?? getScopeBucketForKey(this.lifecycleCache, scopeKey);
       const cached = scopeBucket.get(token);
       if (cached) return cached.instance as T;
 
       this.checkCircularDependency(token);
-      const instance = this.createInstance<T>(
-        config,
-        this.registry.ensureCreator(record),
-      );
+      const instance = this.createInstance<T>(config, this.registry.ensureCreator(record));
       scopeBucket.set(token, { instance, lastUsed: 0 });
       if (this.debug) this.trackDependencies(token, config);
       return instance;
@@ -792,17 +730,13 @@ export class DependencyResolver {
   private trackDependencies(token: Token, config: ProviderConfig): void {
     if (!config.dependencies?.length) {
       if (this.debug) {
-        Logger.debug(
-          `No dependencies defined for ${Logger.formatToken(this.formatToken(token))}`,
-        );
+        Logger.debug(`No dependencies defined for ${Logger.formatToken(this.formatToken(token))}`);
       }
       return;
     }
 
     if (this.debug) {
-      Logger.debug(
-        `Tracking dependencies for ${Logger.formatToken(this.formatToken(token))}...`,
-      );
+      Logger.debug(`Tracking dependencies for ${Logger.formatToken(this.formatToken(token))}...`);
     }
 
     const graph = this.getDependencyGraph();
@@ -854,17 +788,11 @@ export class DependencyResolver {
     return String(token);
   }
 
-  private createPromiseCacheKey(
-    token: Token,
-    methodName: string,
-    args: unknown[],
-  ): string {
+  private createPromiseCacheKey(token: Token, methodName: string, args: unknown[]): string {
     return this.getPromiseCache().createKey(token, methodName, args);
   }
 
-  private isPromiseCacheExpired(cachedItem: {
-    expiresAt: number;
-  }): boolean {
+  private isPromiseCacheExpired(cachedItem: { expiresAt: number }): boolean {
     return Date.now() > cachedItem.expiresAt;
   }
 
@@ -920,9 +848,7 @@ export class DependencyResolver {
       for (const dependent of dependents) tokens.add(dependent);
     }
     for (const token of tokens) {
-      Logger.debug(
-        `• ${Logger.formatToken(this.formatToken(token))}: ${this.getTokenInfo(token)}`,
-      );
+      Logger.debug(`• ${Logger.formatToken(this.formatToken(token))}: ${this.getTokenInfo(token)}`);
     }
   }
 

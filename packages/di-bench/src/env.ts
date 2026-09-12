@@ -1,5 +1,5 @@
-import os from "node:os";
 import { createRequire } from "node:module";
+import os from "node:os";
 import type { BenchEnvironment } from "./types.js";
 
 const require = createRequire(import.meta.url);

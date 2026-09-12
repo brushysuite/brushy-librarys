@@ -1,52 +1,50 @@
-export { Container, ScopedContainer } from "./core/container";
+export { IS_DEV, isDev, isNodeDev } from "./core/constants";
 export type { ContainerEvent, ContainerObserver } from "./core/container";
-export { DependencyError } from "./core/dependency-error";
+export { Container, ScopedContainer } from "./core/container";
 export { ContainerRegistry, ROOT_SCOPE } from "./core/container-registry";
+export { DependencyError } from "./core/dependency-error";
 export { PromiseCache } from "./core/promise-cache";
 export {
   containerRegistry,
+  PromiseCacheSystem,
   promiseCache,
   promiseCacheSystem,
-  PromiseCacheSystem,
 } from "./registry";
-
-export { server } from "./tools/server";
-export { resolve } from "./tools/resolve";
-export { inject } from "./tools/inject";
-export { cache } from "./tools/cache";
-export { defineModule } from "./tools/module";
-export type { DefinedModule } from "./tools/module";
 export { createBrushyApp } from "./tools/bootstrap";
+export { cache } from "./tools/cache";
+export type { BrushyDebugAPI } from "./tools/debug";
+export { enableBrushyDebug, getBrushyDebug } from "./tools/debug";
+export { inject } from "./tools/inject";
+export type { DefinedModule } from "./tools/module";
+export { defineModule } from "./tools/module";
+export type {
+  BrushyRequestScopeOptions,
+  RequestScopeOptions,
+} from "./tools/request-scope";
 export {
+  brushyRequestScope,
   getActiveScope,
+  isRequestScopeSupported,
   runInRequestScope,
   runInRequestScopeAsync,
-  brushyRequestScope,
-  isRequestScopeSupported,
 } from "./tools/request-scope";
+export { resolve } from "./tools/resolve";
+export { server } from "./tools/server";
 export type {
-  RequestScopeOptions,
-  BrushyRequestScopeOptions,
-} from "./tools/request-scope";
-export { enableBrushyDebug, getBrushyDebug } from "./tools/debug";
-export type { BrushyDebugAPI } from "./tools/debug";
-
-export { isDev, isNodeDev, IS_DEV } from "./core/constants";
-export { createToken, deps } from "./types/tokens";
-export type {
-  Token,
-  Lifecycle,
-  ProviderConfig,
-  InstanceWrapper,
-  PromiseCacheEntry,
+  ClassProviderConfig,
+  FactoryProviderConfig,
+  InferDependencies,
+  InferProviderType,
+  InjectionToken,
   InjectOptions,
+  InstanceWrapper,
+  Lifecycle,
   MonitorEventType,
   MonitorOptions,
-  InjectionToken,
-  UntypedInjectionToken,
+  PromiseCacheEntry,
+  ProviderConfig,
   ResolveType,
-  InferProviderType,
-  InferDependencies,
-  FactoryProviderConfig,
-  ClassProviderConfig,
+  Token,
+  UntypedInjectionToken,
 } from "./types";
+export { createToken, deps } from "./types/tokens";

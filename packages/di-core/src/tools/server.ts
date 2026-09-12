@@ -1,9 +1,9 @@
-import { Container } from "../core/container";
-import { Token } from "../types";
+import type { Container } from "../core/container";
+import type { Token } from "../types";
 import type { InjectionToken } from "../types/tokens";
 import {
-  brushyRequestScope as createBrushyRequestScope,
   type BrushyRequestScopeOptions,
+  brushyRequestScope as createBrushyRequestScope,
 } from "./request-scope";
 
 let serverContainer: Container | null = null;
@@ -21,9 +21,7 @@ interface ServerAPI {
   resolve<C extends abstract new (...args: any[]) => any>(token: C): InstanceType<C>;
   resolve<T>(token: Token): T;
   resolveAsync<T>(token: InjectionToken<T>): Promise<T>;
-  resolveAsync<C extends abstract new (...args: any[]) => any>(
-    token: C,
-  ): Promise<InstanceType<C>>;
+  resolveAsync<C extends abstract new (...args: any[]) => any>(token: C): Promise<InstanceType<C>>;
   resolveAsync<T>(token: Token): Promise<T>;
   clearRequestScope(): void;
   brushyRequestScope(options?: Omit<BrushyRequestScopeOptions, "container">): MiddlewareHandler;
@@ -36,9 +34,7 @@ export const server: ServerAPI = {
 
   getServerContainer: (): Container => {
     if (!serverContainer) {
-      throw new Error(
-        "No server container defined. Use server.setServerContainer() first.",
-      );
+      throw new Error("No server container defined. Use server.setServerContainer() first.");
     }
     return serverContainer;
   },

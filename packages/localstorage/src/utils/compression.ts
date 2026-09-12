@@ -1,5 +1,5 @@
 import { compress, decompress } from "lz-string";
-import { CompressionOptions, DataType } from "../core/types";
+import type { CompressionOptions, DataType } from "../core/types";
 
 export class TypedCompression {
   private static readonly DEFAULT_THRESHOLD = 1024; // 1KB
@@ -24,18 +24,18 @@ export class TypedCompression {
    * Compresses data based on its type and size
    */
   static compressData(data: any, options: CompressionOptions = {}): string {
-    const type = this.detectType(data);
-    const threshold = options.threshold || this.DEFAULT_THRESHOLD;
+    const type = TypedCompression.detectType(data);
+    const threshold = options.threshold || TypedCompression.DEFAULT_THRESHOLD;
 
     // Convert to string first to check size
     const stringData = JSON.stringify(data);
     if (stringData.length < threshold) return stringData;
 
     const compressionMethods: Record<DataType, () => string> = {
-      string: () => this.compressString(stringData, options),
-      array: () => this.compressArray(data, options),
-      binary: () => this.compressBinary(stringData),
-      object: () => this.compressObject(data, options),
+      string: () => TypedCompression.compressString(stringData, options),
+      array: () => TypedCompression.compressArray(data, options),
+      binary: () => TypedCompression.compressBinary(stringData),
+      object: () => TypedCompression.compressObject(data, options),
       number: () => compress(stringData),
       date: () => compress(stringData),
     };
@@ -58,7 +58,7 @@ export class TypedCompression {
 
         // Check if it's a chunked format
         if (decompressed.startsWith("__CHUNKED__")) {
-          return this.decompressChunked(decompressed);
+          return TypedCompression.decompressChunked(decompressed);
         }
 
         return JSON.parse(decompressed);
@@ -71,13 +71,10 @@ export class TypedCompression {
   /**
    * Optimized string compression
    */
-  private static compressString(
-    data: string,
-    options: CompressionOptions,
-  ): string {
+  private static compressString(data: string, options: CompressionOptions): string {
     if (options.mode === "aggressive") {
       // For aggressive mode, use chunked compression
-      return this.compressChunked(data);
+      return TypedCompression.compressChunked(data);
     }
     return compress(data);
   }
@@ -85,16 +82,11 @@ export class TypedCompression {
   /**
    * Optimized array compression with chunking for large arrays
    */
-  private static compressArray(
-    data: any[],
-    options: CompressionOptions,
-  ): string {
+  private static compressArray(data: any[], options: CompressionOptions): string {
     if (data.length > 1000 || options.mode === "aggressive") {
       // For large arrays, compress in chunks
-      const chunks = this.chunkArray(data, this.CHUNK_SIZE);
-      const compressedChunks = chunks.map((chunk) =>
-        compress(JSON.stringify(chunk)),
-      );
+      const chunks = TypedCompression.chunkArray(data, TypedCompression.CHUNK_SIZE);
+      const compressedChunks = chunks.map((chunk) => compress(JSON.stringify(chunk)));
       return `__CHUNKED__${JSON.stringify(compressedChunks)}`;
     }
     return compress(JSON.stringify(data));
@@ -111,17 +103,14 @@ export class TypedCompression {
   /**
    * Optimized object compression with selective field compression
    */
-  private static compressObject(
-    data: object,
-    options: CompressionOptions,
-  ): string {
+  private static compressObject(data: object, options: CompressionOptions): string {
     if (options.mode === "aggressive") {
       // In aggressive mode, compress large fields individually
       const compressed: Record<string, any> = {};
 
       for (const [key, value] of Object.entries(data)) {
         const stringValue = JSON.stringify(value);
-        if (stringValue.length > this.DEFAULT_THRESHOLD) {
+        if (stringValue.length > TypedCompression.DEFAULT_THRESHOLD) {
           compressed[key] = compress(stringValue);
         } else {
           compressed[key] = value;
@@ -149,7 +138,7 @@ export class TypedCompression {
    * Compresses large data in chunks
    */
   private static compressChunked(data: string): string {
-    const chunks = this.chunkArray(data.split(""), this.CHUNK_SIZE)
+    const chunks = TypedCompression.chunkArray(data.split(""), TypedCompression.CHUNK_SIZE)
       .map((chunk) => chunk.join(""))
       .map((chunk) => compress(chunk));
 

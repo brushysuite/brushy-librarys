@@ -1,5 +1,5 @@
 import { promiseCache, promiseCacheSystem } from "../registry";
-import { Token } from "../types";
+import type { Token } from "../types";
 
 const toKey = (key: unknown): string =>
   typeof key === "object" ? JSON.stringify(key) : String(key);

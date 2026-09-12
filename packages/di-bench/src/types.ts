@@ -19,13 +19,7 @@ export const ALL_SCENARIOS: ScenarioId[] = [
   "request_scope",
 ];
 
-export const ALL_LIB_IDS = [
-  "brushy",
-  "tsyringe",
-  "inversify",
-  "awilix",
-  "baseline",
-] as const;
+export const ALL_LIB_IDS = ["brushy", "tsyringe", "inversify", "awilix", "baseline"] as const;
 
 export type LibId = (typeof ALL_LIB_IDS)[number];
 

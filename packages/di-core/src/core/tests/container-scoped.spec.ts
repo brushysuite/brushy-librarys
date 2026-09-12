@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
-import { Container, ScopedContainer } from "../container";
 import { createToken } from "../../types/tokens";
+import { Container, ScopedContainer } from "../container";
 
 describe("scoped container API", () => {
   it("should resolve scoped providers through ScopedContainer", () => {
@@ -58,9 +58,7 @@ describe("scoped container API", () => {
     const scopeKey = { id: "observed-parent-scope" };
 
     child.observe(observer);
-    expect(child.resolveInScope(SCOPED, scopeKey)).toBe(
-      "parent-scoped-observed",
-    );
+    expect(child.resolveInScope(SCOPED, scopeKey)).toBe("parent-scoped-observed");
     expect(observer).toHaveBeenCalledWith(
       expect.objectContaining({
         type: "resolve",
@@ -78,9 +76,7 @@ describe("scoped container API", () => {
     const child = new Container();
     const MISSING = createToken("MISSING_UNOBSERVED");
 
-    expect(() => child.resolveInScope(MISSING, { id: "missing" })).toThrow(
-      /Token not registered/,
-    );
+    expect(() => child.resolveInScope(MISSING, { id: "missing" })).toThrow(/Token not registered/);
   });
 
   it("should emit scoped resolve and clear events when observed", () => {

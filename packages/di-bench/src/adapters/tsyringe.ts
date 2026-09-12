@@ -1,10 +1,11 @@
 import "reflect-metadata";
 import {
-  container as rootContainer,
+  type DependencyContainer,
   injectable,
   Lifecycle,
-  type DependencyContainer,
+  container as rootContainer,
 } from "tsyringe";
+import { consumeChecksum } from "../fixtures/checksum.js";
 import {
   BATCH_COUNT,
   BenchService,
@@ -18,7 +19,6 @@ import {
   NodeD,
   NodeE,
 } from "../fixtures/classes.js";
-import { consumeChecksum } from "../fixtures/checksum.js";
 import type { BenchAdapter, BenchScenario, ScenarioId } from "../types.js";
 
 @injectable()

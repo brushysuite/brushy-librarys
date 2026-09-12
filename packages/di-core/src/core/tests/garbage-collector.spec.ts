@@ -1,8 +1,8 @@
-import { describe, it, expect, vi, beforeEach, afterEach, Mock } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, type Mock, vi } from "vitest";
+import type { DependencyResolver } from "../dependency-resolver";
 import { GarbageCollector } from "../garbage-collector";
-import { DependencyResolver } from "../dependency-resolver";
 import { Logger } from "../logger";
-import { Token, InstanceWrapper } from "../types";
+import type { InstanceWrapper, Token } from "../types";
 
 const createMockResolver = () => {
   const instances = new Map<Token, InstanceWrapper>();
@@ -21,7 +21,7 @@ describe("GarbageCollector", () => {
   beforeEach(() => {
     vi.spyOn(Logger, "info").mockImplementation(() => {});
 
-    vi.spyOn(global, "setInterval").mockImplementation((callback, interval) => {
+    vi.spyOn(global, "setInterval").mockImplementation((_callback, _interval) => {
       return 123 as unknown as NodeJS.Timeout;
     });
     vi.spyOn(global, "clearInterval").mockImplementation(() => {});
@@ -44,10 +44,7 @@ describe("GarbageCollector", () => {
       gc.start(ttl, interval);
 
       expect(global.setInterval).toHaveBeenCalledTimes(1);
-      expect(global.setInterval).toHaveBeenCalledWith(
-        expect.any(Function),
-        interval,
-      );
+      expect(global.setInterval).toHaveBeenCalledWith(expect.any(Function), interval);
       expect(Logger.info).toHaveBeenCalledWith(
         expect.stringContaining(`TTL=${ttl}ms, Interval=${interval}ms`),
       );
@@ -83,14 +80,11 @@ describe("GarbageCollector", () => {
         lastUsed: now - ttl + 1000,
       });
 
-      mockResolver.getInstances.mockReturnValue(
-        mockResolver.instances.entries(),
-      );
+      mockResolver.getInstances.mockReturnValue(mockResolver.instances.entries());
 
       gc.start(ttl, interval);
 
-      const intervalCallback = (global.setInterval as unknown as Mock).mock
-        .calls[0][0];
+      const intervalCallback = (global.setInterval as unknown as Mock).mock.calls[0][0];
       intervalCallback();
 
       Date.now = originalDateNow;
@@ -99,9 +93,7 @@ describe("GarbageCollector", () => {
       expect(mockResolver.deleteInstance).toHaveBeenCalledWith(token1);
       expect(mockResolver.deleteInstance).not.toHaveBeenCalledWith(token2);
       expect(Logger.info).toHaveBeenCalledWith(
-        expect.stringContaining(
-          `Garbage collecting instance for token: ${token1}`,
-        ),
+        expect.stringContaining(`Garbage collecting instance for token: ${token1}`),
       );
     });
   });
@@ -120,9 +112,7 @@ describe("GarbageCollector", () => {
       gc.stop();
 
       expect(global.clearInterval).not.toHaveBeenCalled();
-      expect(Logger.info).not.toHaveBeenCalledWith(
-        "Garbage collector stopped.",
-      );
+      expect(Logger.info).not.toHaveBeenCalledWith("Garbage collector stopped.");
     });
   });
 });

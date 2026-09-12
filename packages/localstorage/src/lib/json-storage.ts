@@ -1,5 +1,5 @@
-import { LocalStorage } from "./localstorage";
 import type { JSONStorageOptions } from "../core/types";
+import { LocalStorage } from "./localstorage";
 
 /**
  * The `JSONStorage` class extends `LocalStorage` to provide JSON-specific operations.
@@ -35,18 +35,10 @@ export class JSONStorage extends LocalStorage {
    * jsonStorage.setJSON('user', { name: 'John', age: 30 }, { pretty: true });
    * ```
    */
-  setJSON<T extends object>(
-    key: string,
-    value: T,
-    options: JSONStorageOptions = {},
-  ): void {
+  setJSON<T extends object>(key: string, value: T, options: JSONStorageOptions = {}): void {
     try {
       const { pretty, replacer, ...storageOptions } = options;
-      const jsonString = JSON.stringify(
-        value,
-        replacer,
-        pretty ? 2 : undefined,
-      );
+      const jsonString = JSON.stringify(value, replacer, pretty ? 2 : undefined);
       super.set(key, jsonString, storageOptions);
     } catch (error) {
       console.error("[JSONStorage] Error serializing JSON:", error);
@@ -137,16 +129,14 @@ export class JSONStorage extends LocalStorage {
     } = {},
   ): T[] {
     try {
-      const currentArray =
-        this.getJSON<T[]>(key, { reviver: options.reviver }) || [];
+      const currentArray = this.getJSON<T[]>(key, { reviver: options.reviver }) || [];
       let mergedArray = [...currentArray, ...newItems];
 
       if (options.unique) {
         mergedArray = options.comparator
           ? mergedArray.filter(
               (item, index, self) =>
-                index ===
-                self.findIndex((other) => options.comparator!(item, other)),
+                index === self.findIndex((other) => options.comparator?.(item, other)),
             )
           : Array.from(new Set(mergedArray));
       }
@@ -204,8 +194,7 @@ export class JSONStorage extends LocalStorage {
         Array.isArray(val) ? "array" : val === null ? "null" : typeof val;
 
       const buildSchema = (obj: any): object => {
-        if (typeof obj !== "object" || obj === null)
-          return { type: getType(obj) };
+        if (typeof obj !== "object" || obj === null) return { type: getType(obj) };
 
         const schema: Record<string, any> = Array.isArray(obj)
           ? {

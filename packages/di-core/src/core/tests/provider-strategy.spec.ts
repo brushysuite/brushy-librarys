@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { createFromProvider } from "../strategies/provider";
 import { createToken } from "../../types/tokens";
+import { createFromProvider } from "../strategies/provider";
 
 describe("provider strategy", () => {
   it("should return useValue when creator compilation is unavailable", () => {
@@ -30,15 +30,18 @@ describe("provider strategy", () => {
   });
 
   it("should throw for invalid provider configs", () => {
-    expect(() =>
-      createFromProvider("invalid" as never, () => undefined, null as never),
-    ).toThrow("Invalid provider config.");
+    expect(() => createFromProvider("invalid" as never, () => undefined, null as never)).toThrow(
+      "Invalid provider config.",
+    );
   });
 
   it("should resolve dependencies through a precompiled creator", () => {
     const TOKEN = createToken("VALUE");
     const result = createFromProvider<string>(
-      { useFactory: (input: string) => input.toUpperCase(), dependencies: [TOKEN] },
+      {
+        useFactory: (input: string) => input.toUpperCase(),
+        dependencies: [TOKEN],
+      },
       (token) => (token === TOKEN ? "hello" : ""),
       (resolve) => String(resolve(TOKEN)).toUpperCase(),
     );

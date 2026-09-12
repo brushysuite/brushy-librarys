@@ -45,7 +45,11 @@
     },
     "./package.json": "./package.json"
   },
-  "files": ["dist", "README.md", "CHANGELOG.md"],
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md"
+  ],
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
@@ -55,7 +59,12 @@
     "test:coverage": "vitest run --coverage",
     "prepublishOnly": "npm run build"
   },
-  "keywords": ["dependency-injection", "di", "ioc", "typescript"],
+  "keywords": [
+    "dependency-injection",
+    "di",
+    "ioc",
+    "typescript"
+  ],
   "author": "Gustavo Franco <contact@gfrancodev.com>",
   "license": "MIT",
   "repository": {
@@ -65,11 +74,12 @@
   },
   "homepage": "https://brushysuite.gfrancodev.com/docs/di",
   "devDependencies": {
-    "@types/node": "^22.13.9",
-    "@vitest/coverage-v8": "^3.2.7",
+    "@swc/core": "^1.16.2",
+    "@types/node": "^22.20.2",
+    "@vitest/coverage-v8": "^5.0.0",
     "tsup": "^8.5.1",
-    "typescript": "5.8.2",
-    "vitest": "^3.2.7"
+    "typescript": "5.9.3",
+    "vitest": "^5.0.0"
   },
   "publishConfig": {
     "access": "public",

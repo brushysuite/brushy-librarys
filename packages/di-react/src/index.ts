@@ -1,26 +1,24 @@
-export type { BrushyDIProviderProps } from "./provider";
-export { BrushyDIProvider } from "./provider";
+export type { InjectOptions } from "@brushy/di-core";
 export {
-  useDIContainer,
   bridgeContainer,
+  DIContext,
+  ROOT_SCOPE,
   registerReactContainer,
   unregisterReactContainer,
-  ROOT_SCOPE,
-  DIContext,
+  useDIContainer,
 } from "./context";
-export { useInject } from "./use-inject";
-export { useInjectLazy } from "./use-lazy-inject";
+export type { InjectComponentErrorRenderer } from "./inject-component";
 export {
-  useInjectComponent,
-  registerComponent,
-  registerComponents,
   createComponentsProvider,
-  renderErrorUI,
-  setInjectComponentErrorRenderer,
   handleComponentNotFound,
   handleResolveError,
+  registerComponent,
+  registerComponents,
+  renderErrorUI,
+  setInjectComponentErrorRenderer,
+  useInjectComponent,
 } from "./inject-component";
-
-export type { InjectComponentErrorRenderer } from "./inject-component";
-
-export type { InjectOptions } from "@brushy/di-core";
+export type { BrushyDIProviderProps } from "./provider";
+export { BrushyDIProvider } from "./provider";
+export { useInject } from "./use-inject";
+export { useInjectLazy } from "./use-lazy-inject";

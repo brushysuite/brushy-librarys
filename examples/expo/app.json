@@ -1,0 +1,15 @@
+{
+  "expo": {
+    "name": "Brushy DI Expo",
+    "slug": "brushy-example-expo",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "scheme": "brushy-example-expo",
+    "platforms": ["ios", "android"],
+    "backgroundColor": "#ffffff",
+    "experiments": {
+      "autolinkingModuleResolution": true
+    }
+  }
+}

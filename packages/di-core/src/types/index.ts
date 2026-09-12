@@ -1,24 +1,23 @@
 import type {
-  ValueProviderConfig,
-  FactoryProviderConfig,
   ClassProviderConfig,
+  FactoryProviderConfig,
   ProviderConfigBase,
   Token,
-  Lifecycle,
+  ValueProviderConfig,
 } from "./tokens";
 
 export type {
-  Token,
-  Lifecycle,
-  InjectionToken,
-  UntypedInjectionToken,
-  ResolveType,
-  InferProviderType,
-  InferDependencies,
-  FactoryProviderConfig,
   ClassProviderConfig,
-  ValueProviderConfig,
+  FactoryProviderConfig,
+  InferDependencies,
+  InferProviderType,
+  InjectionToken,
+  Lifecycle,
   ProviderConfigBase,
+  ResolveType,
+  Token,
+  UntypedInjectionToken,
+  ValueProviderConfig,
 } from "./tokens";
 export { createToken, deps } from "./tokens";
 
@@ -50,13 +49,7 @@ export interface InjectOptions {
   scope?: object;
 }
 
-export type MonitorEventType =
-  | "register"
-  | "resolve"
-  | "error"
-  | "import"
-  | "clear"
-  | "all";
+export type MonitorEventType = "register" | "resolve" | "error" | "import" | "clear" | "all";
 
 export interface MonitorOptions {
   eventTypes?: MonitorEventType[];

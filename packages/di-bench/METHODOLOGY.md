@@ -33,12 +33,14 @@ This package compares `@brushy/di-core` against common TypeScript DI libraries u
 ## Running
 
 ```bash
-# Full benchmark (3s × 5 runs per task)
-npm run bench --workspace=@brushy/di-bench
+# Full benchmark (3s × 5 runs per task) — updates published results
+npm run bench:report --workspace=@brushy/di-bench
 
-# CI smoke (1s × 1 run)
+# CI smoke (1s × 1 run) — main CI only; does not replace full latest.*
 npm run bench:quick --workspace=@brushy/di-bench
 ```
+
+Published artifacts (`results/latest.*`, `results/BENCHMARK.md`) are committed to the repo and refreshed by [`.github/workflows/benchmark.yml`](../../.github/workflows/benchmark.yml) on `main` and weekly.
 
 ## Environment variables
 
@@ -52,7 +54,7 @@ npm run bench:quick --workspace=@brushy/di-bench
 | `BENCH_TIE_MARGIN_PCT` | `2` | Statistical tie margin for DI ranking |
 | `BENCH_BATCH_SIZE` | `1` | Operations per benchmark iteration |
 | `BENCH_GC` | `0` | Call `global.gc()` between tasks (requires `--expose-gc`) |
-| `BENCH_MAX_ITERATIONS` | `1000000` | Tinybench max iterations cap |
+| `BENCH_MIN_ITERATIONS` | `64` | Tinybench v6 minimum samples per task (also accepts legacy `BENCH_MAX_ITERATIONS`) |
 | `BENCH_HISTORY` | `0` | Save timestamped JSON to `results/history/` |
 
 ## Limitations

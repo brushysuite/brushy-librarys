@@ -9,4 +9,5 @@ export default defineConfig({
   treeshake: true,
   splitting: false,
   external: ["react", "@brushy/di-core"],
+  swc: true,
 });

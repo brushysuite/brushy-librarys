@@ -1,4 +1,4 @@
-import { InstanceWrapper, ProviderConfig, Token } from "../../types";
+import type { InstanceWrapper, ProviderConfig, Token } from "../../types";
 import { getScopeBucket } from "../scoped-cache";
 
 export type LifecycleType = NonNullable<ProviderConfig["lifecycle"]>;
@@ -12,12 +12,7 @@ export interface LifecycleCache {
 export interface LifecycleStrategy {
   readonly type: LifecycleType;
   get(cache: LifecycleCache, token: Token, ttl?: number): unknown | undefined;
-  set(
-    cache: LifecycleCache,
-    token: Token,
-    instance: unknown,
-    ttl?: number,
-  ): void;
+  set(cache: LifecycleCache, token: Token, instance: unknown, ttl?: number): void;
   readonly skipsStorage: boolean;
 }
 
@@ -82,9 +77,7 @@ export const LIFECYCLE_STRATEGIES: Record<LifecycleType, LifecycleStrategy> = {
   transient: transientStrategy,
 };
 
-export const resolveLifecycleStrategy = (
-  lifecycle?: LifecycleType,
-): LifecycleStrategy =>
+export const resolveLifecycleStrategy = (lifecycle?: LifecycleType): LifecycleStrategy =>
   LIFECYCLE_STRATEGIES[lifecycle ?? "singleton"] ?? singletonStrategy;
 
 export const createLifecycleCache = (): LifecycleCache => ({

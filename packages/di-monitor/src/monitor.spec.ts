@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { Container } from "@brushy/di-core";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ContainerMonitor, monitor } from "./index";
 
 describe("ContainerMonitor", () => {
@@ -129,7 +129,9 @@ describe("ContainerMonitor", () => {
   });
 
   it("should ignore duplicate start and stop when not subscribed", () => {
-    const containerMonitor = new ContainerMonitor(container, { logToConsole: false });
+    const containerMonitor = new ContainerMonitor(container, {
+      logToConsole: false,
+    });
     const observeSpy = vi.spyOn(container, "observe");
 
     containerMonitor.stop();
@@ -189,9 +191,7 @@ describe("ContainerMonitor", () => {
 
     handler!({ type: "import", token: "MODULE" });
 
-    expect(infoSpy).toHaveBeenCalledWith(
-      expect.stringContaining("[DI:import] Token: MODULE"),
-    );
+    expect(infoSpy).toHaveBeenCalledWith(expect.stringContaining("[DI:import] Token: MODULE"));
 
     containerMonitor.stop();
   });

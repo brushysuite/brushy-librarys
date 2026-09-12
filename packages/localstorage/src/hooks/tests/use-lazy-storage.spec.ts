@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { renderHook, act } from "@testing-library/react";
-import { useLazyStorage } from "../use-lazy-storage";
+import { act, renderHook } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { LazyStorage } from "../../lib/lazy-storage";
+import { useLazyStorage } from "../use-lazy-storage";
 
 vi.mock("../../lib/lazy-storage", () => ({
   LazyStorage: vi.fn(() => ({
@@ -36,9 +36,7 @@ describe("useLazyStorage", () => {
       remove: vi.fn(),
     }));
 
-    const { result } = renderHook(() =>
-      useLazyStorage(key, initialValue, options),
-    );
+    const { result } = renderHook(() => useLazyStorage(key, initialValue, options));
 
     expect(result.current.value).toEqual(storedValue);
     expect(mockGetLazy).toHaveBeenCalledWith(key, options);
@@ -54,9 +52,7 @@ describe("useLazyStorage", () => {
       remove: vi.fn(),
     }));
 
-    const { result } = renderHook(() =>
-      useLazyStorage(key, initialValue, options),
-    );
+    const { result } = renderHook(() => useLazyStorage(key, initialValue, options));
 
     expect(result.current.value).toEqual(initialValue);
     expect(mockGetLazy).toHaveBeenCalledWith(key, options);
@@ -73,9 +69,7 @@ describe("useLazyStorage", () => {
       remove: vi.fn(),
     }));
 
-    const { result } = renderHook(() =>
-      useLazyStorage(key, initialValue, options),
-    );
+    const { result } = renderHook(() => useLazyStorage(key, initialValue, options));
 
     act(() => {
       result.current.setValue(newValue);
@@ -98,9 +92,7 @@ describe("useLazyStorage", () => {
       remove: vi.fn(),
     }));
 
-    const { result } = renderHook(() =>
-      useLazyStorage(key, initialValue, options),
-    );
+    const { result } = renderHook(() => useLazyStorage(key, initialValue, options));
 
     act(() => {
       result.current.setValue((prev) => ({ ...prev, age: prev.age + 1 }));
@@ -127,9 +119,7 @@ describe("useLazyStorage", () => {
       remove: vi.fn(),
     }));
 
-    const { result } = renderHook(() =>
-      useLazyStorage(key, initialValue, options),
-    );
+    const { result } = renderHook(() => useLazyStorage(key, initialValue, options));
 
     act(() => {
       result.current.preloadField("name");
@@ -140,9 +130,7 @@ describe("useLazyStorage", () => {
   });
 
   it("should check if field is loaded correctly", () => {
-    const { result } = renderHook(() =>
-      useLazyStorage(key, initialValue, options),
-    );
+    const { result } = renderHook(() => useLazyStorage(key, initialValue, options));
 
     expect(result.current.isFieldLoaded("name")).toBe(false);
 
@@ -163,9 +151,7 @@ describe("useLazyStorage", () => {
       remove: mockRemove,
     }));
 
-    const { result } = renderHook(() =>
-      useLazyStorage(key, initialValue, options),
-    );
+    const { result } = renderHook(() => useLazyStorage(key, initialValue, options));
 
     act(() => {
       result.current.remove();

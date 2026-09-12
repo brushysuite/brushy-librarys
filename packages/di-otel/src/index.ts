@@ -51,10 +51,7 @@ function runWithSpan<T>(span: SpanLike, otel: OtelApi, resolve: () => T): T {
   return value;
 }
 
-export function traceContainer(
-  container: Container,
-  options: OtelTraceOptions = {},
-): () => void {
+export function traceContainer(container: Container, options: OtelTraceOptions = {}): () => void {
   const otel = loadOtelApi();
   if (!otel) return () => {};
 
@@ -86,11 +83,7 @@ function loadOtelApi(): OtelApi | null {
   }
 }
 
-export function traceResolve<T>(
-  container: Container,
-  token: Token,
-  options?: OtelTraceOptions,
-): T {
+export function traceResolve<T>(container: Container, token: Token, options?: OtelTraceOptions): T {
   const otel = loadOtelApi();
   if (!otel) return container.resolve(token);
 

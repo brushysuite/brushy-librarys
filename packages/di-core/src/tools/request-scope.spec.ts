@@ -1,16 +1,16 @@
-import { afterEach, describe, it, expect, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { Container } from "../core/container";
 import { containerRegistry } from "../registry";
-import { resolve } from "./resolve";
+import { createToken } from "../types/tokens";
 import {
+  brushyRequestScope,
   getActiveScope,
+  isRequestScopeSupported,
   runInRequestScope,
   runInRequestScopeAsync,
-  brushyRequestScope,
-  isRequestScopeSupported,
 } from "./request-scope";
-import { createToken } from "../types/tokens";
 import * as requestScopeStore from "./request-scope-store";
+import { resolve } from "./resolve";
 
 describe("request-scope", () => {
   afterEach(() => {
@@ -45,14 +45,20 @@ describe("request-scope", () => {
     let a = 0;
     let b = 0;
 
-    runInRequestScope(() => {
-      a = resolve(COUNTER).value;
-      resolve(COUNTER).value = 1;
-    }, { container });
+    runInRequestScope(
+      () => {
+        a = resolve(COUNTER).value;
+        resolve(COUNTER).value = 1;
+      },
+      { container },
+    );
 
-    runInRequestScope(() => {
-      b = resolve(COUNTER).value;
-    }, { container });
+    runInRequestScope(
+      () => {
+        b = resolve(COUNTER).value;
+      },
+      { container },
+    );
 
     expect(a).toBe(0);
     expect(b).toBe(0);
@@ -71,16 +77,22 @@ describe("request-scope", () => {
     const results: number[] = [];
 
     await Promise.all([
-      runInRequestScopeAsync(async () => {
-        resolve(COUNTER).value = 1;
-        await new Promise((r) => setTimeout(r, 10));
-        results.push(resolve(COUNTER).value);
-      }, { container }),
-      runInRequestScopeAsync(async () => {
-        resolve(COUNTER).value = 2;
-        await new Promise((r) => setTimeout(r, 5));
-        results.push(resolve(COUNTER).value);
-      }, { container }),
+      runInRequestScopeAsync(
+        async () => {
+          resolve(COUNTER).value = 1;
+          await new Promise((r) => setTimeout(r, 10));
+          results.push(resolve(COUNTER).value);
+        },
+        { container },
+      ),
+      runInRequestScopeAsync(
+        async () => {
+          resolve(COUNTER).value = 2;
+          await new Promise((r) => setTimeout(r, 5));
+          results.push(resolve(COUNTER).value);
+        },
+        { container },
+      ),
     ]);
 
     expect(results).toContain(1);
@@ -125,7 +137,10 @@ describe("request-scope", () => {
   it("should use a custom cleanup callback when provided", () => {
     const onCleanup = vi.fn();
 
-    runInRequestScope(() => undefined, { onCleanup, skipRequestScopeCleanup: false });
+    runInRequestScope(() => undefined, {
+      onCleanup,
+      skipRequestScopeCleanup: false,
+    });
 
     expect(onCleanup).toHaveBeenCalled();
   });
@@ -153,9 +168,7 @@ describe("request-scope", () => {
     vi.spyOn(requestScopeStore, "isRequestScopeSupported").mockReturnValue(false);
     const onCleanup = vi.fn();
 
-    await expect(
-      runInRequestScopeAsync(async () => "done", { onCleanup }),
-    ).resolves.toBe("done");
+    await expect(runInRequestScopeAsync(async () => "done", { onCleanup })).resolves.toBe("done");
     expect(onCleanup).toHaveBeenCalled();
   });
 

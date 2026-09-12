@@ -1,9 +1,9 @@
-import { brushyAdapter } from "./brushy.js";
-import { tsyringeAdapter } from "./tsyringe.js";
-import { inversifyAdapter } from "./inversify.js";
+import type { BenchAdapter } from "../types.js";
 import { awilixAdapter } from "./awilix.js";
 import { baselineAdapter } from "./baseline.js";
-import type { BenchAdapter } from "../types.js";
+import { brushyAdapter } from "./brushy.js";
+import { inversifyAdapter } from "./inversify.js";
+import { tsyringeAdapter } from "./tsyringe.js";
 
 export const ALL_ADAPTERS: BenchAdapter[] = [
   brushyAdapter,
@@ -23,10 +23,7 @@ function mulberry32(seed: number): () => number {
   };
 }
 
-export function shuffleAdapters(
-  adapters: BenchAdapter[],
-  seed = 42,
-): BenchAdapter[] {
+export function shuffleAdapters(adapters: BenchAdapter[], seed = 42): BenchAdapter[] {
   const random = mulberry32(seed);
   const copy = [...adapters];
   for (let i = copy.length - 1; i > 0; i--) {
@@ -41,7 +38,10 @@ export function getAdapters(filter?: string, seed = 42): BenchAdapter[] {
     !filter || filter === "all"
       ? ALL_ADAPTERS
       : ALL_ADAPTERS.filter((a) =>
-          filter.split(",").map((s) => s.trim()).includes(a.id),
+          filter
+            .split(",")
+            .map((s) => s.trim())
+            .includes(a.id),
         );
 
   return shuffleAdapters(base, seed);

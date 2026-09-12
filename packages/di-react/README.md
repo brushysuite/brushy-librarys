@@ -1,6 +1,6 @@
 # @brushy/di-react
 
-React and React Native bindings for `@brushy/di-core`.
+React and React Native bindings for [`@brushy/di-core`](../di-core/README.md). Part of the [@brushy/di 2.0](../di/README.md) umbrella.
 
 ## Installation
 
@@ -164,6 +164,13 @@ Types: `BrushyDIProviderProps`, `InjectComponentErrorRenderer`, `InjectOptions`.
 - Use the bridge API only when integrating with legacy code, server middleware, or non-React modules.
 - Register components with `container.register(createToken('…'), { useValue })` during bootstrap, not inside components.
 
-## Related docs
+## Related
 
-Full React hook guide (umbrella package): [`packages/di/docs/en/react-hooks.md`](../di/docs/en/react-hooks.md)
+| Package | Role |
+| --- | --- |
+| [`@brushy/di`](../di/README.md) | Umbrella install |
+| [`@brushy/di-core`](../di-core/README.md) | Container, tokens, request scope |
+
+- [React hooks guide](https://brushysuite.gfrancodev.com/docs/di/react-hooks)
+- [Component injection](https://brushysuite.gfrancodev.com/docs/di/component-injection)
+- [Example projects](../../examples/README.md)

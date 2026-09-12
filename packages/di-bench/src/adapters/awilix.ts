@@ -1,11 +1,12 @@
 import {
+  type AwilixContainer,
   asClass,
   asFunction,
   createContainer,
   InjectionMode,
-  type AwilixContainer,
   Lifetime,
 } from "awilix";
+import { consumeChecksum } from "../fixtures/checksum.js";
 import {
   BATCH_COUNT,
   BenchService,
@@ -20,7 +21,6 @@ import {
   NodeE,
   ScopedService,
 } from "../fixtures/classes.js";
-import { consumeChecksum } from "../fixtures/checksum.js";
 import type { BenchAdapter, BenchScenario, ScenarioId } from "../types.js";
 
 function createAwilixContainer(): AwilixContainer {
@@ -114,9 +114,9 @@ class AwilixScenario implements BenchScenario {
       case "transient":
         return consumeChecksum(container.resolve("bench"));
       case "deep_graph":
-        return consumeChecksum(container.resolve("e").d.c.b.a.value);
+        return consumeChecksum(container.resolve<NodeE>("e").d.c.b.a.value);
       case "wide_graph":
-        return consumeChecksum(container.resolve("hub").e.d.c.b.a.value);
+        return consumeChecksum(container.resolve<HubService>("hub").e.d.c.b.a.value);
       case "factory_deps":
         return consumeChecksum(container.resolve("factory"));
       case "register_batch": {
@@ -131,7 +131,7 @@ class AwilixScenario implements BenchScenario {
       case "request_scope": {
         const scope = container.createScope();
         try {
-          return consumeChecksum(scope.resolve("scoped").id);
+          return consumeChecksum(scope.resolve<ScopedService>("scoped").id);
         } finally {
           scope.dispose();
         }

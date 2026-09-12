@@ -1,17 +1,69 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { TaskResult } from "tinybench";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { baselineAdapter } from "./adapters/baseline.js";
 import { tsyringeAdapter } from "./adapters/tsyringe.js";
-import {
-  extractMetrics,
-  hzFromPeriodMs,
-  main,
-  medianMs,
-  msToNs,
-  parseScenarios,
-  runSuite,
-} from "./bench.js";
+import { extractMetrics, hzFromPeriodMs, medianMs, msToNs, parseScenarios } from "./bench.js";
 import { ALL_SCENARIOS } from "./types.js";
+
+function mockCompletedResult(overrides: {
+  latencyMean?: number;
+  latencyP50?: number;
+  latencyP75?: number;
+  latencyP99?: number;
+  latencyMin?: number;
+  latencyMax?: number;
+  latencySd?: number;
+  latencyMoe?: number;
+  latencyRme?: number;
+  samplesCount?: number;
+  throughputMean?: number;
+}): TaskResult {
+  const latencyMean = overrides.latencyMean ?? 1;
+  const latencyP50 = overrides.latencyP50 ?? latencyMean;
+  const throughputMean = overrides.throughputMean ?? 1000;
+
+  return {
+    state: "completed",
+    period: latencyMean,
+    totalTime: latencyMean * (overrides.samplesCount ?? 2),
+    latency: {
+      mean: latencyMean,
+      p50: latencyP50,
+      p75: overrides.latencyP75 ?? latencyP50,
+      p99: overrides.latencyP99 ?? latencyP50,
+      min: overrides.latencyMin ?? latencyP50,
+      max: overrides.latencyMax ?? latencyP50,
+      sd: overrides.latencySd ?? 0.5,
+      moe: overrides.latencyMoe ?? 0.1,
+      rme: overrides.latencyRme ?? 1,
+      samplesCount: overrides.samplesCount ?? 2,
+      mad: 0,
+      p995: latencyP50,
+      p999: latencyP50,
+      sem: 0,
+      variance: 0,
+      samples: undefined,
+    },
+    throughput: {
+      mean: throughputMean,
+      p50: throughputMean,
+      p75: throughputMean,
+      p99: throughputMean,
+      min: throughputMean,
+      max: throughputMean,
+      sd: 0,
+      moe: 0,
+      rme: 0,
+      samplesCount: overrides.samplesCount ?? 2,
+      mad: 0,
+      p995: throughputMean,
+      p999: throughputMean,
+      sem: 0,
+      variance: 0,
+      samples: undefined,
+    },
+  };
+}
 
 vi.mock("tinybench", () => {
   class Bench {
@@ -25,24 +77,22 @@ vi.mock("tinybench", () => {
       hooks?.afterAll?.();
       this.tasks.push({
         name,
-        result: {
-          hz: 1000,
-          mean: 1,
-          samples: [1, 2, 3],
-          p75: 2,
-          p99: 3,
-          min: 1,
-          max: 3,
-          sd: 0.5,
-          moe: 0.1,
-          rme: 1,
-        },
+        result: mockCompletedResult({
+          latencyP50: 2,
+          latencyP75: 2,
+          latencyP99: 3,
+          latencyMin: 1,
+          latencyMax: 3,
+          samplesCount: 3,
+        }),
       });
       this.tasks.push({ name: "missing::transient" });
-      this.tasks.push({ name: undefined, result: { hz: 1, mean: 1, samples: [1], p75: 1, p99: 1, min: 1, max: 1, sd: 0, moe: 0, rme: 0 } });
+      this.tasks.push({
+        name: undefined,
+        result: mockCompletedResult({ samplesCount: 1 }),
+      });
     }
 
-    async warmup() {}
     async run() {}
   }
 
@@ -64,30 +114,26 @@ describe("bench helpers", () => {
     const adapters = [baselineAdapter];
     const ok = extractMetrics(
       "baseline::transient",
-      {
-        hz: 1000,
-        mean: 1,
-        samples: [1, 2],
-        p75: 2,
-        p99: 3,
-        min: 1,
-        max: 3,
-        sd: 0.5,
-        moe: 0.1,
-        rme: 1,
-      },
+      mockCompletedResult({
+        latencyP50: 2,
+        latencyP75: 2,
+        latencyP99: 3,
+        latencyMin: 1,
+        latencyMax: 3,
+        samplesCount: 2,
+      }),
       0,
       adapters,
     );
     const failed = extractMetrics(
       "unknown::transient",
-      { error: new Error("failed") } as TaskResult,
+      { state: "errored", error: new Error("failed") },
       1,
       adapters,
     );
     const failedKnown = extractMetrics(
       "baseline::transient",
-      { error: new Error("failed") } as TaskResult,
+      { state: "errored", error: new Error("failed") },
       1,
       adapters,
     );
@@ -100,18 +146,7 @@ describe("bench helpers", () => {
 
     const unknownLib = extractMetrics(
       "missing-lib::transient",
-      {
-        hz: 1000,
-        mean: 1,
-        samples: [1],
-        p75: 1,
-        p99: 1,
-        min: 1,
-        max: 1,
-        sd: 0,
-        moe: 0,
-        rme: 0,
-      },
+      mockCompletedResult({ samplesCount: 1 }),
       0,
       [],
     );

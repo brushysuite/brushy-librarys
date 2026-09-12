@@ -1,7 +1,7 @@
-import React from "react";
-import { describe, it, expect, afterEach } from "vitest";
-import { render, renderHook, cleanup } from "@testing-library/react";
 import { Container, createToken } from "@brushy/di-core";
+import { cleanup, render, renderHook } from "@testing-library/react";
+import type React from "react";
+import { afterEach, describe, expect, it } from "vitest";
 import { BrushyDIProvider, DIContext, useDIContainer, useInject } from "../";
 
 describe("cross-platform smoke", () => {

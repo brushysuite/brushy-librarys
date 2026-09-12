@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { Container } from "@brushy/di-core";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { traceContainer, traceResolve } from "./index";
 
 const span = {

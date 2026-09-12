@@ -1,5 +1,5 @@
-import { Token, InstanceWrapper } from "../types";
 import { getActiveScope } from "../tools/request-scope-store";
+import type { InstanceWrapper, Token } from "../types";
 import type { LifecycleCache } from "./strategies/lifecycle";
 
 export const FALLBACK_SCOPE = Object.freeze({ brushy: "fallback" as const });
@@ -8,9 +8,7 @@ export function getScopeKey(): object {
   return getActiveScope() ?? FALLBACK_SCOPE;
 }
 
-export function getScopeBucket(
-  cache: LifecycleCache,
-): Map<Token, InstanceWrapper> {
+export function getScopeBucket(cache: LifecycleCache): Map<Token, InstanceWrapper> {
   const key = getScopeKey();
   return getScopeBucketForKey(cache, key);
 }

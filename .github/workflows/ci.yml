@@ -18,19 +18,28 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
 
       - run: npm ci
 
+      - name: Lint and format
+        run: npm run lint
+
       - name: Check types
-        run: npm run check-types -- --filter='@brushy/di*'
+        run: npm run check-types -- --filter='@brushy/di*' --filter='@brushy/storage*'
+
+      - name: Check example types
+        run: npm run check-types:examples
 
       - name: Test
-        run: npm run test -- --filter='@brushy/di*'
+        run: npm run test -- --filter='@brushy/di*' --filter='@brushy/storage*'
 
       - name: Build
         run: npm run build-packages
+
+      - name: Test examples
+        run: npm run test:examples
 
       - name: Size limit
         run: npm run size-limit --if-present
@@ -46,3 +55,12 @@ jobs:
 
       - name: Bench smoke
         run: npm run bench:quick --if-present
+        env:
+          NODE_OPTIONS: --max-old-space-size=4096
+
+      - name: Validate Mintlify docs
+        run: |
+          cd apps/docs
+          npm ci
+          npm run validate
+          npm run broken-links

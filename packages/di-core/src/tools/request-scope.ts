@@ -6,7 +6,7 @@ import {
   runWithActiveScopeAsync,
 } from "./request-scope-store";
 
-export { isRequestScopeSupported, getActiveScope } from "./request-scope-store";
+export { getActiveScope, isRequestScopeSupported } from "./request-scope-store";
 
 function getDefaultContainer(): Container | undefined {
   try {
@@ -40,10 +40,7 @@ function createScope(scope?: object): object {
   return scope ?? { brushyRequestId: `${Date.now()}-${Math.random()}` };
 }
 
-export function runInRequestScope<T>(
-  fn: () => T,
-  options: RequestScopeOptions = {},
-): T {
+export function runInRequestScope<T>(fn: () => T, options: RequestScopeOptions = {}): T {
   if (!isRequestScopeSupported()) {
     try {
       return fn();

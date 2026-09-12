@@ -1,7 +1,7 @@
-import { Container } from "./container";
-import { DependencyError } from "./dependency-error";
-import { ROOT_SCOPE } from "./constants";
 import { getActiveScope } from "../tools/request-scope-store";
+import { ROOT_SCOPE } from "./constants";
+import type { Container } from "./container";
+import { DependencyError } from "./dependency-error";
 
 export { ROOT_SCOPE } from "./constants";
 

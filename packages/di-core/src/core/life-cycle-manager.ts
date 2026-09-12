@@ -1,5 +1,5 @@
+import type { DependencyResolver } from "./dependency-resolver";
 import { GarbageCollector } from "./garbage-collector";
-import { DependencyResolver } from "./dependency-resolver";
 
 export class LifecycleManager {
   private garbageCollector: GarbageCollector | null = null;

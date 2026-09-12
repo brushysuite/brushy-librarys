@@ -1,8 +1,8 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { ContainerRegistry } from "../container-registry";
-import { Container } from "../container";
-import { DependencyError } from "../dependency-error";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ROOT_SCOPE } from "../constants";
+import { Container } from "../container";
+import { ContainerRegistry } from "../container-registry";
+import { DependencyError } from "../dependency-error";
 
 describe("ContainerRegistry", () => {
   let registry: ContainerRegistry;
@@ -83,9 +83,7 @@ describe("ContainerRegistry", () => {
       expect(retrievedContainer).toBe(transientContainer);
       expect(registry["lastScope"]).toBe(transientScope);
       expect(registry["lastContainer"]).toBe(transientContainer);
-      expect(registry["scopedContainers"].get(transientScope)).toBe(
-        transientContainer,
-      );
+      expect(registry["scopedContainers"].get(transientScope)).toBe(transientContainer);
     });
 
     it("should retrieve container from weakScopedContainers and update last references", () => {
@@ -105,9 +103,7 @@ describe("ContainerRegistry", () => {
       expect(retrievedContainer).toBe(permanentContainer);
       expect(registry["lastScope"]).toBe(permanentScope);
       expect(registry["lastContainer"]).toBe(permanentContainer);
-      expect(registry["weakScopedContainers"].get(permanentScope)).toBe(
-        permanentContainer,
-      );
+      expect(registry["weakScopedContainers"].get(permanentScope)).toBe(permanentContainer);
     });
   });
 
@@ -165,18 +161,9 @@ describe("ContainerRegistry", () => {
       const temporaryScope = { constructor: { name: "TemporaryContext" } };
       const regularScope = { id: "regular" };
 
-      registry.registerContainer(
-        requestScope,
-        new Container({ name: "request" }),
-      );
-      registry.registerContainer(
-        temporaryScope,
-        new Container({ name: "temporary" }),
-      );
-      registry.registerContainer(
-        regularScope,
-        new Container({ name: "regular" }),
-      );
+      registry.registerContainer(requestScope, new Container({ name: "request" }));
+      registry.registerContainer(temporaryScope, new Container({ name: "temporary" }));
+      registry.registerContainer(regularScope, new Container({ name: "regular" }));
 
       registry.cleanupTransientScopes();
 

@@ -1,10 +1,6 @@
-import { Container } from "../core/container";
-import { ProviderConfig } from "../types";
-import {
-  createToken,
-  InferProviderType,
-  InjectionToken,
-} from "../types/tokens";
+import type { Container } from "../core/container";
+import type { ProviderConfig } from "../types";
+import { createToken, type InferProviderType, type InjectionToken } from "../types/tokens";
 
 type ModuleProviders = Record<string, ProviderConfig>;
 
@@ -22,9 +18,7 @@ export interface DefinedModule<T extends ModuleProviders> {
   register(container: Container): void;
 }
 
-export function defineModule<const T extends ModuleProviders>(
-  providers: T,
-): DefinedModule<T> {
+export function defineModule<const T extends ModuleProviders>(providers: T): DefinedModule<T> {
   type ServiceMap = ModuleServiceMap<T>;
   const tokens = {} as ModuleTokens<T>;
 

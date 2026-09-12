@@ -1,2 +1,3 @@
 dist/
-results/
+results/history/
+results/partial-*

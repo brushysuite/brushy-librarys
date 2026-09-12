@@ -8,4 +8,5 @@ export default defineConfig({
   clean: true,
   treeshake: true,
   external: ["@brushy/di-core", "@opentelemetry/api"],
+  swc: true,
 });

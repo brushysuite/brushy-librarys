@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { Logger } from "../logger";
 
 describe("Logger", () => {
@@ -45,9 +45,7 @@ describe("Logger", () => {
     });
 
     it("should allow the same message after the minimum interval", () => {
-      vi.spyOn(Date, "now")
-        .mockReturnValueOnce(1000)
-        .mockReturnValueOnce(1500);
+      vi.spyOn(Date, "now").mockReturnValueOnce(1000).mockReturnValueOnce(1500);
       Logger.info("delayed");
       Logger.info("delayed");
       expect(console.info).toHaveBeenCalledTimes(2);

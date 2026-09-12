@@ -1,7 +1,7 @@
-import { DependencyResolver } from "./dependency-resolver";
-import { InstanceWrapper, Token } from "../types";
-import { Logger } from "./logger";
+import type { InstanceWrapper } from "../types";
 import { IS_DEV } from "./constants";
+import type { DependencyResolver } from "./dependency-resolver";
+import { Logger } from "./logger";
 
 export class GarbageCollector {
   private gcTimer: ReturnType<typeof setInterval> | null = null;
@@ -12,9 +12,7 @@ export class GarbageCollector {
     if (this.gcTimer) clearInterval(this.gcTimer);
 
     if (IS_DEV) {
-      Logger.info(
-        `Starting garbage collector: TTL=${ttl}ms, Interval=${interval}ms`,
-      );
+      Logger.info(`Starting garbage collector: TTL=${ttl}ms, Interval=${interval}ms`);
     }
 
     this.gcTimer = setInterval(() => {

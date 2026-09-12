@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { renderHook } from "@testing-library/react";
-import { DependencyError } from "@brushy/di-core";
 import type { Container } from "@brushy/di-core";
+import { DependencyError } from "@brushy/di-core";
+import { renderHook } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useDIContainer } from "../context";
 import { useInjectLazy } from "../use-lazy-inject";
 
@@ -23,9 +23,7 @@ describe("useInjectLazy", () => {
   });
 
   it("should resolve on first access", () => {
-    const { result } = renderHook(() =>
-      useInjectLazy<{ getValue: () => string }>("TOKEN"),
-    );
+    const { result } = renderHook(() => useInjectLazy<{ getValue: () => string }>("TOKEN"));
 
     expect(mockContainer.resolve).not.toHaveBeenCalled();
     expect(result.current.getValue()).toBe("lazy-value");
@@ -33,9 +31,7 @@ describe("useInjectLazy", () => {
   });
 
   it("should throw when token is missing", () => {
-    expect(() => renderHook(() => useInjectLazy("" as never))).toThrow(
-      /Token is required/,
-    );
+    expect(() => renderHook(() => useInjectLazy("" as never))).toThrow(/Token is required/);
   });
 
   it("should throw when resolved instance is not an object", () => {
@@ -71,9 +67,7 @@ describe("useInjectLazy", () => {
 
     vi.mocked(useDIContainer).mockReturnValue(scopedContainer);
 
-    const { result } = renderHook(() =>
-      useInjectLazy<{ value: string }>("TOKEN", { scope }),
-    );
+    const { result } = renderHook(() => useInjectLazy<{ value: string }>("TOKEN", { scope }));
 
     expect(result.current.value).toBe("scoped");
     expect(useDIContainer).toHaveBeenCalledWith(scope);

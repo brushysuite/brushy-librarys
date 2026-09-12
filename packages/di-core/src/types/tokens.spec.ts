@@ -1,7 +1,7 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { Container } from "../core/container";
-import { createToken } from "./tokens";
 import { defineModule } from "../tools/module";
+import { createToken } from "./tokens";
 
 class AuthService {
   login() {

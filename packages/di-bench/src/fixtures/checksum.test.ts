@@ -1,9 +1,5 @@
-import { describe, expect, it, beforeEach } from "vitest";
-import {
-  consumeChecksum,
-  getGlobalChecksum,
-  resetGlobalChecksum,
-} from "./checksum.js";
+import { beforeEach, describe, expect, it } from "vitest";
+import { consumeChecksum, getGlobalChecksum, resetGlobalChecksum } from "./checksum.js";
 
 describe("consumeChecksum", () => {
   beforeEach(() => {

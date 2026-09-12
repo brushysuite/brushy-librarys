@@ -8,4 +8,5 @@ export default defineConfig({
   clean: true,
   treeshake: true,
   splitting: false,
+  swc: true,
 });

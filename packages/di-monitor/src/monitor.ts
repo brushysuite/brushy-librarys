@@ -1,5 +1,4 @@
-import type { Container, ContainerEvent } from "@brushy/di-core";
-import type { MonitorOptions } from "@brushy/di-core";
+import type { Container, ContainerEvent, MonitorOptions } from "@brushy/di-core";
 
 const formatToken = (token: string): string => token;
 const formatType = (type: string): string => type;
@@ -57,7 +56,7 @@ export class ContainerMonitor {
       stats.byType[event.type] = (stats.byType[event.type] || 0) + 1;
     }
 
-    const errors = stats.byType["error"] || 0;
+    const errors = stats.byType.error || 0;
     stats.errorRate = errors / (stats.totalEvents || 1);
 
     const resolveEvents = this.events.filter((event) => event.type === "resolve");
@@ -66,9 +65,7 @@ export class ContainerMonitor {
       return details?.success !== false;
     }).length;
 
-    stats.resolveSuccessRate = resolveEvents.length
-      ? successfulResolves / resolveEvents.length
-      : 1;
+    stats.resolveSuccessRate = resolveEvents.length ? successfulResolves / resolveEvents.length : 1;
 
     return stats;
   }
@@ -96,7 +93,7 @@ export class ContainerMonitor {
       "[DI:" +
         eventType +
         "]" +
-        (tokenStr ? " Token: " + tokenStr : "") +
+        (tokenStr ? ` Token: ${tokenStr}` : "") +
         JSON.stringify(details, null, 2),
     );
   }

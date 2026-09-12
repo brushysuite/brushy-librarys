@@ -1,9 +1,14 @@
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { defineConfig } from "vitest/config";
-import react from "@vitejs/plugin-react";
-import { resolve } from "path";
+import { vitestReactAlias, vitestReactDeps } from "../../scripts/vitest-react-alias";
+import { vitestSwc } from "../../scripts/vitest-swc";
+
+const packageDir = dirname(fileURLToPath(import.meta.url));
+const reactResolve = vitestReactAlias(packageDir);
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [vitestSwc()],
   test: {
     globals: true,
     environment: "jsdom",
@@ -31,13 +36,13 @@ export default defineConfig({
       ],
     },
     include: ["src/**/*.{test,spec}.{ts,tsx}"],
+    ...vitestReactDeps,
   },
   resolve: {
+    ...reactResolve,
     alias: {
-      "@": resolve(__dirname, "./src"),
-      react: resolve(__dirname, "../../node_modules/react"),
-      "react-dom": resolve(__dirname, "../../node_modules/react-dom"),
+      ...reactResolve.alias,
+      "@": resolve(packageDir, "./src"),
     },
-    dedupe: ["react", "react-dom"],
   },
 });

@@ -16,7 +16,7 @@ Or use the umbrella package:
 npm install @brushy/di @opentelemetry/api
 ```
 
-`@opentelemetry/api` is a peer dependency. If it is not installed, tracing helpers become no-ops.
+`@opentelemetry/api` is an optional peer dependency. If it is not installed, tracing helpers become no-ops.
 
 ## Usage
 
@@ -64,4 +64,8 @@ import { traceContainer } from "@brushy/di/otel";
 
 Options: `tracerName` (default `@brushy/di`), `attributeToken` (add `di.token` attribute).
 
-See the [full changelog](./CHANGELOG.md) and [umbrella release notes](../di/CHANGELOG.md).
+## Related
+
+- [@brushy/di-monitor](../di-monitor/README.md) for in-process event logging
+- [Full DI documentation](https://brushysuite.gfrancodev.com/docs/di)
+- [Changelog](./CHANGELOG.md) · [Umbrella release notes](../di/CHANGELOG.md)

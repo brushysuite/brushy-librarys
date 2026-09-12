@@ -1,13 +1,10 @@
-import { describe, expect, it, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { createToken } from "../../types/tokens";
 import { DependencyRegistry } from "../dependency-registry";
 import { DependencyResolver } from "../dependency-resolver";
 import { Logger } from "../logger";
-import { createToken } from "../../types/tokens";
 
-const accessPrivateMethod = <T extends object, K extends keyof T>(
-  target: T,
-  method: K,
-): T[K] => {
+const accessPrivateMethod = <T extends object, K extends keyof T>(target: T, method: K): T[K] => {
   return target[method];
 };
 
@@ -25,8 +22,14 @@ describe("DependencyResolver debug coverage", () => {
     const IMMUTABLE = createToken("IMMUTABLE");
     const SINGLETON = createToken("SINGLETON");
 
-    registry.register(IMMUTABLE, { useClass: ImmutableService, lifecycle: "immutable" });
-    registry.register(SINGLETON, { useClass: SingletonService, lifecycle: "singleton" });
+    registry.register(IMMUTABLE, {
+      useClass: ImmutableService,
+      lifecycle: "immutable",
+    });
+    registry.register(SINGLETON, {
+      useClass: SingletonService,
+      lifecycle: "singleton",
+    });
 
     const resolver = new DependencyResolver(registry, true);
     resolver.resolve(IMMUTABLE);
@@ -35,12 +38,8 @@ describe("DependencyResolver debug coverage", () => {
     const debugSpy = vi.spyOn(Logger, "debug");
     accessPrivateMethod(resolver, "printCachedInstances").call(resolver);
 
-    expect(debugSpy).toHaveBeenCalledWith(
-      expect.stringContaining("Immutable"),
-    );
-    expect(debugSpy).toHaveBeenCalledWith(
-      expect.stringContaining("Last used"),
-    );
+    expect(debugSpy).toHaveBeenCalledWith(expect.stringContaining("Immutable"));
+    expect(debugSpy).toHaveBeenCalledWith(expect.stringContaining("Last used"));
   });
 
   it("should resolve scoped class instances in an explicit scope bucket", () => {

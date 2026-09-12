@@ -1,4 +1,4 @@
-import { ContainerEvent } from "./container";
+import type { ContainerEvent } from "./container";
 
 type Listener = (event: ContainerEvent) => void;
 

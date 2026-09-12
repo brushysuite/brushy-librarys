@@ -2,13 +2,14 @@
 /**
  * Smoke test: validates react-native fields and ESM entry points for Metro.
  */
-import { readFileSync, existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 const packages = [
   "packages/di-core/package.json",
   "packages/di-react/package.json",
   "packages/di/package.json",
+  "packages/storage-react/package.json",
 ];
 
 let failed = false;

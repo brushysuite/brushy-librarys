@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { ALL_SCENARIOS } from "../types.js";
 import { buildReport } from "../metrics/aggregate.js";
-import { renderConsoleSummary, renderMarkdown, buildThroughputTable } from "./markdown.js";
+import { ALL_SCENARIOS } from "../types.js";
+import { buildThroughputTable, renderConsoleSummary, renderMarkdown } from "./markdown.js";
 
 function sampleReport(options?: { partial?: boolean; tied?: boolean }) {
   const brushyHz = options?.tied ? 1_000_000 : 1_100_000;
@@ -134,7 +134,12 @@ describe("renderMarkdown", () => {
         cpuCount: 8,
         cpuModel: "test",
         date: "2026-01-01T00:00:00.000Z",
-        benchConfig: { timeMs: 1000, runs: 1, scenarios: "request_scope", libs: "all" },
+        benchConfig: {
+          timeMs: 1000,
+          runs: 1,
+          scenarios: "request_scope",
+          libs: "all",
+        },
       },
       1,
       [],

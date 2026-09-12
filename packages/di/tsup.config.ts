@@ -21,4 +21,5 @@ export default defineConfig({
     "@brushy/di-monitor",
     "@brushy/di-otel",
   ],
+  swc: true,
 });

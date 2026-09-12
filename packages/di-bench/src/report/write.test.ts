@@ -1,10 +1,10 @@
 import { mkdtemp, readFile, rm } from "node:fs/promises";
-import { join } from "node:path";
 import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { ALL_SCENARIOS } from "../types.js";
 import { buildReport } from "../metrics/aggregate.js";
-import { isFullRun, writeReportArtifacts } from "./write.js";
+import { ALL_SCENARIOS } from "../types.js";
+import { isFullRun } from "./write.js";
 
 const sampleReport = (scenarios = ALL_SCENARIOS) =>
   buildReport(
@@ -84,10 +84,11 @@ describe("writeReportArtifacts", () => {
     const { writeReportArtifacts: write } = await loadWriter();
     await write(sampleReport(), ALL_SCENARIOS);
 
-    await expect(readFile(join(resultsDir, "latest.json"), "utf8")).resolves.toContain(
-      "brushy",
-    );
+    await expect(readFile(join(resultsDir, "latest.json"), "utf8")).resolves.toContain("brushy");
     await expect(readFile(join(resultsDir, "latest.md"), "utf8")).resolves.toContain(
+      "DI Benchmark Report",
+    );
+    await expect(readFile(join(resultsDir, "BENCHMARK.md"), "utf8")).resolves.toContain(
       "DI Benchmark Report",
     );
     await expect(readFile(join(resultsDir, "latest.csv"), "utf8")).resolves.toContain(
@@ -130,10 +131,7 @@ describe("writeReportArtifacts", () => {
     await write(sampleReport(["singleton_warm"]), ["singleton_warm"]);
 
     const historyDir = join(resultsDir, "history");
-    const files = await readFile(
-      join(historyDir, "partial-2026-01-01T00-00-00-000Z.json"),
-      "utf8",
-    );
+    const files = await readFile(join(historyDir, "partial-2026-01-01T00-00-00-000Z.json"), "utf8");
     expect(files).toContain("brushy");
   });
 });

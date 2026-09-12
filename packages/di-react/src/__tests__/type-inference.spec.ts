@@ -1,8 +1,8 @@
-import { describe, expectTypeOf, it } from "vitest";
-import React from "react";
 import { Container, createToken } from "@brushy/di-core";
-import { useInject } from "../use-inject";
+import type React from "react";
+import { describe, expectTypeOf, it } from "vitest";
 import { useInjectComponent } from "../inject-component";
+import { useInject } from "../use-inject";
 
 class UserService {
   getName() {

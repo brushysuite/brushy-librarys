@@ -1,5 +1,5 @@
+import type { Token } from "../types";
 import { DEFAULT_PROMISE_TTL } from "./constants";
-import { Token } from "../types";
 
 export interface CachedPromise<T = unknown> {
   promise: Promise<T>;

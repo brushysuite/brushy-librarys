@@ -1,6 +1,6 @@
+import { DI_LIBS } from "../metrics/aggregate.js";
 import type { BenchReport } from "../types.js";
 import { ALL_LIB_IDS, ALL_SCENARIOS } from "../types.js";
-import { DI_LIBS } from "../metrics/aggregate.js";
 import { formatHz, formatMs, formatPct, nsToMs, pad } from "./format.js";
 
 export function renderMarkdown(report: BenchReport): string {
@@ -9,11 +9,9 @@ export function renderMarkdown(report: BenchReport): string {
   lines.push("# DI Benchmark Report");
   lines.push("");
 
-  const frameworkScenarios = [...new Set(
-    report.aggregated
-      .filter((r) => DI_LIBS.includes(r.lib))
-      .map((r) => r.scenario),
-  )];
+  const frameworkScenarios = [
+    ...new Set(report.aggregated.filter((r) => DI_LIBS.includes(r.lib)).map((r) => r.scenario)),
+  ];
 
   const brushyTop1 = report.aggregated.filter(
     (r) => r.lib === "brushy" && r.frameworkIsTop1,
@@ -35,12 +33,8 @@ export function renderMarkdown(report: BenchReport): string {
   lines.push("## Summary");
   lines.push("");
   if (report.meta.isPartialRun) {
-    lines.push(
-      `- **Partial run** - scenarios: ${report.meta.scenariosRun.join(", ")}`,
-    );
-    lines.push(
-      "- Full-suite `latest.*` is only updated when all scenarios run.",
-    );
+    lines.push(`- **Partial run** - scenarios: ${report.meta.scenariosRun.join(", ")}`);
+    lines.push("- Full-suite `latest.*` is only updated when all scenarios run.");
     lines.push("");
   }
   lines.push(
@@ -121,9 +115,7 @@ export function renderMarkdown(report: BenchReport): string {
     lines.push("| Lib | hz mean | hz p50 | p50 ms | p99 ms | rme | cv% | samples |");
     lines.push("|-----|---------|--------|--------|--------|-----|-----|---------|");
     for (const lib of ALL_LIB_IDS) {
-      const row = report.aggregated.find(
-        (r) => r.scenario === scenario && r.lib === lib,
-      );
+      const row = report.aggregated.find((r) => r.scenario === scenario && r.lib === lib);
       if (!row) continue;
       if (row.error) {
         lines.push(`| ${row.libLabel} | ERROR | - | - | - | - | - | - |`);
@@ -154,16 +146,12 @@ function buildThroughputTable(
   const libLabels = ALL_LIB_IDS.map(
     (id) => report.aggregated.find((r) => r.lib === id)?.libLabel ?? id,
   );
-  const header =
-    "| Scenario | " + libLabels.map((l) => l.replace("@brushy/", "")).join(" | ") + " |";
-  const sep =
-    "|----------|" + libLabels.map(() => "----------").join("|") + "|";
+  const header = `| Scenario | ${libLabels.map((l) => l.replace("@brushy/", "")).join(" | ")} |`;
+  const sep = `|----------|${libLabels.map(() => "----------").join("|")}|`;
 
   const rows = report.meta.scenariosRun.map((scenario) => {
     const cells = ALL_LIB_IDS.map((lib) => {
-      const row = report.aggregated.find(
-        (r) => r.scenario === scenario && r.lib === lib,
-      );
+      const row = report.aggregated.find((r) => r.scenario === scenario && r.lib === lib);
       if (!row) return "N/A";
       if (row.error) return "ERR";
       if (field === "throughputP50") return formatHz(row.throughputP50);
@@ -177,14 +165,12 @@ function buildThroughputTable(
 
 function buildOverheadTable(report: BenchReport): string {
   const libs = ALL_LIB_IDS.filter((id) => id !== "baseline");
-  const header = "| Scenario | " + libs.join(" vs baseline | ") + " |";
-  const sep = "|----------|" + libs.map(() => "----------------").join("|") + "|";
+  const header = `| Scenario | ${libs.join(" vs baseline | ")} |`;
+  const sep = `|----------|${libs.map(() => "----------------").join("|")}|`;
 
   const rows = report.meta.scenariosRun.map((scenario) => {
     const cells = libs.map((lib) => {
-      const row = report.aggregated.find(
-        (r) => r.scenario === scenario && r.lib === lib,
-      );
+      const row = report.aggregated.find((r) => r.scenario === scenario && r.lib === lib);
       return formatPct(row?.vsBaselinePct);
     });
     return `| ${scenario} | ${cells.join(" | ")} |`;
@@ -200,9 +186,7 @@ function buildBrushyCompareTable(report: BenchReport): string {
 
   const rows = report.meta.scenariosRun.map((scenario) => {
     const cells = libs.map((lib) => {
-      const row = report.aggregated.find(
-        (r) => r.scenario === scenario && r.lib === lib,
-      );
+      const row = report.aggregated.find((r) => r.scenario === scenario && r.lib === lib);
       return formatPct(row?.vsBrushyPct);
     });
     return `| ${scenario} | ${cells.join(" | ")} |`;
@@ -218,23 +202,18 @@ export function renderConsoleSummary(report: BenchReport): string {
   lines.push("");
 
   const colWidth = 12;
-  const header =
-    pad("Scenario", 18) +
-    ALL_LIB_IDS.map((id) => pad(id, colWidth)).join("");
+  const header = pad("Scenario", 18) + ALL_LIB_IDS.map((id) => pad(id, colWidth)).join("");
   lines.push(header);
   lines.push("-".repeat(header.length));
 
   for (const scenario of report.meta.scenariosRun) {
     let line = pad(scenario, 18);
     for (const lib of ALL_LIB_IDS) {
-      const row = report.aggregated.find(
-        (r) => r.scenario === scenario && r.lib === lib,
-      );
+      const row = report.aggregated.find((r) => r.scenario === scenario && r.lib === lib);
       if (!row || row.error) {
         line += pad("N/A", colWidth);
       } else {
-        const isDiTop =
-          DI_LIBS.includes(lib) && row.frameworkIsTop1 ? "*" : "";
+        const isDiTop = DI_LIBS.includes(lib) && row.frameworkIsTop1 ? "*" : "";
         line += pad(formatHz(row.throughputP50) + isDiTop, colWidth);
       }
     }
@@ -244,22 +223,20 @@ export function renderConsoleSummary(report: BenchReport): string {
   const brushyTop1 = report.aggregated.filter(
     (r) => r.lib === "brushy" && r.frameworkIsTop1,
   ).length;
-  const totalFrameworkScenarios = report.aggregated
-    .filter((r) => r.lib === "brushy" && !r.error)
-    .length;
+  const totalFrameworkScenarios = report.aggregated.filter(
+    (r) => r.lib === "brushy" && !r.error,
+  ).length;
 
   lines.push("");
   if (report.meta.isPartialRun) {
     lines.push("PARTIAL RUN - latest.* not updated unless this was the first run.");
   }
-  lines.push(
-    `@brushy/di #1 among DI libs in ${brushyTop1}/${totalFrameworkScenarios} scenarios.`,
-  );
+  lines.push(`@brushy/di #1 among DI libs in ${brushyTop1}/${totalFrameworkScenarios} scenarios.`);
   lines.push("* marks DI framework #1 per scenario (baseline excluded).");
-  lines.push(`Results written to packages/di-bench/results/`);
+  lines.push(`Results written to packages/di-bench/results/ (BENCHMARK.md, latest.*)`);
   lines.push("");
 
   return lines.join("\n");
 }
 
-export { buildThroughputTable, buildOverheadTable, buildBrushyCompareTable };
+export { buildBrushyCompareTable, buildOverheadTable, buildThroughputTable };

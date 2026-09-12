@@ -1,6 +1,7 @@
-import React, { useRef } from "react";
-import { Container, inject, isDev } from "@brushy/di-core";
 import type { InjectionToken, Token, UntypedInjectionToken } from "@brushy/di-core";
+import { type Container, inject, isDev } from "@brushy/di-core";
+import type React from "react";
+import { useRef } from "react";
 import { useDIContainer } from "./context";
 
 const componentCaches = new WeakMap<Container, Map<Token, React.ComponentType<any>>>();
@@ -14,10 +15,7 @@ const getComponentCache = (container: Container) => {
   return cache;
 };
 
-export type InjectComponentErrorRenderer = (
-  message: string,
-  details?: string,
-) => React.ReactNode;
+export type InjectComponentErrorRenderer = (message: string, details?: string) => React.ReactNode;
 
 let injectComponentErrorRenderer: InjectComponentErrorRenderer | null = null;
 
@@ -52,7 +50,14 @@ export const renderErrorUI = (message: string, details?: string) => {
         color: "#ff0000",
       }}
     >
-      <h3 style={{ margin: 0, marginBottom: "0.5rem", fontSize: 14, fontWeight: "600" }}>
+      <h3
+        style={{
+          margin: 0,
+          marginBottom: "0.5rem",
+          fontSize: 14,
+          fontWeight: "600",
+        }}
+      >
         Component Loading Error
       </h3>
       <p style={{ margin: 0 }}>{message}</p>
@@ -69,11 +74,7 @@ export const handleComponentNotFound = (token: Token, isDevelopment: boolean) =>
   return null;
 };
 
-export const handleResolveError = (
-  token: Token,
-  error: unknown,
-  isDevelopment: boolean,
-) => {
+export const handleResolveError = (token: Token, error: unknown, isDevelopment: boolean) => {
   console.error(`Error resolving component for token: ${String(token)}`, error);
   if (!isDevelopment) return null;
   return renderErrorUI(
@@ -87,10 +88,7 @@ interface ComponentRef {
   component: React.ComponentType<any>;
 }
 
-const createNotFoundComponent = (
-  token: Token,
-  isDevelopment: boolean,
-): React.FC<any> => {
+const createNotFoundComponent = (token: Token, isDevelopment: boolean): React.FC<any> => {
   const NotFound: React.FC<any> = () => handleComponentNotFound(token, isDevelopment);
   NotFound.displayName = `NotFound(${String(token)})`;
   return NotFound;
@@ -101,8 +99,7 @@ const createResolveErrorComponent = (
   error: unknown,
   isDevelopment: boolean,
 ): React.FC<any> => {
-  const ResolveError: React.FC<any> = () =>
-    handleResolveError(token, error, isDevelopment);
+  const ResolveError: React.FC<any> = () => handleResolveError(token, error, isDevelopment);
   ResolveError.displayName = `ResolveError(${String(token)})`;
   return ResolveError;
 };
@@ -115,9 +112,7 @@ export function useInjectComponent<P extends React.JSX.IntrinsicAttributes>(
   token: UntypedInjectionToken,
   fallback: React.ComponentType<P>,
 ): React.ComponentType<P>;
-export function useInjectComponent(
-  token: UntypedInjectionToken,
-): React.ComponentType<any>;
+export function useInjectComponent(token: UntypedInjectionToken): React.ComponentType<any>;
 export function useInjectComponent<P extends React.JSX.IntrinsicAttributes>(
   token: Token,
   fallback: React.ComponentType<P>,
@@ -178,10 +173,9 @@ export function registerComponents(
   },
 ): void {
   const cache = getComponentCache(container);
-  const keys = [
-    ...Object.keys(components),
-    ...Object.getOwnPropertySymbols(components),
-  ] as Array<string | symbol>;
+  const keys = [...Object.keys(components), ...Object.getOwnPropertySymbols(components)] as Array<
+    string | symbol
+  >;
 
   for (const key of keys) {
     const component = components[key];

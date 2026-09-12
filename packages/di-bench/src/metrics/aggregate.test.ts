@@ -1,11 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { AggregatedTaskMetrics, TaskMetrics } from "../types.js";
-import {
-  aggregateMetrics,
-  buildReport,
-  buildReportMeta,
-  DI_LIBS,
-} from "./aggregate.js";
+import { aggregateMetrics, buildReport, buildReportMeta, DI_LIBS } from "./aggregate.js";
 
 function makeTask(
   lib: TaskMetrics["lib"],
@@ -150,7 +145,10 @@ describe("aggregate edge cases", () => {
     expect(noSamples[0]?.error).toBe("no valid samples");
 
     const multiRun = aggregateMetrics(
-      [makeTask("brushy", "deep_graph", 1_000_000, 0), makeTask("brushy", "deep_graph", 1_200_000, 1)],
+      [
+        makeTask("brushy", "deep_graph", 1_000_000, 0),
+        makeTask("brushy", "deep_graph", 1_200_000, 1),
+      ],
       2,
       ["deep_graph"],
     );

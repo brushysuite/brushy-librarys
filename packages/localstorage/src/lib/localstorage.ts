@@ -1,10 +1,5 @@
 import { compress, decompress } from "lz-string";
-import {
-  IStorage,
-  StorageEventListener,
-  StorageItem,
-  StorageOptions,
-} from "../core/types";
+import type { IStorage, StorageEventListener, StorageItem, StorageOptions } from "../core/types";
 
 /**
  * Checks if the current environment supports localStorage.
@@ -12,9 +7,7 @@ import {
 const isClient = typeof globalThis !== "undefined" && !!globalThis.localStorage;
 
 if (!isClient) {
-  console.warn(
-    "[LocalStorage] This library requires an environment with localStorage support.",
-  );
+  console.warn("[LocalStorage] This library requires an environment with localStorage support.");
 }
 
 /**
@@ -124,10 +117,7 @@ export class LocalStorage implements IStorage {
         const decompressedValue = decompress(storageValue);
         itemStr = decompressedValue || storageValue;
       } catch (decompressError) {
-        console.warn(
-          "[LocalStorage] Decompression failed, using original value:",
-          decompressError,
-        );
+        console.warn("[LocalStorage] Decompression failed, using original value:", decompressError);
       }
 
       try {
@@ -230,7 +220,7 @@ export class LocalStorage implements IStorage {
       this.listeners.set(key, new Set());
     }
 
-    this.listeners.get(key)!.add(listener);
+    this.listeners.get(key)?.add(listener);
 
     return () => {
       const keyListeners = this.listeners.get(key);
@@ -331,10 +321,7 @@ export class LocalStorage implements IStorage {
       try {
         itemStr = decompress(storageValue) || storageValue;
       } catch (decompressError) {
-        console.warn(
-          "[LocalStorage] TTL decompression failed:",
-          decompressError,
-        );
+        console.warn("[LocalStorage] TTL decompression failed:", decompressError);
       }
 
       const item: StorageItem<any> = JSON.parse(itemStr);

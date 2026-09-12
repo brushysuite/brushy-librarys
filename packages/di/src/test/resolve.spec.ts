@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { Container, resolve, server, containerRegistry } from "../index";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { Container, containerRegistry, resolve, server } from "../index";
 
 describe("Resolve", () => {
   let container: Container;
@@ -18,7 +18,7 @@ describe("Resolve", () => {
 
     try {
       server.clearRequestScope();
-    } catch (error) {}
+    } catch (_error) {}
   });
 
   it("should resolve dependencies globally", () => {

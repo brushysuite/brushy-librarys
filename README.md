@@ -34,9 +34,9 @@ Published packages (`@brushy/di*` have 100% test coverage in CI):
 
 **Docs**
 
-- [Documentation](packages/di/docs/en/README.md)
-- [Getting Started](packages/di/docs/en/getting-started.md)
-- [Migration v2](packages/di/docs/en/migration-v2.md) (upgrade from 1.x)
+- [Documentation site](apps/docs) (Mintlify: run `npm run docs:dev`)
+- [Getting Started](apps/docs/getting-started/introduction.mdx)
+- [Migration v2](apps/docs/di/migration-v2.mdx) (upgrade from 1.x)
 - [CHANGELOG](packages/di/CHANGELOG.md) (full release notes)
 - [Package README](packages/di/README.md) (examples, benchmark)
 
@@ -56,17 +56,29 @@ import { Container } from '@brushy/di/core';
 import { useInject, BrushyDIProvider } from '@brushy/di/react';
 ```
 
-The monorepo also includes `@brushy/di-bench` (private): Tier 1 comparative benchmarks vs tsyringe, InversifyJS, and awilix. Not published to npm.
+`@brushy/di-bench` (private) provides Tier 1 comparative benchmarks vs tsyringe, InversifyJS, and awilix. Published results: [`packages/di-bench/results/BENCHMARK.md`](packages/di-bench/results/BENCHMARK.md) (updated by CI).
 
-### @brushy/localstorage
+### @brushy/storage (v2.0.0)
 
-[![npm version](https://img.shields.io/npm/v/@brushy/localstorage.svg)](https://www.npmjs.com/package/@brushy/localstorage)
-[![Size](https://img.shields.io/bundlephobia/minzip/@brushy/localstorage)](https://bundlephobia.com/package/@brushy/localstorage)
-
-TypeScript-friendly local state management. [Documentation](packages/localstorage/docs)
+Isomorphic cache primitive for the Brushy suite: NodeCache DX on the server, optional `localStorage` persist on the web. React hooks: `@brushy/storage-react`.
 
 ```bash
-npm install @brushy/localstorage
+npm install @brushy/storage
+npm install @brushy/storage-react react
+```
+
+See [packages/storage/README.md](packages/storage/README.md). `@brushy/localstorage` is **deprecated**.
+
+## Examples
+
+Runnable demos for Vite, Expo, Express, and Fastify live in [`examples/`](examples/README.md). They show recommended DI patterns (`createToken`, `Container`, request scope, React hooks).
+
+```bash
+npm run build-packages
+npm run example:vite      # http://localhost:5173
+npm run example:express   # http://localhost:3001/users
+npm run example:fastify   # http://localhost:3002/users
+npm run example:expo      # manual (Expo Go / simulator)
 ```
 
 ## Getting Started
@@ -79,7 +91,7 @@ npm install @brushy/di react
 npm install @brushy/di-core
 
 # Multiple libraries
-npm install @brushy/di @brushy/localstorage
+npm install @brushy/di @brushy/storage
 ```
 
 ## Development

@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { renderHook, act } from "@testing-library/react";
-import { useStorage } from "../use-storage";
+import { act, renderHook } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { LocalStorage } from "../../lib/localstorage";
+import { useStorage } from "../use-storage";
 
 vi.mock("../../lib/localstorage", () => ({
   LocalStorage: vi.fn(() => ({

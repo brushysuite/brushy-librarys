@@ -1,11 +1,11 @@
+export type {
+  BrushyRequestScopeOptions,
+  RequestScopeOptions,
+} from "../tools/request-scope";
 export {
+  brushyRequestScope,
   getActiveScope,
+  isRequestScopeSupported,
   runInRequestScope,
   runInRequestScopeAsync,
-  brushyRequestScope,
-  isRequestScopeSupported,
-} from "../tools/request-scope";
-export type {
-  RequestScopeOptions,
-  BrushyRequestScopeOptions,
 } from "../tools/request-scope";

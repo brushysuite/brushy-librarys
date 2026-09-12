@@ -1,9 +1,6 @@
+import { type Container, containerRegistry, DependencyError } from "@brushy/di-core";
 import { createContext, useContext } from "react";
-import {
-  Container,
-  containerRegistry,
-  DependencyError,
-} from "@brushy/di-core";
+
 export { ROOT_SCOPE } from "@brushy/di-core";
 
 export const DIContext = createContext<Container | null>(null);
@@ -28,10 +25,7 @@ export const useDIContainer = (scope?: object): Container => {
  *
  * Normal React apps do not need this; use BrushyDIProvider instead.
  */
-export const bridgeContainer = (
-  scope: object,
-  container: Container,
-): (() => void) => {
+export const bridgeContainer = (scope: object, container: Container): (() => void) => {
   containerRegistry.registerContainer(scope, container);
   if (!containerRegistry.hasDefaultContainer()) {
     containerRegistry.setDefaultContainer(container);
@@ -46,10 +40,7 @@ export const bridgeContainer = (
  * @deprecated Use `bridgeContainer` for explicit registry integration.
  * Kept for backwards compatibility with existing test setups.
  */
-export const registerReactContainer = (
-  scope: object,
-  container: Container,
-): void => {
+export const registerReactContainer = (scope: object, container: Container): void => {
   containerRegistry.registerContainer(scope, container);
   if (!containerRegistry.hasDefaultContainer()) {
     containerRegistry.setDefaultContainer(container);

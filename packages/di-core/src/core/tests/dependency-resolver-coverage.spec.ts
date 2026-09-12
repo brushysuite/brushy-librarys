@@ -1,11 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import type { Token } from "../../types";
+import { createToken } from "../../types/tokens";
 import { DependencyRegistry } from "../dependency-registry";
 import { DependencyResolver } from "../dependency-resolver";
 import { Logger } from "../logger";
-import { createLifecycleCache } from "../strategies/lifecycle";
 import { PromiseCache } from "../promise-cache";
-import { createToken } from "../../types/tokens";
-import type { Token } from "../../types";
+import { createLifecycleCache } from "../strategies/lifecycle";
 
 const accessPrivateMethod = (instance: object, methodName: string) => {
   return (...args: unknown[]) => {
@@ -17,10 +17,7 @@ const accessPrivateMethod = (instance: object, methodName: string) => {
   };
 };
 
-const registerValueDeps = (
-  registry: DependencyRegistry,
-  count: number,
-): Token[] => {
+const registerValueDeps = (registry: DependencyRegistry, count: number): Token[] => {
   const deps: Token[] = [];
   for (let i = 0; i < count; i++) {
     const token = createToken<number>(`DEP_${count}_${i}`);
@@ -71,9 +68,7 @@ describe("DependencyResolver coverage gaps", () => {
     ).mockReturnValue(fastMiss);
     (fastResolver as { resolving: Set<Token> }).resolving.add(A);
 
-    expect(() => fastResolver.resolveWithRecord(A, record)).toThrow(
-      /Circular dependency detected/,
-    );
+    expect(() => fastResolver.resolveWithRecord(A, record)).toThrow(/Circular dependency detected/);
   });
 
   it("should resolve through resolveWithRecord when fast paths miss", () => {
@@ -90,9 +85,7 @@ describe("DependencyResolver coverage gaps", () => {
     ).mockReturnValue(fastMiss);
 
     expect(fastResolver.resolveWithRecord(A, record)).toBe("resolved");
-    expect((fastResolver as { resolving: Set<Token> }).resolving.has(A)).toBe(
-      false,
-    );
+    expect((fastResolver as { resolving: Set<Token> }).resolving.has(A)).toBe(false);
   });
 
   it("should detect circular dependencies in resolveInScope", () => {
@@ -105,9 +98,7 @@ describe("DependencyResolver coverage gaps", () => {
     const scopeKey = { id: "circular-scope" };
     (resolver as { resolving: Set<Token> }).resolving.add(A);
 
-    expect(() => resolver.resolveInScope(A, scopeKey)).toThrow(
-      /Circular dependency detected/,
-    );
+    expect(() => resolver.resolveInScope(A, scopeKey)).toThrow(/Circular dependency detected/);
   });
 
   it("should fast-resolve scoped providers without debug logging", () => {
@@ -135,14 +126,11 @@ describe("DependencyResolver coverage gaps", () => {
       const TOKEN = createToken<number>(`FACTORY_ARITY_${arity}`);
 
       registry.register(TOKEN, {
-        useFactory: (...values: number[]) =>
-          values.reduce((sum, value) => sum + value, 0),
+        useFactory: (...values: number[]) => values.reduce((sum, value) => sum + value, 0),
         dependencies: deps,
       });
 
-      expect(fastResolver.resolve(TOKEN)).toBe(
-        (arity * (arity + 1)) / 2,
-      );
+      expect(fastResolver.resolve(TOKEN)).toBe((arity * (arity + 1)) / 2);
     }
   });
 
@@ -173,8 +161,7 @@ describe("DependencyResolver coverage gaps", () => {
     const TOKEN = createToken<number>("FACTORY_ARITY_6");
 
     registry.register(TOKEN, {
-      useFactory: (...values: number[]) =>
-        values.reduce((sum, value) => sum + value, 0),
+      useFactory: (...values: number[]) => values.reduce((sum, value) => sum + value, 0),
       dependencies: deps,
     });
 
@@ -229,9 +216,7 @@ describe("DependencyResolver coverage gaps", () => {
     registry.register(SINGLETON, { useValue: "singleton-value" });
 
     const scopeKey = { id: "non-scoped" };
-    expect(fastResolver.resolveInScope(SINGLETON, scopeKey)).toBe(
-      "singleton-value",
-    );
+    expect(fastResolver.resolveInScope(SINGLETON, scopeKey)).toBe("singleton-value");
   });
 
   it("should resolve useValue tokens through resolveInstanceInScope in debug mode", () => {
@@ -244,9 +229,9 @@ describe("DependencyResolver coverage gaps", () => {
 
   it("should throw when resolveInstanceInScope receives an unregistered token", () => {
     const scopeKey = { id: "missing-token" };
-    expect(() =>
-      resolver.resolveInScope(createToken("MISSING_SCOPE"), scopeKey),
-    ).toThrow(/Token not registered/);
+    expect(() => resolver.resolveInScope(createToken("MISSING_SCOPE"), scopeKey)).toThrow(
+      /Token not registered/,
+    );
   });
 
   it("should skip immutable invalidation in debug mode", () => {
@@ -362,9 +347,7 @@ describe("DependencyResolver coverage gaps", () => {
     registry.register(TOKEN, { useValue: { async: false } });
     const debugSpy = vi.spyOn(Logger, "debug");
 
-    await expect(resolver.resolveAsync(TOKEN, localContext)).resolves.toBe(
-      contextValue,
-    );
+    await expect(resolver.resolveAsync(TOKEN, localContext)).resolves.toBe(contextValue);
     expect(debugSpy).toHaveBeenCalledWith(
       expect.stringContaining("Returning from resolution context"),
     );
@@ -388,41 +371,30 @@ describe("DependencyResolver coverage gaps", () => {
       dependencies: [createToken("UNUSED")],
     } as never);
 
-    const tryFastResolveFromRecord = accessPrivateMethod(
-      fastResolver,
-      "tryFastResolveFromRecord",
-    );
+    const tryFastResolveFromRecord = accessPrivateMethod(fastResolver, "tryFastResolveFromRecord");
     const tryFastResolve = accessPrivateMethod(fastResolver, "tryFastResolve");
     const fastMiss = tryFastResolve(createToken("MISSING"));
 
-    expect(
-      tryFastResolveFromRecord(TOKEN, registry.getRecord(TOKEN)!),
-    ).toBe(fastMiss);
+    expect(tryFastResolveFromRecord(TOKEN, registry.getRecord(TOKEN)!)).toBe(fastMiss);
   });
 
   it("should return FAST_MISS for records that bypass fast lifecycle paths", () => {
-    const tryFastResolveFromRecord = accessPrivateMethod(
-      fastResolver,
-      "tryFastResolveFromRecord",
-    );
+    const tryFastResolveFromRecord = accessPrivateMethod(fastResolver, "tryFastResolveFromRecord");
     const tryFastResolve = accessPrivateMethod(fastResolver, "tryFastResolve");
     const fastMiss = tryFastResolve(createToken("MISSING"));
 
     class TtlService {}
 
     expect(
-      tryFastResolveFromRecord(
-        createToken("TTL_FAST_MISS"),
-        {
-          config: { useClass: TtlService, ttl: 1_000 },
-          isSingleton: true,
-          hasTtl: true,
-          isUseValue: false,
-          isImmutable: false,
-          isScoped: false,
-          isTransient: false,
-        } as never,
-      ),
+      tryFastResolveFromRecord(createToken("TTL_FAST_MISS"), {
+        config: { useClass: TtlService, ttl: 1_000 },
+        isSingleton: true,
+        hasTtl: true,
+        isUseValue: false,
+        isImmutable: false,
+        isScoped: false,
+        isTransient: false,
+      } as never),
     ).toBe(fastMiss);
   });
 
@@ -443,13 +415,8 @@ describe("DependencyResolver coverage gaps", () => {
 
     registry.register(TOKEN, { useClass: FallbackService });
 
-    const tryFastResolveInScope = accessPrivateMethod(
-      fastResolver,
-      "tryFastResolveInScope",
-    );
-    expect(tryFastResolveInScope(TOKEN, { id: "fallback-scope" })).toBeInstanceOf(
-      FallbackService,
-    );
+    const tryFastResolveInScope = accessPrivateMethod(fastResolver, "tryFastResolveInScope");
+    expect(tryFastResolveInScope(TOKEN, { id: "fallback-scope" })).toBeInstanceOf(FallbackService);
   });
 
   it("should delegate singleton lookups to resolveInstance in debug mode", () => {
@@ -459,9 +426,9 @@ describe("DependencyResolver coverage gaps", () => {
 
     registry.register(TOKEN, { useClass: DebugScopedService });
 
-    expect(
-      resolver.resolveInScope(TOKEN, { id: "debug-singleton" }),
-    ).toBeInstanceOf(DebugScopedService);
+    expect(resolver.resolveInScope(TOKEN, { id: "debug-singleton" })).toBeInstanceOf(
+      DebugScopedService,
+    );
   });
 
   it("should resolve instances without a registry record via resolveInstance", () => {
@@ -549,26 +516,16 @@ describe("DependencyResolver coverage gaps", () => {
       dependencyGraph: new Map(),
     });
 
-    expect((fastResolver as { lifecycleCache: unknown }).lifecycleCache).toBe(
-      lifecycleCache,
-    );
+    expect((fastResolver as { lifecycleCache: unknown }).lifecycleCache).toBe(lifecycleCache);
     expect((fastResolver as { resolving: Set<Token> }).resolving).toBe(resolving);
-    expect(
-      (fastResolver as { resolvingStack: Token[] }).resolvingStack,
-    ).toBe(resolvingStack);
+    expect((fastResolver as { resolvingStack: Token[] }).resolvingStack).toBe(resolvingStack);
     expect(
       (fastResolver as { asyncResolvingPromises: Map<Token, Promise<unknown>> })
         .asyncResolvingPromises,
     ).toBe(asyncResolvingPromises);
-    expect(
-      accessPrivateMethod(fastResolver, "getPromiseCache")(),
-    ).toBe(promiseCache);
-    expect(accessPrivateMethod(fastResolver, "getDependencyGraph")()).toEqual(
-      new Map(),
-    );
-    expect(accessPrivateMethod(fastResolver, "getObservables")()).toBe(
-      observables,
-    );
+    expect(accessPrivateMethod(fastResolver, "getPromiseCache")()).toBe(promiseCache);
+    expect(accessPrivateMethod(fastResolver, "getDependencyGraph")()).toEqual(new Map());
+    expect(accessPrivateMethod(fastResolver, "getObservables")()).toBe(observables);
     expect(accessPrivateMethod(fastResolver, "getResolveFn")()).toBe(resolveFn);
   });
 
@@ -638,10 +595,7 @@ describe("DependencyResolver coverage gaps", () => {
     graphRegistry.register(TOKEN, { useValue: "graph" });
     graphResolver.resolve(TOKEN);
 
-    const printDependencyGraph = accessPrivateMethod(
-      graphResolver,
-      "printDependencyGraph",
-    );
+    const printDependencyGraph = accessPrivateMethod(graphResolver, "printDependencyGraph");
     const debugSpy = vi.spyOn(Logger, "debug");
 
     printDependencyGraph();
@@ -761,10 +715,7 @@ describe("DependencyResolver coverage gaps", () => {
       useFactory: async () => ({ ok: true }),
     });
 
-    const resolveInstanceAsync = accessPrivateMethod(
-      resolver,
-      "resolveInstanceAsync",
-    );
+    const resolveInstanceAsync = accessPrivateMethod(resolver, "resolveInstanceAsync");
 
     await expect(resolveInstanceAsync(TOKEN)).resolves.toEqual({ ok: true });
   });
@@ -777,14 +728,9 @@ describe("DependencyResolver coverage gaps", () => {
       },
     });
 
-    const resolveInstanceAsync = accessPrivateMethod(
-      resolver,
-      "resolveInstanceAsync",
-    );
+    const resolveInstanceAsync = accessPrivateMethod(resolver, "resolveInstanceAsync");
 
-    await expect(resolveInstanceAsync(TOKEN)).rejects.toThrow(
-      /async-string-failure/,
-    );
+    await expect(resolveInstanceAsync(TOKEN)).rejects.toThrow(/async-string-failure/);
   });
 
   it("should run async resolve finally block on synchronous try failure", async () => {
@@ -793,10 +739,7 @@ describe("DependencyResolver coverage gaps", () => {
       useFactory: async () => ({ ok: true }),
     });
 
-    const resolveInstanceAsync = accessPrivateMethod(
-      resolver,
-      "resolveInstanceAsync",
-    );
+    const resolveInstanceAsync = accessPrivateMethod(resolver, "resolveInstanceAsync");
     const asyncResolvingPromises = {
       has: () => false,
       get: () => undefined,
@@ -808,9 +751,7 @@ describe("DependencyResolver coverage gaps", () => {
 
     Object.assign(resolver, { _asyncResolvingPromises: asyncResolvingPromises });
 
-    await expect(resolveInstanceAsync(TOKEN)).rejects.toThrow(
-      /sync-try-failure/,
-    );
+    await expect(resolveInstanceAsync(TOKEN)).rejects.toThrow(/sync-try-failure/);
   });
 
   it("should use explicit config in getFromCache and return undefined when missing", () => {
@@ -820,9 +761,7 @@ describe("DependencyResolver coverage gaps", () => {
 
     registry.register(TOKEN, { useValue: "cached-value" });
 
-    expect(
-      getFromCache(TOKEN, { useValue: "explicit-config" }),
-    ).toBeUndefined();
+    expect(getFromCache(TOKEN, { useValue: "explicit-config" })).toBeUndefined();
     expect(getFromCache(MISSING)).toBeUndefined();
   });
 
@@ -854,16 +793,12 @@ describe("DependencyResolver coverage gaps", () => {
       dependencies: [DEP],
     });
 
-    expect(debugSpy).toHaveBeenCalledWith(
-      expect.stringContaining("unknown"),
-    );
+    expect(debugSpy).toHaveBeenCalledWith(expect.stringContaining("unknown"));
   });
 
   it("should return FAST_MISS from lifecycle fast paths when creator is unavailable", () => {
     const deps = registerValueDeps(registry, 3);
-    const ensureCreatorSpy = vi
-      .spyOn(registry, "ensureCreator")
-      .mockReturnValue(undefined);
+    const ensureCreatorSpy = vi.spyOn(registry, "ensureCreator").mockReturnValue(undefined);
 
     const IMMUTABLE = createToken("FAST_MISS_IMMUTABLE");
     const SINGLETON = createToken("FAST_MISS_SINGLETON");
@@ -884,30 +819,17 @@ describe("DependencyResolver coverage gaps", () => {
       lifecycle: "scoped",
     });
 
-    const tryFastResolveFromRecord = accessPrivateMethod(
+    const tryFastResolveFromRecord = accessPrivateMethod(fastResolver, "tryFastResolveFromRecord");
+    const tryFastResolveInScope = accessPrivateMethod(fastResolver, "tryFastResolveInScope");
+    const fastMiss = accessPrivateMethod(
       fastResolver,
-      "tryFastResolveFromRecord",
-    );
-    const tryFastResolveInScope = accessPrivateMethod(
-      fastResolver,
-      "tryFastResolveInScope",
-    );
-    const fastMiss = accessPrivateMethod(fastResolver, "tryFastResolve")(
-      createToken("FAST_MISS_MARKER"),
-    );
+      "tryFastResolve",
+    )(createToken("FAST_MISS_MARKER"));
 
-    expect(
-      tryFastResolveFromRecord(IMMUTABLE, registry.getRecord(IMMUTABLE)!),
-    ).toBe(fastMiss);
-    expect(
-      tryFastResolveFromRecord(SINGLETON, registry.getRecord(SINGLETON)!),
-    ).toBe(fastMiss);
-    expect(
-      tryFastResolveFromRecord(SCOPED, registry.getRecord(SCOPED)!),
-    ).toBe(fastMiss);
-    expect(tryFastResolveInScope(SCOPED, { id: "fast-miss-scope" })).toBe(
-      fastMiss,
-    );
+    expect(tryFastResolveFromRecord(IMMUTABLE, registry.getRecord(IMMUTABLE)!)).toBe(fastMiss);
+    expect(tryFastResolveFromRecord(SINGLETON, registry.getRecord(SINGLETON)!)).toBe(fastMiss);
+    expect(tryFastResolveFromRecord(SCOPED, registry.getRecord(SCOPED)!)).toBe(fastMiss);
+    expect(tryFastResolveInScope(SCOPED, { id: "fast-miss-scope" })).toBe(fastMiss);
     expect(
       tryFastResolveInScope(createToken("MISSING_IN_SCOPE"), {
         id: "missing-scope",

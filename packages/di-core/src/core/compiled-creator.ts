@@ -14,19 +14,12 @@ function compileClassCreator(
     case 1:
       return (resolve) => new ClassRef(resolve(deps[0]!));
     case 2:
-      return (resolve) =>
-        new ClassRef(resolve(deps[0]!), resolve(deps[1]!));
+      return (resolve) => new ClassRef(resolve(deps[0]!), resolve(deps[1]!));
     case 3:
-      return (resolve) =>
-        new ClassRef(resolve(deps[0]!), resolve(deps[1]!), resolve(deps[2]!));
+      return (resolve) => new ClassRef(resolve(deps[0]!), resolve(deps[1]!), resolve(deps[2]!));
     case 4:
       return (resolve) =>
-        new ClassRef(
-          resolve(deps[0]!),
-          resolve(deps[1]!),
-          resolve(deps[2]!),
-          resolve(deps[3]!),
-        );
+        new ClassRef(resolve(deps[0]!), resolve(deps[1]!), resolve(deps[2]!), resolve(deps[3]!));
     case 5:
       return (resolve) =>
         new ClassRef(
@@ -59,16 +52,10 @@ function compileFactoryCreator(
     case 2:
       return (resolve) => factory(resolve(deps[0]!), resolve(deps[1]!));
     case 3:
-      return (resolve) =>
-        factory(resolve(deps[0]!), resolve(deps[1]!), resolve(deps[2]!));
+      return (resolve) => factory(resolve(deps[0]!), resolve(deps[1]!), resolve(deps[2]!));
     case 4:
       return (resolve) =>
-        factory(
-          resolve(deps[0]!),
-          resolve(deps[1]!),
-          resolve(deps[2]!),
-          resolve(deps[3]!),
-        );
+        factory(resolve(deps[0]!), resolve(deps[1]!), resolve(deps[2]!), resolve(deps[3]!));
     case 5:
       return (resolve) =>
         factory(

@@ -1,5 +1,5 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
 import { createRequire } from "node:module";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 describe("request-scope-store", () => {
   const originalProcess = globalThis.process;
@@ -19,9 +19,9 @@ describe("request-scope-store", () => {
     expect(mod.isRequestScopeSupported()).toBe(false);
     expect(mod.getActiveScope()).toBeUndefined();
     expect(mod.runWithActiveScope({ id: "scope" }, () => 42)).toBe(42);
-    await expect(
-      mod.runWithActiveScopeAsync({ id: "scope" }, async () => "ok"),
-    ).resolves.toBe("ok");
+    await expect(mod.runWithActiveScopeAsync({ id: "scope" }, async () => "ok")).resolves.toBe(
+      "ok",
+    );
   });
 
   it("should disable ALS when async_hooks cannot be loaded", async () => {
@@ -48,9 +48,7 @@ describe("request-scope-store", () => {
       const mod = await import("./request-scope-store");
 
       expect(mod.isRequestScopeSupported()).toBe(false);
-      expect(mod.runWithActiveScope({ id: "scope" }, () => "fallback")).toBe(
-        "fallback",
-      );
+      expect(mod.runWithActiveScope({ id: "scope" }, () => "fallback")).toBe("fallback");
     } finally {
       moduleRef._load = originalLoad;
     }

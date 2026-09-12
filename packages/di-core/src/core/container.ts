@@ -1,17 +1,17 @@
-import { ProviderConfig, Token, InstanceWrapper } from "../types";
+import type { InstanceWrapper, ProviderConfig, Token } from "../types";
 import type {
-  InjectionToken,
-  FactoryProviderConfig,
   ClassProviderConfig,
-  ValueProviderConfig,
+  FactoryProviderConfig,
+  InjectionToken,
   UntypedInjectionToken,
+  ValueProviderConfig,
 } from "../types/tokens";
 import { isDev } from "./constants";
 import { DependencyError } from "./dependency-error";
 import { DependencyRegistry, type ProviderRecord } from "./dependency-registry";
 import { DependencyResolver } from "./dependency-resolver";
-import { LifecycleManager } from "./life-cycle-manager";
 import { ContainerEventBus } from "./events";
+import { LifecycleManager } from "./life-cycle-manager";
 import { Logger } from "./logger";
 
 export interface ContainerEvent {
@@ -31,9 +31,7 @@ export class ScopedContainer {
   ) {}
 
   resolve<T>(token: InjectionToken<T>): T;
-  resolve<C extends abstract new (...args: any[]) => any>(
-    token: C,
-  ): InstanceType<C>;
+  resolve<C extends abstract new (...args: any[]) => any>(token: C): InstanceType<C>;
   resolve<T>(token: Token): T;
   resolve<T>(token: Token): T {
     return this.container.resolveInScope<T>(token, this.scopeKey, this.bucket);
@@ -135,9 +133,7 @@ export class Container {
     options: { overrideExisting?: boolean; prefix?: string } = {},
   ): void {
     for (const { token, config } of container.exportProviders()) {
-      const targetToken = options.prefix
-        ? `${options.prefix}.${String(token)}`
-        : token;
+      const targetToken = options.prefix ? `${options.prefix}.${String(token)}` : token;
 
       if (options.overrideExisting || !this.registry.has(targetToken)) {
         this.register(targetToken, config);
@@ -223,9 +219,7 @@ export class Container {
   }
 
   resolve<T>(token: InjectionToken<T>): T;
-  resolve<C extends abstract new (...args: any[]) => any>(
-    token: C,
-  ): InstanceType<C>;
+  resolve<C extends abstract new (...args: any[]) => any>(token: C): InstanceType<C>;
   resolve<T>(token: Token): T;
   resolve<T>(token: Token): T {
     if (!this.hasListeners) {
@@ -294,9 +288,7 @@ export class Container {
   }
 
   resolveAsync<T>(token: InjectionToken<T>): Promise<T>;
-  resolveAsync<C extends abstract new (...args: any[]) => any>(
-    token: C,
-  ): Promise<InstanceType<C>>;
+  resolveAsync<C extends abstract new (...args: any[]) => any>(token: C): Promise<InstanceType<C>>;
   resolveAsync<T>(token: Token): Promise<T>;
   async resolveAsync<T>(token: Token): Promise<T> {
     try {
@@ -358,16 +350,8 @@ export class Container {
     scopeKey: object,
   ): InstanceType<C>;
   resolveInScope<T>(token: Token, scopeKey: object): T;
-  resolveInScope<T>(
-    token: Token,
-    scopeKey: object,
-    bucket?: Map<Token, InstanceWrapper>,
-  ): T;
-  resolveInScope<T>(
-    token: Token,
-    scopeKey: object,
-    bucket?: Map<Token, InstanceWrapper>,
-  ): T {
+  resolveInScope<T>(token: Token, scopeKey: object, bucket?: Map<Token, InstanceWrapper>): T;
+  resolveInScope<T>(token: Token, scopeKey: object, bucket?: Map<Token, InstanceWrapper>): T {
     if (!this.hasListeners) {
       if (this.registry.has(token)) {
         return this.resolver.resolveInScope<T>(token, scopeKey, bucket);
@@ -446,11 +430,7 @@ export class Container {
     }
   }
 
-  getPromise<T>(
-    token: Token,
-    methodName: string,
-    args: unknown[] = [],
-  ): Promise<T> {
+  getPromise<T>(token: Token, methodName: string, args: unknown[] = []): Promise<T> {
     return this.resolver.getCachedPromise<T>(token, methodName, args);
   }
 
@@ -467,9 +447,7 @@ export class Container {
 
       const isIntact = instances.get(token) === instance;
       if (!isIntact && isDev()) {
-        Logger.error(
-          `Immutable integrity violated for ${Logger.formatToken(String(token))}`,
-        );
+        Logger.error(`Immutable integrity violated for ${Logger.formatToken(String(token))}`);
       }
       return isIntact;
     };

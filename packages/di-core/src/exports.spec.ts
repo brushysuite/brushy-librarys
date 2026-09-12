@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
-import type { ProviderConfig } from "./types/index";
-import * as root from "./index";
-import * as containerEntry from "./entries/container";
 import * as cacheEntry from "./entries/cache";
+import * as containerEntry from "./entries/container";
 import * as injectEntry from "./entries/inject";
-import * as resolveEntry from "./entries/resolve";
 import * as requestScopeEntry from "./entries/request-scope";
+import * as resolveEntry from "./entries/resolve";
 import * as serverEntry from "./entries/server";
+import * as root from "./index";
+import type { ProviderConfig } from "./types/index";
 
 describe("public exports", () => {
   it("should expose core APIs from the root entrypoint", () => {

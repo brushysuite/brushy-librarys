@@ -34,10 +34,7 @@ export function runWithActiveScope<T>(scope: object, fn: () => T): T {
   return als.run(scope, fn);
 }
 
-export async function runWithActiveScopeAsync<T>(
-  scope: object,
-  fn: () => Promise<T>,
-): Promise<T> {
+export async function runWithActiveScopeAsync<T>(scope: object, fn: () => Promise<T>): Promise<T> {
   if (!als) return fn();
   return als.run(scope, fn);
 }

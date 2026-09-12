@@ -1,4 +1,4 @@
-import { ProviderConfig, Token } from "../../types";
+import type { ProviderConfig, Token } from "../../types";
 import { compileCreator } from "../compiled-creator";
 import { DependencyError } from "../dependency-error";
 

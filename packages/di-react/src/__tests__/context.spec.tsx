@@ -1,16 +1,7 @@
-import { describe, it, expect, afterEach, vi } from "vitest";
+import { Container, containerRegistry, DependencyError } from "@brushy/di-core";
 import { renderHook } from "@testing-library/react";
-import {
-  Container,
-  DependencyError,
-  containerRegistry,
-  createToken,
-} from "@brushy/di-core";
-import {
-  useDIContainer,
-  registerReactContainer,
-  unregisterReactContainer,
-} from "../context";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { registerReactContainer, unregisterReactContainer, useDIContainer } from "../context";
 
 describe("useDIContainer", () => {
   afterEach(() => {
@@ -33,11 +24,9 @@ describe("useDIContainer", () => {
 
   it("should include non-Error registry failures in the thrown message", () => {
     const scope = { id: "broken-scope" };
-    const getContainerSpy = vi
-      .spyOn(containerRegistry, "getContainer")
-      .mockImplementation(() => {
-        throw "registry failure";
-      });
+    const getContainerSpy = vi.spyOn(containerRegistry, "getContainer").mockImplementation(() => {
+      throw "registry failure";
+    });
 
     expect(() => renderHook(() => useDIContainer(scope))).toThrow(/registry failure/);
 
