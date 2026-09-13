@@ -25,7 +25,7 @@ module.exports = {
       from: { path: "^packages/di-react/src" },
       to: {
         path: "^packages",
-        pathNot: ["packages/di-core"],
+        pathNot: ["packages/di-core", "packages/di-react"],
       },
     },
     {
@@ -34,7 +34,7 @@ module.exports = {
       from: { path: "^packages/di-monitor/src" },
       to: {
         path: "^packages",
-        pathNot: ["packages/di-core"],
+        pathNot: ["packages/di-core", "packages/di-monitor"],
       },
     },
     {
@@ -43,7 +43,7 @@ module.exports = {
       from: { path: "^packages/di-otel/src" },
       to: {
         path: "^packages",
-        pathNot: ["packages/di-core"],
+        pathNot: ["packages/di-core", "packages/di-otel"],
       },
     },
   ],
