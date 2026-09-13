@@ -6,7 +6,7 @@
 pnpm install --frozen-lockfile
 pnpm run build-packages
 pnpm run lint
-pnpm run test -- --filter='@brushy/di*' --filter='@brushy/storage*'
+pnpm run test
 ```
 
 Lint and format use [Biome](https://biomejs.dev/) at the repo root:

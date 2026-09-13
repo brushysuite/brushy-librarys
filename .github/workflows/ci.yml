@@ -29,13 +29,13 @@ jobs:
         run: pnpm run lint
 
       - name: Check types
-        run: pnpm run check-types -- --filter='@brushy/di*' --filter='@brushy/storage*'
+        run: pnpm run check-types
 
       - name: Check example types
         run: pnpm run check-types:examples
 
       - name: Test
-        run: pnpm run test -- --filter='@brushy/di*' --filter='@brushy/storage*'
+        run: pnpm run test
 
       - name: Build
         run: pnpm run build-packages

@@ -102,7 +102,7 @@ cd brushy-librarys
 pnpm install --frozen-lockfile
 
 pnpm run build-packages
-pnpm run test -- --filter='@brushy/di*'
+pnpm run test
 pnpm run test:coverage
 pnpm run check-types
 pnpm run publint
