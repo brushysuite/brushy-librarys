@@ -1,5 +1,7 @@
 # Server Utilities
 
+> **New project?** See [Getting Started](./getting-started.md) for install order and Express / Fastify / Next.js recipes.
+
 `@brushy/di` provides specific utilities for managing dependency injection on the server side, especially useful in Node.js applications and frameworks like Next.js, Express, NestJS, etc.
 
 ## server
@@ -47,9 +49,46 @@ const database = await server.resolveAsync<Database>("DATABASE");
 await database.connect();
 ```
 
-### Request Scope Cleanup
+### Automatic Request Scope (AsyncLocalStorage)
 
-One of the most important features for server applications is the ability to clean up the request scope after each HTTP request, preventing memory leaks and ensuring isolation between requests.
+On Node.js, prefer `server.brushyRequestScope()` or `runInRequestScope()` - they bind the active request scope via `AsyncLocalStorage`, so `resolve()` / `inject.resolve()` pick up scoped instances without passing a scope manually.
+
+```typescript
+import express from "express";
+import { server } from "@brushy/di";
+
+const app = express();
+
+// Recommended: middleware binds ALS scope and cleans up on response finish/close
+app.use(server.brushyRequestScope());
+
+app.get("/users", (req, res) => {
+  const userService = server.resolve(USER_SERVICE); // scoped per request
+  res.json(userService.getUsers());
+});
+```
+
+For scripts, tests, or non-HTTP flows:
+
+```typescript
+import { runInRequestScope, runInRequestScopeAsync } from "@brushy/di";
+
+runInRequestScope(() => {
+  const svc = server.resolve(USER_SERVICE);
+  // scoped instances isolated to this run
+});
+
+await runInRequestScopeAsync(async () => {
+  const svc = await server.resolveAsync(DATABASE);
+  await svc.connect();
+});
+```
+
+`isRequestScopeSupported()` returns whether ALS is available (Node.js). On React Native / browsers, scoped resolution still works when you pass an explicit `scope`.
+
+### Request Scope Cleanup (manual)
+
+If you cannot use ALS middleware, call `server.clearRequestScope()` after each HTTP request.
 
 ```typescript
 // In an Express middleware
@@ -164,14 +203,8 @@ server.setServerContainer(serverContainer);
 // Create Express application
 const app = express();
 
-// Middleware to clean up request scope
-app.use((req, res, next) => {
-  next();
-  // After response is sent
-  res.on("finish", () => {
-    server.clearRequestScope();
-  });
-});
+// Middleware - ALS request scope (recommended)
+app.use(server.brushyRequestScope());
 
 // Route to get users
 app.get("/users", async (req, res) => {
@@ -284,7 +317,7 @@ export async function GET() {
 
 ## Best Practices
 
-1. **Always clean up request scope**: Call `server.clearRequestScope()` after each HTTP request to prevent memory leaks.
+1. **Prefer `brushyRequestScope()`**: On Node.js, use `server.brushyRequestScope()` or `runInRequestScope()` instead of manual `clearRequestScope()` in every route.
 
 2. **Use appropriate lifecycle**: For shared services, use `singleton`. For request-specific services, use `scoped`.
 

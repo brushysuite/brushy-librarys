@@ -1,0 +1,65 @@
+---
+title: "Container registry"
+description: "containerRegistry, scoped containers, and ROOT_SCOPE."
+---
+
+`containerRegistry` maps scope objects to `Container` instances. It backs `resolve()`, request scope, and React Native-safe multi-container apps.
+
+## Global singleton
+
+```typescript
+import { containerRegistry } from "@brushy/di-core";
+
+containerRegistry.setDefaultContainer(appContainer);
+const container = containerRegistry.getContainer();
+```
+
+## Scoped registration
+
+```typescript
+const testScope = { testRun: 1 };
+containerRegistry.registerContainer(testScope, testContainer);
+
+containerRegistry.getContainer(testScope); // testContainer
+```
+
+## API
+
+| Method | Description |
+|--------|-------------|
+| `setDefaultContainer(container)` | Fallback when no scope matches |
+| `getContainer(scope?)` | Resolve container for scope or default |
+| `hasDefaultContainer()` | Whether default is set |
+| `registerContainer(scope, container)` | Bind container to scope |
+| `unregisterContainer(scope)` | Remove scope binding |
+| `cleanupTransientScopes()` | Clear Map-based transient scopes |
+
+Uses `WeakMap` for long-lived scope keys and `Map` for transient scopes (React Native safe, without `FinalizationRegistry`).
+
+## `ROOT_SCOPE`
+
+Sentinel constant for the root scope bucket in internal scoped caches.
+
+## Integration with ALS
+
+`getContainer()` without arguments calls `getActiveScope()` from request scope store. When ALS has an active scope and a container is registered for it, that container wins over the default.
+
+## `inject.setGlobalContainer`
+
+Convenience wrapper around `setDefaultContainer`:
+
+```typescript
+import { inject } from "@brushy/di-core";
+
+inject.setGlobalContainer(container);
+```
+
+## Error
+
+Throws `DependencyError` when no default container exists and no scoped container matches:
+
+```
+No container found. Use registerContainer() or setDefaultContainer()
+```
+
+See [resolve & inject](/di/di-core/resolve-inject).

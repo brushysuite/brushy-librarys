@@ -1,0 +1,106 @@
+---
+title: "Package entrypoints"
+description: "@brushy/di umbrella package, subpaths, and related packages."
+---
+
+`@brushy/di` is the **umbrella** package. It re-exports `@brushy/di-core`, `@brushy/di-react`, and `@brushy/di-monitor` from a single install.
+
+## Install by stack
+
+```bash
+# Full stack (core + react + monitor + otel)
+npm install @brushy/di react
+
+# Core only (Node, workers, APIs)
+npm install @brushy/di-core
+
+# React bindings only
+npm install @brushy/di-react react
+
+# Optional monitoring
+npm install @brushy/di-monitor @brushy/di-core
+
+# Optional OpenTelemetry
+npm install @brushy/di-otel @brushy/di-core
+```
+
+## Subpath exports
+
+| Import path | Package | Use when |
+|-------------|---------|----------|
+| `@brushy/di` | Umbrella | Default: one import for everything |
+| `@brushy/di/core` | di-core | Server bundles, tree-shaking React out |
+| `@brushy/di/react` | di-react | Client-only React / React Native |
+| `@brushy/di/monitor` | di-monitor | Dev tooling, metrics |
+| `@brushy/di/otel` | di-otel | OpenTelemetry tracing |
+
+```typescript
+// Umbrella
+import { Container, useInject, monitor } from "@brushy/di";
+
+// Granular
+import { Container, server } from "@brushy/di/core";
+import { BrushyDIProvider, useInject } from "@brushy/di/react";
+import { monitor } from "@brushy/di/monitor";
+import { traceContainer } from "@brushy/di/otel";
+```
+
+## Package map
+
+| Package | Role |
+|---------|------|
+| `@brushy/di-core` | Container, tokens, lifecycles, request scope, server facade |
+| `@brushy/di-react` | `BrushyDIProvider`, `useInject`, `useInjectComponent` |
+| `@brushy/di-monitor` | `ContainerMonitor`: event history and stats |
+| `@brushy/di-otel` | OpenTelemetry integration (optional) |
+| `@brushy/di` | Convenience re-export of core + react + monitor |
+
+<Note>
+  OpenTelemetry lives in `@brushy/di-otel` and is **not** re-exported from the main `@brushy/di` entry. Import `@brushy/di/otel` explicitly.
+</Note>
+
+## Recommended entry points
+
+| Runtime | Import from |
+|---------|-------------|
+| React client | `@brushy/di` or `@brushy/di/react` |
+| React Native | `@brushy/di/react` |
+| Express / Fastify API | `@brushy/di/core` (`server`, `runInRequestScope`) |
+| Scripts / workers | `@brushy/di-core` |
+| Library (no React) | `@brushy/di-core` |
+
+## Main umbrella exports
+
+```typescript
+import {
+  // Core
+  Container,
+  ScopedContainer,
+  createToken,
+  deps,
+  defineModule,
+  createBrushyApp,
+  resolve,
+  inject,
+  server,
+  cache,
+  runInRequestScope,
+  brushyRequestScope,
+  enableBrushyDebug,
+  // React
+  BrushyDIProvider,
+  useInject,
+  useInjectLazy,
+  useInjectComponent,
+  // Monitor
+  monitor,
+  ContainerMonitor,
+} from "@brushy/di";
+```
+
+## Related docs
+
+- [@brushy/di-core overview](/di/di-core/overview)
+- [Container](/di/container)
+- [Monitor](/di/monitor/overview)
+- [React hooks](/di/react-hooks)

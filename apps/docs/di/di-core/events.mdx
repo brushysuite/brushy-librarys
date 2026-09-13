@@ -1,0 +1,61 @@
+---
+title: "Container events"
+description: "observe, ContainerEvent types, and integration with monitor."
+---
+
+Containers emit events when observers are registered via `observe()`. This powers `@brushy/di-monitor` and custom telemetry.
+
+## Subscribe
+
+```typescript
+const unsubscribe = container.observe((event) => {
+  console.log(event.type, event.token, event.details);
+});
+
+// Later
+unsubscribe();
+```
+
+<Note>
+  Event emission is optimized away until the first `observe()` call. Attaching a monitor or observer enables the event path for subsequent operations.
+</Note>
+
+## Event types
+
+```typescript
+interface ContainerEvent {
+  type: "register" | "resolve" | "error" | "import" | "clear";
+  token?: Token;
+  timestamp: number;
+  details?: unknown;
+}
+```
+
+| Type | When | Typical `details` |
+|------|------|-------------------|
+| `register` | `register` / `registerMany` | `{ config }` |
+| `resolve` | Successful `resolve` / `resolveAsync` / `resolveInScope` | `{ success: true, source, async?, scoped? }` |
+| `error` | Failed resolve | `{ error, message, async? }` |
+| `import` | `container.import()` | `{ sourceContainer, targetContainer, providersCount, options }` |
+| `clear` | `clearRequestScope` / `clearScopedInstances` | `{ scope }` |
+
+## Performance note
+
+When **no** observers are attached, `resolve` uses a fast path with a monomorphic last-token micro-cache. After `observe()` is called, every resolve goes through the event bus.
+
+For production monitoring, prefer [@brushy/di-monitor](/di/monitor/overview) with filtered `eventTypes` instead of ad-hoc `observe` handlers on hot paths.
+
+## Custom observers
+
+```typescript
+container.observe((event) => {
+  if (event.type === "error") {
+    metrics.increment("di.resolve.error");
+  }
+});
+```
+
+## Related
+
+- [Container monitor](/di/monitor/api-reference): buffered history and stats
+- [Debug API](/di/di-core/debug): `exportProviders` for introspection

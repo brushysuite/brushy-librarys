@@ -10,11 +10,7 @@ export interface StorageItem<T> {
   compressed?: boolean;
 }
 
-export type StorageEventListener = (
-  key: string,
-  newValue: any,
-  oldValue: any,
-) => void;
+export type StorageEventListener = (key: string, newValue: any, oldValue: any) => void;
 
 export interface IStorage {
   set<T>(key: string, value: T, options?: StorageOptions): void;
@@ -32,13 +28,7 @@ export interface CompressionOptions {
   mode?: "auto" | "aggressive" | "conservative";
 }
 
-export type DataType =
-  | "string"
-  | "array"
-  | "object"
-  | "number"
-  | "date"
-  | "binary";
+export type DataType = "string" | "array" | "object" | "number" | "date" | "binary";
 
 export interface JSONStorageOptions extends StorageOptions {
   pretty?: boolean;

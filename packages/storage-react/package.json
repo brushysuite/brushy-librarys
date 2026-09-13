@@ -1,0 +1,72 @@
+{
+  "name": "@brushy/storage-react",
+  "version": "2.0.0",
+  "description": "React bindings for @brushy/storage",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "sideEffects": false,
+  "react-native": "./dist/index.mjs",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "clean": "rm -rf dist .turbo node_modules",
+    "check-types": "tsc --noEmit && tsc -p tsconfig.test.json",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "cache",
+    "storage",
+    "react",
+    "localstorage"
+  ],
+  "author": "Gustavo Franco <contact@gfrancodev.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/brushysuite/brushy-librarys.git",
+    "directory": "packages/storage-react"
+  },
+  "homepage": "https://brushysuite.gfrancodev.com/docs/storage",
+  "dependencies": {
+    "@brushy/storage": "*"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0"
+  },
+  "devDependencies": {
+    "@brushy/storage": "*",
+    "@swc/core": "^1.16.2",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitest/coverage-v8": "^5.0.0",
+    "jsdom": "^30.0.1",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "tsup": "^8.5.1",
+    "typescript": "5.9.3",
+    "unplugin-swc": "^1.6.0",
+    "vitest": "^5.0.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  }
+}

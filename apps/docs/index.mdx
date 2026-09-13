@@ -1,0 +1,65 @@
+---
+title: "Brushy Suite"
+description: "Dependency injection, storage, and examples for TypeScript, React, and Node.js."
+---
+
+Welcome to the official documentation for **Brushy Suite**, a modular toolkit for building typed, testable applications across web, mobile, and server runtimes.
+
+**AI agents:** read [`/SKILL.md`](/SKILL.md) before generating code. It contains mandatory rules for DI, storage, and React patterns.
+
+<CardGroup cols={2}>
+  <Card title="Install @brushy/di" icon="package" href="https://www.npmjs.com/package/@brushy/di">
+    Umbrella DI package: core, React, monitor, and OpenTelemetry.
+  </Card>
+  <Card title="Install @brushy/storage" icon="database" href="https://www.npmjs.com/package/@brushy/storage">
+    Isomorphic cache with TTL, persist, and optional React hooks.
+  </Card>
+</CardGroup>
+
+<Columns cols={2}>
+  <Card title="Getting started" icon="rocket" href="/getting-started/introduction">
+    Choose packages, install commands, and stack-specific recipes.
+  </Card>
+  <Card title="@brushy/di" icon="box" href="/di/overview">
+    Zero-dependency DI core with React hooks and server request scope.
+  </Card>
+  <Card title="@brushy/storage" icon="database" href="/storage/overview">
+    Isomorphic cache with optional persist and React bindings.
+  </Card>
+  <Card title="Examples" icon="code" href="/examples/overview">
+    Vite, Expo, Express, and Fastify reference projects.
+  </Card>
+</Columns>
+
+## Packages
+
+| Package | npm | Description |
+| --- | --- | --- |
+| [`@brushy/di`](/di/overview) | [npm](https://www.npmjs.com/package/@brushy/di) | Umbrella package: core, React, monitor, and OpenTelemetry |
+| [`@brushy/di-core`](/di/di-core/overview) | [npm](https://www.npmjs.com/package/@brushy/di-core) | Container, tokens, modules, and server utilities |
+| [`@brushy/di-react`](/di/react-hooks) | [npm](https://www.npmjs.com/package/@brushy/di-react) | `BrushyDIProvider`, `useInject`, and component injection |
+| [`@brushy/di-monitor`](/di/monitor/overview) | [npm](https://www.npmjs.com/package/@brushy/di-monitor) | Container monitoring and runtime metrics |
+| [`@brushy/di-otel`](/di/overview) | [npm](https://www.npmjs.com/package/@brushy/di-otel) | OpenTelemetry integration for DI |
+| [`@brushy/storage`](/storage/overview) | [npm](https://www.npmjs.com/package/@brushy/storage) | Memory-first cache with TTL, persist, and [API reference](/storage/api-reference) |
+| [`@brushy/storage-react`](/storage/react-hooks) | [npm](https://www.npmjs.com/package/@brushy/storage-react) | `StorageProvider` and `useStorage` hooks |
+
+## MCP server
+
+Connect AI tools to this documentation from the contextual menu in the page header. Use **Connect to Cursor**, **Connect to VS Code**, or **Copy MCP server URL** to add the hosted MCP endpoint. When deployed on Mintlify, the server is available at `https://<your-site-url>/mcp`.
+
+## Quick install
+
+```bash
+npm install @brushy/di
+npm install @brushy/storage @brushy/storage-react
+```
+
+## Agent skill
+
+Install the Brushy Suite skill so AI tools know when to use DI vs storage:
+
+<Prompt description="Install the Brushy Suite agent skill." actions={["copy", "cursor"]}>
+npx skills add https://brushysuite.gfrancodev.com
+</Prompt>
+
+See also [`/SKILL.md`](https://brushysuite.gfrancodev.com/SKILL.md) and [`/llms.txt`](https://brushysuite.gfrancodev.com/llms.txt).

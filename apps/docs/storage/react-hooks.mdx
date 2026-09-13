@@ -1,0 +1,148 @@
+---
+title: "React hooks"
+description: "StorageProvider, useStorage, and useStorageContext from @brushy/storage-react."
+---
+
+React bindings live in **`@brushy/storage-react`** (not in `@brushy/storage`). Hooks use `useSyncExternalStore`, not `useEffect`, for persisted values.
+
+## Install
+
+```bash
+npm install @brushy/storage @brushy/storage-react react
+```
+
+## `StorageProvider`
+
+Wraps your React tree with a shared `Storage` instance.
+
+```tsx
+import { createStorage } from "@brushy/storage";
+import { StorageProvider } from "@brushy/storage-react";
+
+const storage = createStorage({
+  id: "my-app",
+  persist: "local",
+  prefix: "@myapp:",
+});
+
+function Root({ children }: { children: React.ReactNode }) {
+  return <StorageProvider storage={storage}>{children}</StorageProvider>;
+}
+```
+
+### Props
+
+<ParamField path="storage" type="Storage">
+  Existing instance. Preferred for DI-registered singletons.
+</ParamField>
+
+<ParamField path="options" type="StorageOptions">
+  Creates a new instance when `storage` is omitted: `createStorage(options)`.
+</ParamField>
+
+<ParamField path="children" type="ReactNode" required>
+  App tree.
+</ParamField>
+
+When neither `storage` nor `options` is passed, a default in-memory instance (`id: "@brushy:default"`) is used.
+
+## `useStorage(key, initialValue, options?)`
+
+```tsx
+import { useStorage } from "@brushy/storage-react";
+
+function ThemeToggle() {
+  const { value: theme, set, remove } = useStorage("ui:theme", "light");
+
+  return (
+    <button type="button" onClick={() => set(theme === "light" ? "dark" : "light")}>
+      {theme}
+    </button>
+  );
+}
+```
+
+### Return shape
+
+Unlike v1 `@brushy/localstorage` tuple hooks, v2 returns an object:
+
+```tsx
+const { value, set, remove } = useStorage("key", defaultValue);
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `value` | `T` | Current value from storage or `initialValue` |
+| `set` | `(next: T \| (prev: T) => T, options?: SetOptions) => void` | Write or functional update |
+| `remove` | `() => void` | Deletes the key (`storage.del`) |
+
+### Per-hook TTL
+
+```tsx
+useStorage("token", null, { ttl: "1h" });
+```
+
+### Functional updates
+
+```tsx
+set((prev) => ({ ...prev, fontSize: 16 }));
+```
+
+## `useStorageContext`
+
+Access the underlying `Storage` instance for imperative operations outside hooks:
+
+```tsx
+import { useStorageContext } from "@brushy/storage-react";
+
+function ClearCacheButton() {
+  const storage = useStorageContext();
+  return <button onClick={() => storage.flushAll()}>Clear all</button>;
+}
+```
+
+## `getDefaultStorage`
+
+Non-hook access to the provider's fallback instance:
+
+```typescript
+import { getDefaultStorage } from "@brushy/storage-react";
+
+const storage = getDefaultStorage();
+```
+
+## SSR behavior
+
+`useStorage` passes `getServerSnapshot` returning `initialValue`, so server HTML matches the first client render before hydration reads persisted data.
+
+```tsx
+// Server: always "light"
+// Client after hydration: reads from localStorage
+const { value: theme } = useStorage("ui:theme", "light");
+```
+
+See [Node vs browser](/storage/runtime).
+
+## DI integration
+
+Register storage once in your DI container and pass the resolved instance to the provider:
+
+```tsx
+// providers/storage-bridge.tsx
+import { StorageProvider } from "@brushy/storage-react";
+import { useInject } from "@brushy/di/react";
+import { APP_CACHE } from "../shared/cache/cache.token";
+
+export function StorageBridge({ children }: { children: React.ReactNode }) {
+  const cache = useInject(APP_CACHE);
+  return <StorageProvider storage={cache}>{children}</StorageProvider>;
+}
+```
+
+Example layout in the Vite project: `examples/vite/src/providers/storage-bridge.tsx`.
+
+## Related
+
+- [API reference](/storage/api-reference): `getSnapshot`, `subscribe`
+- [Events](/storage/events): what triggers re-renders
+- [Configuration](/storage/configuration): persist and bus options

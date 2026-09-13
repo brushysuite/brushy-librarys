@@ -1,26 +1,9 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import {
-  Container,
-  BrushyDIProvider,
-  useInject,
-  useLazyInject,
-  server,
-} from "../index";
-import {
-  render,
-  screen,
-  waitFor,
-  fireEvent,
-  act,
-} from "@testing-library/react";
-import React, {
-  useState,
-  useEffect,
-  createContext,
-  useContext,
-  useCallback,
-} from "react";
-import "@testing-library/jest-dom";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import type React from "react";
+import { createContext, useCallback, useContext, useEffect, useState } from "react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { BrushyDIProvider, Container, server, useInject, useInjectLazy } from "../index";
+import "@testing-library/jest-dom/vitest";
 
 describe("E2E - React Hooks", () => {
   let container: Container;
@@ -84,9 +67,7 @@ describe("E2E - React Hooks", () => {
       async login(email: string, password: string): Promise<User> {
         return new Promise((resolve, reject) => {
           setTimeout(() => {
-            const user = this.users.find(
-              (u) => u.email === email && u.password === password,
-            );
+            const user = this.users.find((u) => u.email === email && u.password === password);
             if (user) {
               const { password, ...userData } = user;
               this.currentUser = userData;
@@ -211,9 +192,7 @@ describe("E2E - React Hooks", () => {
       async addToCart(product: Product, quantity = 1): Promise<CartItem[]> {
         return new Promise((resolve) => {
           setTimeout(() => {
-            const existingItem = this.items.find(
-              (item) => item.product.id === product.id,
-            );
+            const existingItem = this.items.find((item) => item.product.id === product.id);
 
             if (existingItem) {
               existingItem.quantity += quantity;
@@ -226,23 +205,16 @@ describe("E2E - React Hooks", () => {
         });
       }
 
-      async updateQuantity(
-        productId: number,
-        quantity: number,
-      ): Promise<CartItem[]> {
+      async updateQuantity(productId: number, quantity: number): Promise<CartItem[]> {
         return new Promise((resolve) => {
           setTimeout(() => {
-            const item = this.items.find(
-              (item) => item.product.id === productId,
-            );
+            const item = this.items.find((item) => item.product.id === productId);
 
             if (item) {
               item.quantity = quantity;
 
               if (item.quantity <= 0) {
-                this.items = this.items.filter(
-                  (i) => i.product.id !== productId,
-                );
+                this.items = this.items.filter((i) => i.product.id !== productId);
               }
             }
 
@@ -300,9 +272,7 @@ describe("E2E - React Hooks", () => {
       logout: async () => {},
     });
 
-    const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
-      children,
-    }) => {
+    const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       const authService = useInject<AuthService>(AUTH_SERVICE);
       const [user, setUser] = useState<User | null>(null);
 
@@ -331,9 +301,7 @@ describe("E2E - React Hooks", () => {
       };
 
       return (
-        <AuthContext.Provider value={{ user, login, logout }}>
-          {children}
-        </AuthContext.Provider>
+        <AuthContext.Provider value={{ user, login, logout }}>{children}</AuthContext.Provider>
       );
     };
 
@@ -349,7 +317,7 @@ describe("E2E - React Hooks", () => {
 
         try {
           await login(email, password);
-        } catch (error) {
+        } catch (_error) {
           setError("Login failed. Please check your credentials.");
         }
       };
@@ -441,11 +409,7 @@ describe("E2E - React Hooks", () => {
           </div>
           <div className="product-grid">
             {products.map((product) => (
-              <div
-                key={product.id}
-                className="product-card"
-                data-testid={`product-${product.id}`}
-              >
+              <div key={product.id} className="product-card" data-testid={`product-${product.id}`}>
                 <h3>{product.name}</h3>
                 <p className="price">$ {product.price.toFixed(2)}</p>
                 <p>{product.description}</p>
@@ -533,20 +497,14 @@ describe("E2E - React Hooks", () => {
                     <div className="item-actions">
                       <div className="quantity-control">
                         <button
-                          onClick={() =>
-                            handleDecreaseQuantity(item.product.id)
-                          }
+                          onClick={() => handleDecreaseQuantity(item.product.id)}
                           data-testid={`decrease-${item.product.id}`}
                         >
                           -
                         </button>
-                        <span data-testid={`quantity-${item.product.id}`}>
-                          {item.quantity}
-                        </span>
+                        <span data-testid={`quantity-${item.product.id}`}>{item.quantity}</span>
                         <button
-                          onClick={() =>
-                            handleIncreaseQuantity(item.product.id)
-                          }
+                          onClick={() => handleIncreaseQuantity(item.product.id)}
                           data-testid={`increase-${item.product.id}`}
                         >
                           +
@@ -567,11 +525,7 @@ describe("E2E - React Hooks", () => {
                 <div className="cart-total" data-testid="cart-total">
                   <strong>Total:</strong> $ {total.toFixed(2)}
                 </div>
-                <button
-                  className="clear-cart"
-                  onClick={handleClearCart}
-                  data-testid="clear-cart"
-                >
+                <button className="clear-cart" onClick={handleClearCart} data-testid="clear-cart">
                   Clear Cart
                 </button>
                 <button className="checkout" data-testid="checkout">
@@ -631,9 +585,7 @@ describe("E2E - React Hooks", () => {
 
     await waitFor(
       () => {
-        expect(
-          screen.queryByText("Loading products..."),
-        ).not.toBeInTheDocument();
+        expect(screen.queryByText("Loading products...")).not.toBeInTheDocument();
       },
       { timeout: 3000 },
     );
@@ -695,14 +647,12 @@ describe("E2E - React Hooks", () => {
     });
 
     const LazyComponent = () => {
-      const [loaded, setLoaded] = useState(false);
-      const [service, loadService] =
-        useLazyInject<ReportGenerator>(REPORT_GENERATOR);
+      const service = useInjectLazy<ReportGenerator>(REPORT_GENERATOR);
+      const [report, setReport] = useState("");
 
       const handleLoad = async () => {
         resolveInit();
-        loadService();
-        setLoaded(true);
+        setReport(service.generateReport({ test: "data" }));
       };
 
       return (
@@ -710,11 +660,7 @@ describe("E2E - React Hooks", () => {
           <button data-testid="load-button" onClick={handleLoad}>
             Load Service
           </button>
-          {loaded && service && (
-            <div data-testid="report">
-              {service.generateReport({ test: "data" })}
-            </div>
-          )}
+          {report && <div data-testid="report">{report}</div>}
         </div>
       );
     };

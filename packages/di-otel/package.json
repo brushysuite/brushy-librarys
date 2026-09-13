@@ -1,0 +1,58 @@
+{
+  "name": "@brushy/di-otel",
+  "version": "2.0.0",
+  "description": "OpenTelemetry hooks for @brushy/di-core resolve tracing",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "check-types": "tsc --noEmit",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "dependency-injection",
+    "opentelemetry",
+    "tracing"
+  ],
+  "author": "Gustavo Franco <contact@gfrancodev.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@brushy/di-core": "*"
+  },
+  "peerDependencies": {
+    "@opentelemetry/api": ">=1.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@opentelemetry/api": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@opentelemetry/api": "^1.9.1",
+    "@swc/core": "^1.16.2",
+    "tsup": "^8.5.1",
+    "typescript": "5.9.3",
+    "@vitest/coverage-v8": "^5.0.0",
+    "vitest": "^5.0.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  }
+}

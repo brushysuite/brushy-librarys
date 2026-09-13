@@ -1,0 +1,63 @@
+{
+  "name": "@brushy/storage",
+  "version": "2.0.0",
+  "description": "Isomorphic memory-first cache with optional persist and invalidation bus. NodeCache DX for Node, web, and React",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "clean": "rm -rf dist .turbo node_modules",
+    "check-types": "tsc --noEmit && tsc -p tsconfig.test.json",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "cache",
+    "storage",
+    "node-cache",
+    "localstorage",
+    "ttl",
+    "react"
+  ],
+  "author": "Gustavo Franco <contact@gfrancodev.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/brushysuite/brushy-librarys.git",
+    "directory": "packages/storage"
+  },
+  "homepage": "https://brushysuite.gfrancodev.com/docs/storage",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "dependencies": {
+    "lz-string": "^1.5.0"
+  },
+  "devDependencies": {
+    "@swc/core": "^1.16.2",
+    "@types/node": "^22.20.2",
+    "@vitest/coverage-v8": "^5.0.0",
+    "tsup": "^8.5.1",
+    "typescript": "5.9.3",
+    "unplugin-swc": "^1.6.0",
+    "vitest": "^5.0.0"
+  }
+}

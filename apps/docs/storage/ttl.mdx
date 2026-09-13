@@ -1,0 +1,78 @@
+---
+title: "TTL"
+description: "Time-to-live parsing, expiry, and ttl helpers."
+---
+
+`@brushy/storage` uses node-cache-compatible TTL semantics. All internal expiry is tracked in milliseconds; public APIs accept seconds or human-readable strings.
+
+## Default TTL (`stdTTL`)
+
+Set at construction time. Applied when `set(key, value)` omits a per-key TTL.
+
+```typescript
+const cache = createStorage({ stdTTL: 3600 }); // 1 hour default
+cache.set("item", data); // expires in 1 hour
+```
+
+<Warning>
+  For `stdTTL`, bare numeric strings like `"60000"` are treated as **milliseconds** (60 seconds). For `set()` and `ttl()`, bare `"60"` means **60 seconds**.
+</Warning>
+
+## Per-key TTL on `set`
+
+```typescript
+cache.set("token", jwt, 900);       // 900 seconds
+cache.set("token", jwt, "15m");     // duration shorthand
+cache.set("token", jwt, "500ms");   // fractional seconds supported
+```
+
+### Duration units
+
+| Suffix | Meaning |
+|--------|---------|
+| `ms` | milliseconds |
+| `s` | seconds (default when unit omitted on `set`) |
+| `m` | minutes |
+| `h` | hours |
+| `d` | days |
+
+## Special values
+
+| Value | Behavior |
+|-------|----------|
+| `0` | No expiry |
+| `< 0` | Expire on next access (lazy expiry) |
+
+## `ttl(key, ttl?)`
+
+Updates expiry of an existing key without changing the value. Returns `false` if the key is missing.
+
+```typescript
+cache.ttl("session", "30m");
+cache.ttl("session", 0); // remove expiry
+```
+
+When persist is enabled, the updated TTL is written through to storage.
+
+## `getTtl(key)`
+
+Returns the absolute expiry timestamp (`Date.now()` + remaining ms), `0` for non-expiring keys, or `undefined` if missing.
+
+## Background expiry (`checkperiod`)
+
+A timer scans in-memory entries every `checkperiod` seconds (default `600`). On Node.js the timer is `unref()`'d so it does not keep the process alive.
+
+Set `checkperiod: 0` to disable scans. Keys still expire lazily on `get` / `has`.
+
+## Utility exports
+
+Low-level helpers for custom adapters:
+
+```typescript
+import { parseTtlToSeconds, expireAtFromTtlSeconds } from "@brushy/storage";
+
+parseTtlToSeconds("1h", 0); // 3600
+parseTtlToSeconds("60000", 0, { numericStringUnit: "ms" }); // 60
+
+expireAtFromTtlSeconds(3600); // Date.now() + 3_600_000
+```

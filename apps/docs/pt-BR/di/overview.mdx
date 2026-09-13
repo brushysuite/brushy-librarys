@@ -1,0 +1,94 @@
+---
+title: "Injeção de dependência"
+sidebarTitle: "@brushy/di"
+description: "Pacote principal de injeção de dependência da Brushy Suite."
+---
+
+Sistema de injeção de dependência rápido e tipado para JavaScript/TypeScript, com suporte nativo a React.
+
+## Pacotes (v2)
+
+| Pacote | Descrição |
+|---------|-------------|
+| [`@brushy/di`](/di/entrypoints) | Principal: core + react + monitor |
+| [`@brushy/di-core`](/di/di-core/overview) | Engine core sem React |
+| `@brushy/di-react` | Hooks para React / React Native |
+| [`@brushy/di-monitor`](/di/monitor/overview) | Monitoramento do container |
+| `@brushy/di-otel` | OpenTelemetry (subpath opcional) |
+
+## Mapa da documentação
+
+### Introdução
+
+- [Entrypoints do pacote](/di/entrypoints): imports e subpaths
+- [Primeiros passos](/pt-BR/di/getting-started)
+- [Introdução](/di/introduction)
+
+### @brushy/di-core
+
+- [Visão geral](/di/di-core/overview): todos os exports públicos
+- [Tokens e providers](/di/di-core/tokens-providers)
+- [Ciclo de vida](/di/di-core/lifecycle)
+- [Containers com escopo](/di/di-core/scoped-containers)
+- [Request scope](/di/di-core/request-scope)
+- [Módulos](/di/di-core/modules)
+- [resolve e inject](/di/di-core/resolve-inject)
+- [Promise cache](/di/di-core/promise-cache)
+- [Eventos do container](/di/di-core/events)
+- [Registry de containers](/di/di-core/container-registry)
+- [API de debug](/di/di-core/debug)
+- [DependencyError](/di/di-core/errors)
+
+### Guias
+
+- [Container](/di/container)
+- [Servidor](/di/server)
+- [Utilitários](/di/utilities)
+- [Boas práticas](/di/best-practices)
+- [Benchmarks](/di/benchmarks): resultados comparativos com outras bibliotecas de DI
+
+### Monitor
+
+- [Visão geral](/di/monitor/overview)
+- [Referência da API](/di/monitor/api-reference)
+
+### React
+
+- [Hooks React](/di/react-hooks)
+- [Injeção em componentes](/di/component-injection)
+
+### Migração
+
+- [Migração v2](/di/migration-v2)
+
+<Note>
+  A maior parte das páginas detalhadas ainda está em inglês. Os links acima apontam para a documentação em inglês até que a tradução seja concluída.
+</Note>
+
+## Principais exports
+
+```typescript
+import {
+  Container,
+  createToken,
+  defineModule,
+  createBrushyApp,
+  resolve,
+  inject,
+  server,
+  cache,
+  monitor,
+  useInject,
+  useInjectLazy,
+  BrushyDIProvider,
+} from "@brushy/di";
+```
+
+Imports granulares:
+
+```typescript
+import { Container, createToken } from "@brushy/di/core";
+import { useInject } from "@brushy/di/react";
+import { monitor } from "@brushy/di/monitor";
+import { traceContainer } from "@brushy/di/otel";
+```

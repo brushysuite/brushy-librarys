@@ -1,0 +1,38 @@
+{
+  "name": "@brushy-examples/expo",
+  "version": "0.0.0",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "start": "expo start -c",
+    "check-types": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@brushy/di-core": "*",
+    "@brushy/di-react": "*",
+    "@brushy/storage": "*",
+    "@brushy/storage-react": "*",
+    "expo": "~57.0.22",
+    "expo-asset": "~57.0.17",
+    "lucide-react-native": "^1.45.0",
+    "react": "^19.2.3",
+    "react-native": "0.86.3",
+    "react-native-svg": "15.15.4"
+  },
+  "expo": {
+    "install": {
+      "exclude": [
+        "typescript",
+        "react-dom",
+        "@types/react"
+      ]
+    }
+  },
+  "devDependencies": {
+    "@types/react": "~19.2.4",
+    "babel-preset-expo": "~57.0.11",
+    "typescript": "5.9.3",
+    "vitest": "^5.0.0"
+  }
+}

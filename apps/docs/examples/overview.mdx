@@ -1,0 +1,94 @@
+---
+title: "Examples"
+description: "Runnable Vite, Expo, Express, and Fastify example projects for Brushy Suite libraries."
+---
+
+Minimal, copy-friendly example projects organized by feature. DI lives inside each feature, not in a separate `di/` folder.
+
+Browse the [examples folder on GitHub](https://github.com/brushysuite/brushy-librarys/tree/main/examples) or open a project README directly:
+
+<Columns cols={2}>
+  <Card title="Vite + React" icon="monitor" href="/examples/vite">
+    `useInject` and `useStorage` with local persist.
+  </Card>
+  <Card title="Expo + React Native" icon="smartphone" href="/examples/expo">
+    Same patterns plus memory storage and a React Native error renderer.
+  </Card>
+  <Card title="Express" icon="server" href="/examples/express">
+    `brushyRequestScope` with `@brushy/storage` cache.
+  </Card>
+  <Card title="Fastify" icon="zap" href="/examples/fastify">
+    `runInRequestScopeAsync` with `@brushy/storage` cache.
+  </Card>
+</Columns>
+
+<Warning>
+  Before running any example, build the Brushy Suite libraries from the repository root:
+
+  ```bash
+  npm run build-packages
+  ```
+</Warning>
+
+## Source on GitHub
+
+| Project | Folder | README |
+| --- | --- | --- |
+| All examples | [examples/](https://github.com/brushysuite/brushy-librarys/tree/main/examples) | [README.md](https://github.com/brushysuite/brushy-librarys/blob/main/examples/README.md) |
+| Vite | [examples/vite](https://github.com/brushysuite/brushy-librarys/tree/main/examples/vite) | [README.md](https://github.com/brushysuite/brushy-librarys/blob/main/examples/vite/README.md) |
+| Expo | [examples/expo](https://github.com/brushysuite/brushy-librarys/tree/main/examples/expo) | [README.md](https://github.com/brushysuite/brushy-librarys/blob/main/examples/expo/README.md) |
+| Express | [examples/express](https://github.com/brushysuite/brushy-librarys/tree/main/examples/express) | [README.md](https://github.com/brushysuite/brushy-librarys/blob/main/examples/express/README.md) |
+| Fastify | [examples/fastify](https://github.com/brushysuite/brushy-librarys/tree/main/examples/fastify) | [README.md](https://github.com/brushysuite/brushy-librarys/blob/main/examples/fastify/README.md) |
+
+## Shared layout
+
+```text
+src/
+  app/
+    container.ts          # composes providers from features + shared
+    App.tsx               # React only
+  features/
+    users/
+      user.service.ts
+      users.tokens.ts
+      users.providers.ts
+      users.route.ts      # Node only
+      ui/
+        user-list.tsx     # React only
+    health/
+      health.route.ts     # Node only
+  shared/
+    cache/                # @brushy/storage (DI token + providers)
+    logger/
+  providers/              # React only
+  routes/
+    index.ts              # Node only
+```
+
+## Root shortcuts
+
+From the repository root:
+
+```bash
+npm run example:vite
+npm run example:expo
+npm run example:express
+npm run example:fastify
+```
+
+## Tests
+
+Each example uses Vitest with SWC (same setup as `packages/di*`):
+
+```bash
+npm run build-packages
+npm run test:examples
+```
+
+Vite, Express, Fastify, and Expo run unit tests in CI. The Expo dev server is validated manually.
+
+## Related docs
+
+- [DI getting started](/di/getting-started): stack-specific install recipes
+- [Component injection](/di/component-injection): Expo error renderer pattern
+- [Server utilities](/di/server): Express and Fastify request scope

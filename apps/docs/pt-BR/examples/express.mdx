@@ -1,0 +1,54 @@
+---
+title: "Express"
+description: "API Express orientada a features com brushyRequestScope e cache de storage."
+---
+
+API orientada a features. Rotas e providers de DI ficam dentro de cada feature.
+
+**Código:** [examples/express](https://github.com/brushysuite/brushy-librarys/tree/main/examples/express) · [README.md](https://github.com/brushysuite/brushy-librarys/blob/main/examples/express/README.md)
+
+## O que demonstra
+
+- Middleware `brushyRequestScope` para escopo de DI por requisição
+- Cache `@brushy/storage` conectado via tokens e providers de DI
+- Rotas, services e providers por feature
+
+## Como executar
+
+Em `examples/express`:
+
+```bash
+npm run dev
+```
+
+Ou use o atalho na raiz:
+
+```bash
+npm run example:express
+```
+
+Verifique:
+
+```bash
+curl http://localhost:3001/users
+```
+
+## Estrutura
+
+```text
+src/
+  server.ts
+  app.ts
+  app/container.ts
+  features/
+    users/
+    health/
+  shared/logger/
+  routes/index.ts
+```
+
+## Documentação relacionada
+
+- [Utilitários de servidor](/di/server)
+- [Request scope](/di/di-core/request-scope)
+- [Visão geral do storage](/storage/overview)

@@ -1,0 +1,41 @@
+name: Benchmark
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "packages/di-core/**"
+      - "packages/di-bench/**"
+      - ".github/workflows/benchmark.yml"
+  schedule:
+    # Weekly refresh on ubuntu-latest for comparable numbers
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+concurrency:
+  group: benchmark-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Run full benchmark suite
+        run: npm run bench --workspace=@brushy/di-bench
+        env:
+          NODE_OPTIONS: --max-old-space-size=8192
+
+      - name: Publish benchmark results
+        run: node scripts/publish-benchmark-results.mjs

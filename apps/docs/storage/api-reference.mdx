@@ -1,0 +1,135 @@
+---
+title: "API reference"
+description: "Complete Storage interface returned by createStorage."
+---
+
+The `createStorage()` factory returns a `Storage` instance with a NodeCache-style API. The same interface runs in Node.js, the browser, and SSR contexts.
+
+## Factory functions
+
+### `createStorage(options?)`
+
+Creates or returns a singleton instance keyed by `options.id` (defaults to `options.prefix` or `"@brushy:"`).
+
+```typescript
+import { createStorage } from "@brushy/storage";
+
+const cache = createStorage({ id: "my-app", prefix: "@myapp:" });
+```
+
+### `getStorageInstance(id)`
+
+Returns an existing in-process instance by `id`, or `undefined` if none was created.
+
+```typescript
+import { getStorageInstance } from "@brushy/storage";
+
+const cache = getStorageInstance("my-app");
+```
+
+### `resetStorageRegistry()`
+
+Closes every registered instance and clears the in-process registry. Intended for tests.
+
+```typescript
+import { resetStorageRegistry } from "@brushy/storage";
+
+afterEach(() => resetStorageRegistry());
+```
+
+## Instance methods
+
+### `set(key, value, ttl?)`
+
+Stores a value. Returns `false` if the instance is closed; throws `StorageError` with code `MaxKeys` when the limit is reached.
+
+```typescript
+cache.set("user:1", { name: "Ada" });
+cache.set("session", token, "1h");
+cache.set("flash", data, 300); // 300 seconds
+```
+
+<ParamField path="key" type="string | number" required>
+  Cache key. Coerced to string internally.
+</ParamField>
+
+<ParamField path="value" type="TValue" required>
+  Any JSON-serializable value when persist is enabled.
+</ParamField>
+
+<ParamField path="ttl" type="number | string" default="stdTTL">
+  Per-key TTL in seconds or duration shorthand (`"35m"`, `"1h"`). `0` = no expiry.
+</ParamField>
+
+### `get(key)`
+
+Returns the stored value, or `undefined` if missing or expired. Hydrates from persist on first access when configured.
+
+### `del(key | keys[])`
+
+Deletes one or more keys from memory and persist. Returns the number of keys removed.
+
+```typescript
+cache.del("user:1");
+cache.del(["a", "b", "c"]);
+```
+
+### `has(key)`
+
+Returns `true` when `get(key)` would return a value (not expired).
+
+### `ttl(key, ttl?)`
+
+Updates the expiry of an existing key. Returns `false` if the key does not exist.
+
+```typescript
+cache.ttl("session", "30m");
+cache.ttl("session", 0); // remove expiry
+```
+
+### `getTtl(key)`
+
+Returns the absolute expiry timestamp in milliseconds, `0` for keys without expiry, or `undefined` if the key is missing.
+
+### `take(key)`
+
+Atomically reads and deletes a key. Returns `undefined` if missing.
+
+### `keys()`
+
+Returns all keys from memory and persist (prefix stripped).
+
+### `flushAll()`
+
+Clears every key from memory and persist. Emits `flush` event and notifies subscribers.
+
+### `on(event, listener)` / `off(event, listener)`
+
+Subscribe to lifecycle events. See [Events](/storage/events).
+
+### `close()`
+
+Stops the expiry timer, unsubscribes from the bus, and removes the instance from the registry. Further `set` calls return `false`.
+
+## React integration helpers
+
+These power `@brushy/storage-react` hooks via `useSyncExternalStore`:
+
+### `getSnapshot(key, fallback)`
+
+Returns a stable snapshot for the key. Uses `get(key)` when present, otherwise `fallback`. Cached with `Object.is` to avoid unnecessary re-renders.
+
+### `subscribe(key, listener)`
+
+Notifies `listener` when the key changes. Returns an unsubscribe function.
+
+### `subscribeAll(listener)`
+
+Notifies on any key change or `flushAll`. Returns an unsubscribe function.
+
+## Related
+
+- [Configuration](/storage/configuration): `StorageOptions`
+- [TTL](/storage/ttl): duration parsing
+- [Events](/storage/events): `on` / `off` handlers
+- [React hooks](/storage/react-hooks): `useStorage`

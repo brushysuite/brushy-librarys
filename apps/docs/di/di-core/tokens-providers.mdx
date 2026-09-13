@@ -1,0 +1,131 @@
+---
+title: "Tokens & providers"
+description: "createToken, deps, and provider configuration."
+---
+
+Typed tokens are the foundation of `@brushy/di-core`. They enable compile-time inference for `register`, `resolve`, and factory dependencies.
+
+## `createToken`
+
+```typescript
+import { createToken } from "@brushy/di-core";
+
+// Explicit type
+const LOGGER = createToken<Logger>("LOGGER");
+
+// Untyped: type inferred from register()
+const API = createToken("API");
+container.register(API, { useClass: HttpClient }); // API resolves to HttpClient
+```
+
+Runtime tokens are `Symbol(description)` values. Prefer descriptive strings for debugging.
+
+<Warning>
+  Avoid raw string tokens in application code. Legacy `string` / `Symbol` tokens still work but require manual generics: `container.resolve<MyType>("TOKEN")`.
+</Warning>
+
+## Provider types
+
+### Value provider
+
+```typescript
+container.register(CONFIG, {
+  useValue: { apiUrl: "https://api.example.com" },
+});
+```
+
+### Class provider
+
+```typescript
+container.register(USER_SERVICE, {
+  useClass: UserService,
+  dependencies: deps([USER_REPO, LOGGER]),
+  lifecycle: "singleton",
+});
+```
+
+### Factory provider
+
+```typescript
+container.register(QUERY_CLIENT, {
+  useFactory: (config) => new QueryClient({ baseUrl: config.apiUrl }),
+  dependencies: deps([CONFIG]),
+  lifecycle: "immutable",
+});
+```
+
+## `deps()` helper
+
+Preserves tuple types for factory and class dependencies:
+
+```typescript
+import { deps } from "@brushy/di-core";
+
+container.register(USER_SERVICE, {
+  useFactory: (repo, logger) => new UserService(repo, logger),
+  dependencies: deps([USER_REPO, LOGGER]),
+  // repo: UserRepository, logger: Logger (inferred)
+});
+```
+
+## Class as token
+
+Register and resolve using the class constructor directly:
+
+```typescript
+container.register(UserService, { useClass: UserService });
+const svc = container.resolve(UserService); // UserService
+```
+
+## Provider options
+
+<ParamField path="lifecycle" type="Lifecycle" default="singleton">
+  `singleton` | `transient` | `scoped` | `immutable`. See [Lifecycle](/di/di-core/lifecycle).
+</ParamField>
+
+<ParamField path="ttl" type="number">
+  Milliseconds before a cached singleton is recreated (lazy expiry on next resolve).
+</ParamField>
+
+<ParamField path="promiseTtl" type="number">
+  TTL for cached async method promises. See [Promise cache](/di/di-core/promise-cache).
+</ParamField>
+
+<ParamField path="observable" type="{ subscribe, unsubscribe }">
+  Optional observable hook for reactive providers.
+</ParamField>
+
+## Batch registration
+
+```typescript
+container.registerMany([
+  { token: LOGGER, config: { useClass: Logger } },
+  { token: CONFIG, config: { useValue: config } },
+]);
+```
+
+## Container constructor providers
+
+```typescript
+const container = new Container({
+  name: "AppContainer",
+  debug: true,
+  providers: [
+    { provide: LOGGER, useClass: Logger, lifecycle: "singleton" },
+    { provide: CONFIG, useValue: { port: 3000 } },
+  ],
+});
+```
+
+## Type exports
+
+| Type | Purpose |
+|------|---------|
+| `InjectionToken<T>` | Token with embedded type |
+| `UntypedInjectionToken` | Token without generic |
+| `ResolveType<T>` | Infer resolved type from token |
+| `InferDependencies<D>` | Infer factory arg types from token tuple |
+| `InferProviderType<C>` | Infer type from provider config |
+| `ValueProviderConfig<T>` | `useValue` shape |
+| `ClassProviderConfig<T, D>` | `useClass` + optional `dependencies` |
+| `FactoryProviderConfig<T, D>` | `useFactory` + required `dependencies` |

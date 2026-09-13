@@ -2,6 +2,100 @@
 
 `@brushy/di` provides several utility functions to facilitate the use of the dependency injection system in different contexts.
 
+## Typed tokens
+
+Use `createToken<T>()` to create tokens with automatic type inference in `register`, `resolve`, `inject`, and `useInject`.
+
+### Import
+
+```typescript
+import { createToken, Container } from "@brushy/di";
+```
+
+### Basic usage
+
+```typescript
+interface AuthService {
+  login(email: string): Promise<void>;
+}
+
+class AuthServiceImpl implements AuthService {
+  async login(email: string) {
+    console.log(email);
+  }
+}
+
+const AUTH = createToken<AuthService>("AUTH");
+const container = new Container();
+
+container.register(AUTH, { useClass: AuthServiceImpl });
+
+// Type inferred automatically - no manual generic
+const auth = container.resolve(AUTH);
+await auth.login("user@example.com");
+```
+
+### Class as token
+
+```typescript
+container.register(AuthServiceImpl, { useClass: AuthServiceImpl });
+const auth = container.resolve(AuthServiceImpl); // type: AuthServiceImpl
+```
+
+### defineModule
+
+```typescript
+import { defineModule } from "@brushy/di";
+
+const appModule = defineModule({
+  auth: { useClass: AuthServiceImpl },
+  logger: { useValue: console },
+});
+
+appModule.register(container);
+
+const auth = resolve(appModule.tokens.auth); // AuthService
+```
+
+Legacy tokens (`Symbol` / `string`) still work but require a manual generic: `resolve<MyType>(TOKEN)`.
+
+## Request Scope (AsyncLocalStorage)
+
+On Node.js, `@brushy/di` binds the active HTTP request scope with `AsyncLocalStorage`. Scoped dependencies resolve automatically inside that scope.
+
+### Import
+
+```typescript
+import {
+  runInRequestScope,
+  runInRequestScopeAsync,
+  brushyRequestScope,
+  isRequestScopeSupported,
+  server,
+} from "@brushy/di";
+```
+
+### Express middleware
+
+```typescript
+app.use(server.brushyRequestScope());
+// resolve() / inject.resolve() use the active scope - no manual scope argument
+```
+
+### Scripts and tests
+
+```typescript
+runInRequestScope(() => {
+  const svc = resolve(USER_SERVICE);
+});
+
+await runInRequestScopeAsync(async () => {
+  await resolveAsync(DATABASE);
+});
+```
+
+Use `isRequestScopeSupported()` to detect Node.js ALS. On React Native, pass an explicit `scope` in `InjectOptions` or use `BrushyDIProvider` context.
+
 ## resolve
 
 The `resolve` function allows resolving dependencies globally, without needing to directly access the container.

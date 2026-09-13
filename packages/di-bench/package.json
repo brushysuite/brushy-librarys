@@ -1,0 +1,31 @@
+{
+  "name": "@brushy/di-bench",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Benchmarks for @brushy/di-core vs tsyringe, inversify, awilix",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "bench": "npm run build -w @brushy/di-core && npm run build && node --max-old-space-size=8192 --import reflect-metadata dist/bench.js",
+    "bench:quick": "npm run build -w @brushy/di-core && npm run build && BENCH_TIME_MS=1000 BENCH_RUNS=1 node --max-old-space-size=4096 --import reflect-metadata dist/bench.js",
+    "bench:report": "npm run bench",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "prebench": "npm run build -w @brushy/di-core && npm run build"
+  },
+  "dependencies": {
+    "@brushy/di-core": "*",
+    "awilix": "^13.0.5",
+    "inversify": "^8.2.3",
+    "reflect-metadata": "^0.2.2",
+    "tsyringe": "^4.10.0",
+    "tinybench": "^6.2.0"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^5.0.0",
+    "@swc/core": "^1.16.2",
+    "typescript": "5.9.3",
+    "unplugin-swc": "^1.6.0",
+    "vitest": "^5.0.0"
+  }
+}

@@ -1,0 +1,6 @@
+# Expo local machine state (also ignored at repo root)
+.expo/
+
+# Dependencies & build output (also ignored at repo root)
+node_modules/
+dist/

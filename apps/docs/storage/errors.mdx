@@ -1,0 +1,57 @@
+---
+title: "Errors"
+description: "StorageError codes and handling."
+---
+
+`@brushy/storage` throws `StorageError` for recoverable failure modes. Attach `onError` at construction to centralize logging.
+
+```typescript
+import { createStorage, StorageError } from "@brushy/storage";
+
+const cache = createStorage({
+  maxKeys: 100,
+  onError: (error) => {
+    if (error.code === "QuotaExceeded") {
+      cache.flushAll();
+    }
+  },
+});
+```
+
+## `StorageError`
+
+```typescript
+class StorageError extends Error {
+  readonly code: "QuotaExceeded" | "Serialize" | "Unavailable" | "MaxKeys";
+  readonly name = "StorageError";
+}
+```
+
+## Error codes
+
+| Code | When | Typical cause |
+|------|------|---------------|
+| `MaxKeys` | `set` when `maxKeys` limit reached | Cache full |
+| `QuotaExceeded` | Persist write | `localStorage` quota (browser) |
+| `Serialize` | Persist write | `JSON.stringify` or compression failure |
+| `Unavailable` | Reserved for adapter failures | Custom persist backends |
+
+## Behavior on error
+
+| Operation | On `MaxKeys` | On persist failure |
+|-----------|--------------|-------------------|
+| `set` | Throws | Returns `false`; memory may already be updated |
+| `ttl` | N/A | Returns `false` if persist update fails |
+
+## Testing
+
+Reset global state between tests:
+
+```typescript
+import { resetStorageRegistry, resetBusRegistry } from "@brushy/storage";
+
+afterEach(() => {
+  resetStorageRegistry();
+  resetBusRegistry();
+});
+```

@@ -7,91 +7,131 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.8-blue.svg)](https://www.typescriptlang.org/)
 [![Turborepo](https://img.shields.io/badge/Built%20With-Turborepo-blueviolet.svg)](https://turbo.build/)
-[![Test Coverage](https://img.shields.io/badge/Coverage-97.98%25-brightgreen.svg)](coverage)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
+## Overview
 
-## 🎯 Overview
+The Brushy Suite is a collection of high-level libraries for modern JavaScript/TypeScript development. The focus is robust, well-tested tools with intuitive APIs.
 
-The Brushy Suite is a carefully designed collection of high-level libraries for modern JavaScript/TypeScript development. Our focus is to provide robust, well-tested tools with intuitive APIs to accelerate application development.
+## Libraries
 
-## 📦 Libraries
+### @brushy/di (v2.0.0)
 
-### @brushy/di
-
-[![Coverage](https://img.shields.io/badge/coverage-97.98%25-brightgreen.svg)](packages/di/coverage)
-[![npm version](https://badge.fury.io/js/%40brushy%2Fdi.svg)](https://www.npmjs.com/package/@brushy/di)
+[![npm version](https://img.shields.io/npm/v/@brushy/di.svg)](https://www.npmjs.com/package/@brushy/di)
 [![Size](https://img.shields.io/bundlephobia/minzip/@brushy/di)](https://bundlephobia.com/package/@brushy/di)
 
-Flexible dependency injection system with special React support. [Documentation →](packages/di/docs)
+Flexible dependency injection for Node.js, browsers, React, and React Native. Version 2 splits the ecosystem into focused packages while keeping `@brushy/di` as the umbrella install.
 
-### @brushy/localstorage
+Published packages (`@brushy/di*` have 100% test coverage in CI):
 
-[![Coverage](https://img.shields.io/badge/coverage-96.87%25-brightgreen.svg)](packages/localstorage/coverage)
-[![npm version](https://badge.fury.io/js/%40brushy%2Flocalstorage.svg)](https://www.npmjs.com/package/@brushy/localstorage)
-[![Size](https://img.shields.io/bundlephobia/minzip/@brushy/localstorage)](https://bundlephobia.com/package/@brushy/localstorage)
+| Package | Role |
+| --- | --- |
+| `@brushy/di` | Umbrella (core + react + monitor + otel) |
+| `@brushy/di-core` | Node, browser, RN without React |
+| `@brushy/di-react` | React / React Native hooks |
+| `@brushy/di-monitor` | Optional observability |
+| `@brushy/di-otel` | Optional OpenTelemetry tracing |
 
-Powerful abstraction for local state management with TypeScript support. [Documentation →](packages/localstorage/docs)
+**Docs**
 
-## 🚀 Getting Started
+- [Documentation site](apps/docs) (Mintlify: run `npm run docs:dev`)
+- [Getting Started](apps/docs/getting-started/introduction.mdx)
+- [Migration v2](apps/docs/di/migration-v2.mdx) (upgrade from 1.x)
+- [CHANGELOG](packages/di/CHANGELOG.md) (full release notes)
+- [Package README](packages/di/README.md) (examples, benchmark)
+
+**Install**
 
 ```bash
-# Install a specific library
 npm install @brushy/di
-# or
-npm install @brushy/localstorage
 
-# Use multiple libraries
-npm install @brushy/di @brushy/localstorage
+# or pick packages
+npm install @brushy/di-core @brushy/di-react
 ```
 
-## 🛠 Development
+**Quick import (v2)**
+
+```typescript
+import { Container } from '@brushy/di/core';
+import { useInject, BrushyDIProvider } from '@brushy/di/react';
+```
+
+`@brushy/di-bench` (private) provides Tier 1 comparative benchmarks vs tsyringe, InversifyJS, and awilix. Published results: [`packages/di-bench/results/BENCHMARK.md`](packages/di-bench/results/BENCHMARK.md) (updated by CI).
+
+### @brushy/storage (v2.0.0)
+
+Isomorphic cache primitive for the Brushy suite: NodeCache DX on the server, optional `localStorage` persist on the web. React hooks: `@brushy/storage-react`.
 
 ```bash
-# Clone the repository
-git clone https://github.com/brushysuite/brushy-librarys.git
-
-# Install dependencies
-npm install
-
-# Run tests
-npm test
-
-# Check coverage
-npm run test:coverage
-
-# Build all libraries
-npm run build
+npm install @brushy/storage
+npm install @brushy/storage-react react
 ```
 
-## 🤝 Contributing
+See [packages/storage/README.md](packages/storage/README.md). `@brushy/localstorage` is **deprecated**.
 
-We love your input! We want to make contributing to Brushy Suite as easy and transparent as possible, whether it's:
+## Examples
 
-- Reporting a bug
-- Discussing the current state of the code
-- Submitting a fix
-- Proposing new features
-- Becoming a maintainer
+Runnable demos for Vite, Expo, Express, and Fastify live in [`examples/`](examples/README.md). They show recommended DI patterns (`createToken`, `Container`, request scope, React hooks).
 
-Check out our [Contributing Guide](CONTRIBUTING.md) for detailed information about:
+```bash
+npm run build-packages
+npm run example:vite      # http://localhost:5173
+npm run example:express   # http://localhost:3001/users
+npm run example:fastify   # http://localhost:3002/users
+npm run example:expo      # manual (Expo Go / simulator)
+```
+
+## Getting Started
+
+```bash
+# DI full stack
+npm install @brushy/di react
+
+# DI core only (server / RN without hooks)
+npm install @brushy/di-core
+
+# Multiple libraries
+npm install @brushy/di @brushy/storage
+```
+
+## Development
+
+```bash
+git clone https://github.com/brushysuite/brushy-librarys.git
+cd brushy-librarys
+npm ci
+
+npm run build-packages
+npm run test -- --filter='@brushy/di*'
+npm run test:coverage
+npm run check-types
+npm run publint
+```
+
+See [Contributing](CONTRIBUTING.md) for pull requests and releases.
+
+## Contributing
+
+Contributions are welcome. The [Contributing Guide](CONTRIBUTING.md) covers:
 
 - Development workflow
-- Commit message conventions
-- Coding standards
-- Testing guidelines
-- Documentation requirements
+- Pull requests and changesets
+- Releases via [Changesets](https://github.com/changesets/changesets)
 
-## 📄 License
+## Security
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+Report vulnerabilities as described in [SECURITY.md](SECURITY.md).
 
-## 🌟 Acknowledgments
+## License
 
-We thank all the contributors who helped make the Brushy Suite possible!
+MIT. See [LICENSE](LICENSE).
+
+## Acknowledgments
+
+Thanks to everyone who contributed to the Brushy Suite.
 
 ---
 
 <div align="center">
-  <strong>Built with ❤️ by the Brushy Team</strong>
+  <strong>Built with care by the Brushy Team</strong>
 </div>

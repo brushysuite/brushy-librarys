@@ -1,9 +1,10 @@
 {
   "name": "@brushy/localstorage",
   "version": "1.0.2",
-  "description": "Powerful abstraction for localstorage management",
+  "description": "Deprecated. Use @brushy/storage and @brushy/storage-react instead",
+  "deprecated": "Use @brushy/storage. See https://github.com/brushysuite/brushy-librarys/tree/main/packages/storage",
   "main": "./dist/index.js",
-  "module": "./dist/index.js",
+  "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "authors": [
     {
@@ -15,7 +16,7 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
+      "import": "./dist/index.mjs",
       "require": "./dist/index.js"
     },
     "./package.json": "./package.json"
@@ -27,13 +28,10 @@
   ],
   "sideEffects": false,
   "scripts": {
-    "prebuild": "rm -rf dist",
-    "build": "tsc",
-    "dev": "tsc --watch",
-    "lint": "eslint src/",
+    "build": "tsup",
+    "dev": "tsup --watch",
     "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist",
     "check-types": "tsc --noEmit",
-    "format": "prettier . --write",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
@@ -64,33 +62,31 @@
     "url": "https://github.com/brushysuite/brushy-librarys/issues"
   },
   "devDependencies": {
-    "@testing-library/jest-dom": "^6.1.4",
-    "@testing-library/react": "^14.0.0",
-    "@testing-library/react-hooks": "^8.0.1",
-    "@types/jsdom": "^21.1.7",
-    "@types/node": "^20.8.0",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
+    "@types/jsdom": "^30.0.0",
+    "@types/node": "^22.20.2",
     "@types/node-localstorage": "^1.3.3",
-    "@types/react": "^18.3.18",
-    "@types/react-dom": "^18.3.5",
-    "@vitejs/plugin-react": "^4.1.0",
-    "@vitest/coverage-v8": "^3.2.7",
-    "@vitest/ui": "^3.2.7",
-    "eslint": "^8.51.0",
-    "jsdom": "^22.1.0",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@swc/core": "^1.16.2",
+    "@vitest/coverage-v8": "^5.0.0",
+    "@vitest/ui": "^5.0.0",
+    "jsdom": "^30.0.1",
     "node-localstorage": "^3.0.5",
-    "prettier": "^3.0.3",
-    "react": "^18.3.1",
-    "react-dom": "^18.2.0",
-    "react-test-renderer": "^19.0.0",
-    "typescript": "^5.2.2",
-    "vitest": "^3.2.7"
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "react-test-renderer": "^19.3.0",
+    "tsup": "^8.5.1",
+    "typescript": "5.9.3",
+    "unplugin-swc": "^1.6.0",
+    "vite": "^8.3.0",
+    "vitest": "^5.0.0"
   },
   "peerDependencies": {
     "react": ">=18.0.0"
   },
   "dependencies": {
-    "lint-staged": "^15.5.0",
-    "lz-string": "^1.5.0",
-    "vite": "6.4.3"
+    "lz-string": "^1.5.0"
   }
 }

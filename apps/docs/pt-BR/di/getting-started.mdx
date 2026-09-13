@@ -1,0 +1,172 @@
+---
+title: "Primeiros passos"
+description: "Escolha pacotes e ordem de configuração para sua stack."
+---
+
+Este guia ajuda a escolher os pacotes certos e a ordem de configuração para um projeto novo. Express, Fastify, Next.js e React Native usam os mesmos entrypoints: `@brushy/di/core` no servidor e `@brushy/di/react` no cliente.
+
+Veja também: [Migração v2](/di/migration-v2) · [Servidor](/di/server) · [Boas práticas](/di/best-practices)
+
+## Regra rápida
+
+1. Escolha o **runtime** (web, mobile, servidor, full stack).
+2. Instale o **pacote mínimo**.
+3. Adicione pacotes **opcionais** só se precisar (`monitor`, `otel`).
+
+## Qual pacote instalar primeiro
+
+Copie o comando para sua stack.
+
+**Full stack / Next.js**
+
+```bash
+npm install @brushy/di next react react-dom
+```
+
+**React web**
+
+```bash
+npm install @brushy/di react react-dom
+```
+
+Instalação granular (sem umbrella):
+
+```bash
+npm install @brushy/di-core @brushy/di-react react react-dom
+```
+
+**React Native**
+
+```bash
+npm install @brushy/di react
+```
+
+**Express**
+
+```bash
+npm install @brushy/di-core express
+```
+
+**Fastify**
+
+```bash
+npm install @brushy/di-core fastify
+```
+
+**Script / worker / biblioteca (sem React)**
+
+```bash
+npm install @brushy/di-core
+```
+
+**Observabilidade (opcional)**
+
+```bash
+npm install @brushy/di-monitor @brushy/di-otel
+```
+
+## Imports por runtime
+
+**Express, Fastify, Nest, rotas de API**
+
+```typescript
+import { Container, createToken, server, runInRequestScope } from "@brushy/di/core";
+
+app.use(server.brushyRequestScope());
+```
+
+**React web, React Native, Next client**
+
+```typescript
+import { BrushyDIProvider, useInject } from "@brushy/di/react";
+```
+
+**Full stack (umbrella)**
+
+```typescript
+import { Container, useInject, BrushyDIProvider } from "@brushy/di";
+```
+
+Veja [Entrypoints do pacote](/di/entrypoints) para a divisão de pacotes.
+
+## Receitas por stack
+
+### React web
+
+```bash
+npm install @brushy/di react react-dom
+```
+
+```tsx
+// di/container.ts
+import { Container, createToken } from "@brushy/di/core";
+
+export const container = new Container();
+export const USER_SERVICE = container.register(createToken<UserService>("USER_SERVICE"), {
+  useClass: UserService,
+  lifecycle: "singleton",
+});
+```
+
+```tsx
+// app/providers.tsx
+"use client";
+import { BrushyDIProvider } from "@brushy/di/react";
+import { container } from "./di/container";
+
+export function AppProviders({ children }: { children: React.ReactNode }) {
+  return <BrushyDIProvider container={container}>{children}</BrushyDIProvider>;
+}
+```
+
+Próximo: [Hooks React](/di/react-hooks)
+
+### Express
+
+```bash
+npm install @brushy/di-core express
+```
+
+```typescript
+import express from "express";
+import { Container, createToken, server } from "@brushy/di/core";
+
+const USER_SERVICE = createToken<UserService>("USER_SERVICE");
+const container = new Container();
+container.register(USER_SERVICE, { useClass: UserService, lifecycle: "scoped" });
+
+server.setServerContainer(container);
+
+const app = express();
+app.use(server.brushyRequestScope());
+
+app.get("/users", (_req, res) => {
+  const users = server.resolve(USER_SERVICE);
+  res.json(users.list());
+});
+
+app.listen(3000);
+```
+
+Próximo: [Utilitários de servidor](/di/server)
+
+### Fastify
+
+Fastify não é compatível com Connect. Envolva cada requisição com `runInRequestScope`:
+
+```bash
+npm install @brushy/di-core fastify
+```
+
+Em produção, prefira `runInRequestScopeAsync` em handlers assíncronos. Padrões completos: [Utilitários de servidor](/di/server).
+
+<Note>
+  O restante das receitas (Next.js, React Native, backend-only) está na [versão em inglês](/di/getting-started) até a tradução ser concluída.
+</Note>
+
+## Próximos passos
+
+- [Container](/di/container): registro e ciclos de vida
+- [Servidor](/di/server): request scope, Express, Next.js
+- [Boas práticas](/di/best-practices): tokens, escopos, testes
+- [Migração v2](/di/migration-v2): divisão de pacotes e imports

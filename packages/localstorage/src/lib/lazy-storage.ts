@@ -1,4 +1,4 @@
-import { CompressionOptions, JSONStorageOptions } from "../core/types";
+import type { CompressionOptions, JSONStorageOptions } from "../core/types";
 import { TypedCompression } from "../utils/compression";
 import { JSONStorage } from "./json-storage";
 
@@ -86,23 +86,14 @@ export class LazyStorage extends JSONStorage {
    * });
    * ```
    */
-  setLazy<T extends object>(
-    key: string,
-    value: T,
-    options: LazyStorageOptions = {},
-  ): void {
+  setLazy<T extends object>(key: string, value: T, options: LazyStorageOptions = {}): void {
     const {
       lazyFields = [],
       chunkSize = LazyStorage.DEFAULT_CHUNK_SIZE,
       compression,
       ...jsonOptions
     } = options;
-    const processedValue = this.processLazyFields(
-      key,
-      value,
-      lazyFields,
-      chunkSize,
-    );
+    const processedValue = this.processLazyFields(key, value, lazyFields, chunkSize);
     const compressedValue = compression
       ? TypedCompression.compressData(processedValue, compression)
       : JSON.stringify(processedValue);
@@ -121,10 +112,7 @@ export class LazyStorage extends JSONStorage {
    * console.log(user.posts.length); // 1000 (loads posts on demand)
    * ```
    */
-  getLazy<T extends object>(
-    key: string,
-    options: LazyStorageOptions = {},
-  ): T | null {
+  getLazy<T extends object>(key: string, options: LazyStorageOptions = {}): T | null {
     try {
       const value = super.get<string>(key);
       if (!value) return null;
@@ -133,9 +121,7 @@ export class LazyStorage extends JSONStorage {
       if (!data) return null;
 
       if (options.preloadFields?.length) {
-        options.preloadFields.forEach((field) =>
-          this.loadLazyField(key, field),
-        );
+        options.preloadFields.forEach((field) => this.loadLazyField(key, field));
       }
 
       return this.createLazyProxy(key, data);
@@ -221,14 +207,12 @@ export class LazyStorage extends JSONStorage {
    */
   private loadLazyField(parentKey: string, field: string) {
     const data = super.getJSON<Record<string, any>>(parentKey);
-    if (!data || !data[field]?.__lazy) return undefined;
+    if (!data?.[field]?.__lazy) return undefined;
 
     const lazyData = data[field];
 
     if (lazyData.type === "array") {
-      return lazyData.chunks
-        .map((chunkKey: string) => this.getJSON(chunkKey) || [])
-        .flat();
+      return lazyData.chunks.flatMap((chunkKey: string) => this.getJSON(chunkKey) || []);
     } else if (lazyData.type === "object") {
       return this.getJSON(lazyData.key);
     }

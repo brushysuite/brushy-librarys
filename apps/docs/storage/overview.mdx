@@ -1,0 +1,79 @@
+---
+title: "Overview"
+sidebarTitle: "@brushy/storage"
+description: "Isomorphic memory-first cache with optional persist and invalidation bus."
+---
+
+`@brushy/storage` provides a NodeCache-style API that runs in Node, the browser, and SSR contexts. Optional persist adapters write to `localStorage` or `sessionStorage`, and a built-in invalidation bus keeps tabs in sync when instances share the same `id`.
+
+React bindings live in [**@brushy/storage-react**](/storage/react-hooks) (separate package).
+
+## Install
+
+```bash
+npm install @brushy/storage
+
+# React hooks (separate package)
+npm install @brushy/storage-react react
+```
+
+## Quick example
+
+```typescript
+import { createStorage } from "@brushy/storage";
+
+const cache = createStorage({
+  id: "my-app",
+  stdTTL: 0,
+  checkperiod: 600,
+  prefix: "@myapp:",
+  persist: "local",
+});
+
+cache.set("session", { token: "abc" }, 3600);
+cache.get("session");
+cache.del("session");
+```
+
+## Documentation
+
+### Getting started
+
+- [Getting started](/storage/getting-started): install and first instance
+- [Configuration](/storage/configuration): all `StorageOptions`
+- [API reference](/storage/api-reference): every `Storage` method
+
+### Features
+
+- [TTL](/storage/ttl): duration parsing and expiry
+- [Events](/storage/events): `on` / `off` and React subscriptions
+- [Persist adapters](/storage/persist): local, session, custom `SyncPersist`
+- [Cache bus](/storage/cache-bus): cross-tab and custom invalidation
+- [Errors](/storage/errors): `StorageError` codes
+- [Node vs browser](/storage/runtime): SSR, registry, runtime matrix
+
+### React & migration
+
+- [React hooks](/storage/react-hooks): `StorageProvider`, `useStorage`
+- [Migration from @brushy/localstorage](/storage/migration): v1 → v2
+
+## Public exports
+
+```typescript
+import {
+  createStorage,
+  getStorageInstance,
+  resetStorageRegistry,
+  composeBuses,
+  createBroadcastBus,
+  getRegistryChannel,
+  resetBusRegistry,
+  createLocalPersist,
+  createSessionPersist,
+  createMemoryPersist,
+  resolvePersist,
+  parseTtlToSeconds,
+  expireAtFromTtlSeconds,
+  StorageError,
+} from "@brushy/storage";
+```

@@ -1,0 +1,59 @@
+---
+title: "Vite + React"
+description: "Feature-driven React app with useInject and useStorage."
+---
+
+Feature-driven React app. Each feature owns its tokens, providers, service, and UI.
+
+**Source:** [examples/vite](https://github.com/brushysuite/brushy-librarys/tree/main/examples/vite) · [README.md](https://github.com/brushysuite/brushy-librarys/blob/main/examples/vite/README.md)
+
+## What it demonstrates
+
+- `useInject` for typed dependency resolution in React components
+- `useStorage` with local persist via `@brushy/storage`
+- Feature-owned DI: tokens, providers, and services colocated under `features/`
+
+## Run
+
+From the repository root, build libraries first:
+
+```bash
+npm run build-packages
+```
+
+Then from `examples/vite`:
+
+```bash
+npm run dev
+```
+
+Or use the root shortcut:
+
+```bash
+npm run example:vite
+```
+
+Open [http://localhost:5173](http://localhost:5173)
+
+## Layout
+
+```text
+src/
+  main.tsx
+  app/
+    container.ts
+    App.tsx
+  features/users/
+    user.service.ts
+    users.tokens.ts
+    users.providers.ts
+    ui/user-list.tsx
+  shared/logger/
+  providers/
+```
+
+## Related docs
+
+- [Component injection](/di/component-injection)
+- [React hooks](/di/react-hooks)
+- [Storage React hooks](/storage/react-hooks)

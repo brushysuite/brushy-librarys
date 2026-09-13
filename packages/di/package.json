@@ -1,9 +1,9 @@
 {
   "name": "@brushy/di",
-  "version": "1.0.4",
-  "description": "Advanced dependency injection library with special support for React",
+  "version": "2.0.0",
+  "description": "Brushy DI v2 umbrella: core, React hooks, monitor, and optional otel subpaths",
   "main": "./dist/index.js",
-  "module": "./dist/index.js",
+  "module": "./dist/index.mjs",
   "types": "dist/index.d.ts",
   "authors": [
     {
@@ -15,40 +15,46 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
+      "import": "./dist/index.mjs",
       "require": "./dist/index.js"
     },
-    "./core/*": {
-      "types": "./dist/core/*.d.ts",
-      "import": "./dist/core/*.js",
-      "require": "./dist/core/*.js"
+    "./core": {
+      "types": "./dist/core.d.ts",
+      "import": "./dist/core.mjs",
+      "require": "./dist/core.js"
     },
-    "./lib/tools/*": {
-      "types": "./dist/lib/tools/*.d.ts",
-      "import": "./dist/lib/tools/*.js",
-      "require": "./dist/lib/tools/*.js"
+    "./react": {
+      "types": "./dist/react.d.ts",
+      "import": "./dist/react.mjs",
+      "require": "./dist/react.js"
     },
-    "./lib/web/*": {
-      "types": "./dist/lib/web/*.d.ts",
-      "import": "./dist/lib/web/*.js",
-      "require": "./dist/lib/web/*.js"
+    "./monitor": {
+      "types": "./dist/monitor.d.ts",
+      "import": "./dist/monitor.mjs",
+      "require": "./dist/monitor.js"
+    },
+    "./otel": {
+      "types": "./dist/otel.d.ts",
+      "import": "./dist/otel.mjs",
+      "require": "./dist/otel.js"
     },
     "./package.json": "./package.json"
   },
   "files": [
     "dist",
     "docs",
-    "README.md"
+    "README.md",
+    "CHANGELOG.md"
   ],
   "sideEffects": false,
+  "react-native": "./dist/react.mjs",
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
-    "lint": "eslint src/",
+    "build": "tsup",
+    "dev": "tsup --watch",
     "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist",
     "check-types": "tsc --noEmit",
-    "format": "prettier . --write",
     "docs": "serve docs",
+    "docs:api": "typedoc --options typedoc.json",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
@@ -74,24 +80,35 @@
     "url": "https://github.com/brushysuite/brushy-librarys/issues"
   },
   "homepage": "https://brushysuite.gfrancodev.com/docs/di",
-  "devDependencies": {
-    "@testing-library/jest-dom": "^6.6.3",
-    "@testing-library/react": "^16.2.0",
-    "@types/node": "^22.13.9",
-    "@types/react": "19.0.10",
-    "@vitejs/plugin-react": "^4.3.4",
-    "@vitest/coverage-v8": "^3.2.7",
-    "@vitest/ui": "^3.2.7",
-    "eslint": "^9.21.0",
-    "jsdom": "^26.0.0",
-    "lint-staged": "^15.5.0",
-    "prettier": "3.5.3",
-    "serve": "^14.2.1",
-    "typescript": "5.8.2",
-    "vitest": "^3.2.7"
+  "dependencies": {
+    "@brushy/di-core": "*",
+    "@brushy/di-react": "*",
+    "@brushy/di-monitor": "*",
+    "@brushy/di-otel": "*"
   },
   "peerDependencies": {
     "react": ">=18.0.0"
+  },
+  "devDependencies": {
+    "@brushy/di-core": "*",
+    "@brushy/di-react": "*",
+    "@brushy/di-monitor": "*",
+    "@brushy/di-otel": "*",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
+    "@types/node": "^22.20.2",
+    "@types/react": "19.3.0",
+    "@swc/core": "^1.16.2",
+    "@vitest/coverage-v8": "^5.0.0",
+    "@vitest/ui": "^5.0.0",
+    "jsdom": "^30.0.1",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "serve": "^14.2.6",
+    "tsup": "^8.5.1",
+    "typescript": "5.9.3",
+    "unplugin-swc": "^1.6.0",
+    "vitest": "^5.0.0"
   },
   "publishConfig": {
     "access": "public",

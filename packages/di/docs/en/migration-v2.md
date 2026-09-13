@@ -1,0 +1,106 @@
+# Migration Guide - v1 to v2
+
+`@brushy/di` v2 splits the library into focused packages while keeping the umbrella install.
+
+**Starting a new project?** See [Getting Started](./getting-started.md) for install order by stack.
+
+## Package structure
+
+| Package | Use when |
+|---------|----------|
+| `@brushy/di` | Full stack (installs core + react + monitor + otel) |
+| `@brushy/di-core` | Node, browser, RN without React |
+| `@brushy/di-react` | React / React Native hooks |
+| `@brushy/di-monitor` | Optional observability |
+| `@brushy/di-otel` | Optional OpenTelemetry tracing |
+
+## Import changes
+
+```typescript
+// v1 - single package
+import { Container, useInject, monitor } from '@brushy/di';
+
+// v2 - same umbrella import (recommended)
+import { Container, useInject, monitor, createToken } from '@brushy/di';
+
+// v2 - granular
+import { Container, createToken } from '@brushy/di-core';
+import { useInject, BrushyDIProvider } from '@brushy/di-react';
+import { monitor } from '@brushy/di-monitor';
+```
+
+Subpath exports on the umbrella:
+
+```typescript
+import { Container } from '@brushy/di/core';
+import { useInject } from '@brushy/di/react';
+import { monitor } from '@brushy/di/monitor';
+import { traceContainer } from '@brushy/di/otel';
+```
+
+## Typed tokens (new)
+
+```typescript
+const AUTH = createToken<AuthService>('AUTH');
+container.register(AUTH, { useClass: AuthServiceImpl });
+const auth = useInject(AUTH); // inferred type
+```
+
+## useInjectLazy (lazy proxy)
+
+`useInjectLazy` returns a **proxy** that resolves the service on first property or method access:
+
+```typescript
+const reportService = useInjectLazy(REPORT_SERVICE);
+await reportService.generate(); // resolves here
+```
+
+## Deprecated
+
+- `useLazyInject` → use `useInjectLazy`
+
+## Component injection (React)
+
+Register UI on the **container** with `useValue`. Prefer `createToken()` (Symbol at runtime) over string tokens:
+
+```typescript
+const SIDEBAR = container.register(createToken("SIDEBAR"), {
+  useValue: AcmeSidebar,
+});
+```
+
+Resolve in components with `useInjectComponent(SIDEBAR)`. Types infer from the registered component; explicit generics are optional.
+
+See [Component Injection](./component-injection.md).
+
+## OpenTelemetry (optional)
+
+```typescript
+import { traceContainer } from "@brushy/di/otel";
+
+const restore = traceContainer(container, { attributeToken: true });
+// ... resolves are traced when @opentelemetry/api is installed
+restore();
+```
+
+Install `@brushy/di-otel` or use the umbrella `/otel` subpath. Requires `@opentelemetry/api`.
+
+## React Native
+
+Install `@brushy/di` + `react`. Metro resolves `react-native` field automatically. No decorators required.
+
+Register a custom dev error renderer for `useInjectComponent`:
+
+```tsx
+import { setInjectComponentErrorRenderer } from "@brushy/di/react";
+
+setInjectComponentErrorRenderer((message, details) => (
+  // View/Text on React Native
+));
+```
+
+See [Getting Started](./getting-started.md).
+
+## Backend
+
+Use `@brushy/di-core` or `@brushy/di` with `server` utilities. Request scope cleanup remains manual or use middleware pattern (see server docs).

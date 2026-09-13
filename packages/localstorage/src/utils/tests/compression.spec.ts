@@ -1,6 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { TypedCompression } from "../compression";
-import { CompressionOptions } from "../../core/types";
 
 /**
  * Nota sobre cobertura de código:
@@ -29,7 +28,7 @@ vi.mock("lz-string", () => ({
     if (typeof value === "string" && value.includes("__SELECTIVE__")) {
       return "compressed_selective_data";
     }
-    return "compressed_" + typeof value;
+    return `compressed_${typeof value}`;
   }),
   decompress: vi.fn((value) => {
     if (value === "test_chunked") {
@@ -118,8 +117,7 @@ describe("TypedCompression", () => {
 
     it("deve processar dados binários sem compressão", () => {
       // Criar uma string que será detectada como binária
-      const binaryData =
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+      const binaryData = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
 
       const result = TypedCompression.compressData(binaryData);
 
@@ -165,8 +163,7 @@ describe("TypedCompression", () => {
     it("deve comprimir dados binários diretamente", () => {
       // Teste para cobrir a linha 100 (compressBinary)
       // Criar uma string que será detectada como binária e forçar a compressão
-      const binaryData =
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+      const binaryData = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
 
       // Acessar o método privado diretamente usando um spy
       const spy = vi.spyOn(TypedCompression as any, "compressBinary");

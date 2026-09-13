@@ -1,6 +1,6 @@
-import { useState, useCallback } from "react";
+import { useCallback, useState } from "react";
+import type { JSONStorageOptions } from "../core/types";
 import { JSONStorage } from "../lib/json-storage";
-import { JSONStorageOptions } from "../core/types";
 
 /**
  * A React hook for managing JSON data in localStorage with support for partial updates, schema validation, and array merging.
@@ -124,9 +124,7 @@ export function useJSONStorage<T extends object>(
     (newValue: T | ((prev: T) => T)) => {
       setValue((prev: T) => {
         const resolvedValue =
-          typeof newValue === "function"
-            ? (newValue as (prev: T) => T)(prev)
-            : newValue;
+          typeof newValue === "function" ? (newValue as (prev: T) => T)(prev) : newValue;
 
         storage.setJSON(key, resolvedValue, options);
         setIsValid(storage.isValidJSON(key));
@@ -134,7 +132,7 @@ export function useJSONStorage<T extends object>(
         return resolvedValue;
       });
     },
-    [key, options],
+    [key, options, storage.isValidJSON, storage.setJSON, storage.getJSONSchema],
   );
 
   /**
@@ -151,7 +149,7 @@ export function useJSONStorage<T extends object>(
         setSchema(storage.getJSONSchema(key));
       }
     },
-    [key, options],
+    [key, options, storage.isValidJSON, storage.getJSONSchema, storage.updateJSON],
   );
 
   /**
@@ -182,7 +180,7 @@ export function useJSONStorage<T extends object>(
       setIsValid(storage.isValidJSON(key));
       setSchema(storage.getJSONSchema(key));
     },
-    [key, options, value],
+    [key, options, value, storage.mergeArrays, storage.isValidJSON, storage.getJSONSchema],
   );
 
   /**
@@ -193,7 +191,7 @@ export function useJSONStorage<T extends object>(
     setValue(initialValue);
     setIsValid(storage.isValidJSON(key));
     setSchema(storage.getJSONSchema(key));
-  }, [key, initialValue]);
+  }, [key, initialValue, storage.isValidJSON, storage.remove, storage.getJSONSchema]);
 
   return {
     value,

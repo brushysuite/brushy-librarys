@@ -1,9 +1,14 @@
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { defineConfig } from "vitest/config";
-import react from "@vitejs/plugin-react";
-import { resolve } from "path";
+import { vitestReactAlias, vitestReactDeps } from "../../scripts/vitest-react-alias";
+import { vitestSwc } from "../../scripts/vitest-swc";
+
+const packageDir = dirname(fileURLToPath(import.meta.url));
+const reactResolve = vitestReactAlias(packageDir);
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [vitestSwc()],
   test: {
     globals: true,
     environment: "jsdom",
@@ -11,26 +16,33 @@ export default defineConfig({
     testTimeout: 30000,
     coverage: {
       provider: "v8",
-      reporter: ["text", "json", "html"],
+      reporter: ["text", "json-summary"],
+      thresholds: {
+        lines: 100,
+        branches: 100,
+        functions: 100,
+        statements: 100,
+      },
+      include: ["src/**/*.ts"],
       exclude: [
         "**/node_modules/**",
         "**/dist/**",
-        "**/test/**",
+        "src/test/**",
         "**/coverage/**",
         "tsup.config.ts",
         "vitest.config.ts",
-        "src/index.ts",
         "src/lib/@types/**",
-        "**/types.ts",
         "**/*.d.ts",
       ],
-      all: true,
     },
     include: ["src/**/*.{test,spec}.{ts,tsx}"],
+    ...vitestReactDeps,
   },
   resolve: {
+    ...reactResolve,
     alias: {
-      "@": resolve(__dirname, "./src"),
+      ...reactResolve.alias,
+      "@": resolve(packageDir, "./src"),
     },
   },
 });

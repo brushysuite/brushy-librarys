@@ -1,0 +1,88 @@
+---
+title: "Persist adapters"
+description: "localStorage, sessionStorage, custom SyncPersist, and envelopes."
+---
+
+Persistence is **opt-in**. By default `createStorage()` keeps data in memory only.
+
+## Built-in adapters
+
+```typescript
+// Survives reloads (browser)
+createStorage({ persist: "local", prefix: "@myapp:" });
+
+// Tab session only
+createStorage({ persist: "session", prefix: "@myapp:" });
+```
+
+On Node.js or during SSR, `local` / `session` resolve to `null` and behave as memory-only.
+
+## Custom `SyncPersist`
+
+Implement the synchronous storage interface for React Native, Electron, or encrypted backends:
+
+```typescript
+import { createStorage, type SyncPersist } from "@brushy/storage";
+
+const adapter: SyncPersist = {
+  getItem: (key) => myStore.read(key),
+  setItem: (key, value) => myStore.write(key, value),
+  removeItem: (key) => myStore.delete(key),
+  keys: () => myStore.listKeys(),
+};
+
+createStorage({ persist: adapter, prefix: "@secure:" });
+```
+
+### Factory helpers
+
+```typescript
+import {
+  createLocalPersist,
+  createSessionPersist,
+  createMemoryPersist,
+  resolvePersist,
+} from "@brushy/storage";
+
+createLocalPersist();   // null outside browser
+createSessionPersist(); // null outside browser
+createMemoryPersist();  // in-process Map (tests)
+resolvePersist("local"); // same as createLocalPersist()
+```
+
+## Envelope format
+
+Persisted values are wrapped in a versioned envelope:
+
+```typescript
+interface StorageEnvelope<T> {
+  v: 1;
+  value: T;
+  ts: number;      // write timestamp (ms)
+  ttl?: number;    // seconds from ts
+  c?: 1;           // lz-string compressed value
+}
+```
+
+Expired envelopes are removed on read. v1 `@brushy/localstorage` on-disk format is **not** read automatically. See [Migration](/storage/migration).
+
+## Compression
+
+Enable at instance level:
+
+```typescript
+createStorage({ persist: "local", compress: true });
+```
+
+Payloads larger than 1 KB are compressed with lz-string before write. Per-key override via `set(key, value, { compress: true })`.
+
+## Write-through behavior
+
+- `set` / `ttl` write to memory first, then persist
+- `get` hydrates memory from persist on miss
+- `del` / `flushAll` / expiry remove from both layers
+- Persist failures call `onError` and may cause `set` to return `false`
+
+## Quota errors
+
+`DOMException` with name `QuotaExceededError` is mapped to `StorageError` with code `QuotaExceeded`. Handle via `onError` or try/catch around `set`.

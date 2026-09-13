@@ -1,7 +1,7 @@
-import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
-import { LazyStorage } from "../lazy-storage";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { TypedCompression } from "../../utils/compression";
 import { JSONStorage } from "../json-storage";
+import { LazyStorage } from "../lazy-storage";
 
 // Mock correto do TypedCompression
 vi.mock("../../utils/compression", () => ({
@@ -171,12 +171,7 @@ describe("LazyStorage", () => {
       const lazyFields = ["hobbies"];
       const chunkSize = 2;
 
-      const result = (storage as any).processLazyFields(
-        key,
-        value,
-        lazyFields,
-        chunkSize,
-      );
+      const result = (storage as any).processLazyFields(key, value, lazyFields, chunkSize);
 
       expect(result).toEqual({
         name: "John",
@@ -197,12 +192,7 @@ describe("LazyStorage", () => {
       };
       const lazyFields = ["address"];
 
-      const result = (storage as any).processLazyFields(
-        key,
-        value,
-        lazyFields,
-        50,
-      );
+      const result = (storage as any).processLazyFields(key, value, lazyFields, 50);
 
       expect(result).toEqual({
         name: "John",
@@ -219,12 +209,7 @@ describe("LazyStorage", () => {
       const value = { name: "John" };
       const lazyFields = ["nonExistentField"];
 
-      const result = (storage as any).processLazyFields(
-        key,
-        value,
-        lazyFields,
-        50,
-      );
+      const result = (storage as any).processLazyFields(key, value, lazyFields, 50);
 
       expect(result).toEqual({ name: "John" });
     });
@@ -327,9 +312,7 @@ describe("LazyStorage", () => {
       };
 
       // Mock do getJSON para retornar os dados
-      vi.spyOn(JSONStorage.prototype, "getJSON").mockImplementationOnce(
-        () => data,
-      );
+      vi.spyOn(JSONStorage.prototype, "getJSON").mockImplementationOnce(() => data);
 
       // Chamar o método privado loadLazyField
       const result = (storage as any).loadLazyField(key, "field");

@@ -1,0 +1,61 @@
+---
+title: "Overview"
+sidebarTitle: "@brushy/di-monitor"
+description: "Container monitoring, event history, and stats."
+---
+
+`@brushy/di-monitor` observes `Container` events and provides buffered history, aggregate stats, and optional console logging.
+
+```bash
+npm install @brushy/di-monitor @brushy/di-core
+```
+
+Also re-exported from `@brushy/di` and `@brushy/di/monitor`.
+
+## Quick start
+
+```typescript
+import { Container, createToken } from "@brushy/di-core";
+import { monitor } from "@brushy/di-monitor";
+
+const container = new Container();
+const API = container.register(createToken("API"), { useValue: {} });
+
+const containerMonitor = monitor.create(container, {
+  logToConsole: true,
+  eventTypes: ["register", "resolve", "error"],
+  maxEvents: 100,
+});
+
+container.resolve(API);
+
+console.log(containerMonitor.getStats());
+containerMonitor.stop();
+```
+
+## When to use
+
+| Scenario | Recommendation |
+|----------|----------------|
+| Local development | `logToConsole: true` |
+| Integration tests | Assert on `getEvents()` |
+| Staging dashboards | Custom handler via `container.observe` + your metrics backend |
+| Production | Filter `eventTypes`; disable console logging |
+
+<Warning>
+  Attaching a monitor calls `container.observe()`, which enables the event emission path for all resolves. Use filtered `eventTypes` in production or detach with `stop()` when not needed.
+</Warning>
+
+## Package exports
+
+| Export | Description |
+|--------|-------------|
+| `monitor.create(container, options?)` | Factory for `ContainerMonitor` |
+| `ContainerMonitor` | Event buffer and stats class |
+| `MonitorOptions` | Configuration type (from di-core) |
+| `MonitorEventType` | Event filter union type |
+
+## Related
+
+- [API reference](/di/monitor/api-reference)
+- [Container events](/di/di-core/events)

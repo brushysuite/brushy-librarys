@@ -1,0 +1,54 @@
+---
+title: "Fastify"
+description: "API Fastify orientada a features com runInRequestScopeAsync e cache de storage."
+---
+
+API orientada a features com `runInRequestScopeAsync` por rota.
+
+**Código:** [examples/fastify](https://github.com/brushysuite/brushy-librarys/tree/main/examples/fastify) · [README.md](https://github.com/brushysuite/brushy-librarys/blob/main/examples/fastify/README.md)
+
+## O que demonstra
+
+- `runInRequestScopeAsync` para escopo de DI por requisição em handlers Fastify
+- Cache `@brushy/storage` conectado via tokens e providers de DI
+- Rotas, services e providers por feature
+
+## Como executar
+
+Em `examples/fastify`:
+
+```bash
+npm run dev
+```
+
+Ou use o atalho na raiz:
+
+```bash
+npm run example:fastify
+```
+
+Verifique:
+
+```bash
+curl http://localhost:3002/users
+```
+
+## Estrutura
+
+```text
+src/
+  server.ts
+  app.ts
+  app/container.ts
+  features/
+    users/
+    health/
+  shared/logger/
+  routes/index.ts
+```
+
+## Documentação relacionada
+
+- [Utilitários de servidor](/di/server)
+- [Request scope](/di/di-core/request-scope)
+- [Visão geral do storage](/storage/overview)

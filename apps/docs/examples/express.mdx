@@ -1,0 +1,54 @@
+---
+title: "Express"
+description: "Feature-driven Express API with brushyRequestScope and storage cache."
+---
+
+Feature-driven API. Routes and DI providers live inside each feature.
+
+**Source:** [examples/express](https://github.com/brushysuite/brushy-librarys/tree/main/examples/express) · [README.md](https://github.com/brushysuite/brushy-librarys/blob/main/examples/express/README.md)
+
+## What it demonstrates
+
+- `brushyRequestScope` middleware for per-request DI scope
+- `@brushy/storage` cache wired through DI tokens and providers
+- Feature-owned routes, services, and providers
+
+## Run
+
+From `examples/express`:
+
+```bash
+npm run dev
+```
+
+Or use the root shortcut:
+
+```bash
+npm run example:express
+```
+
+Verify:
+
+```bash
+curl http://localhost:3001/users
+```
+
+## Layout
+
+```text
+src/
+  server.ts
+  app.ts
+  app/container.ts
+  features/
+    users/
+    health/
+  shared/logger/
+  routes/index.ts
+```
+
+## Related docs
+
+- [Server utilities](/di/server)
+- [Request scope](/di/di-core/request-scope)
+- [Storage overview](/storage/overview)

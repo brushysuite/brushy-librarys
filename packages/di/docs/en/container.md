@@ -43,6 +43,31 @@ const container = new Container({
 });
 ```
 
+## Typed Tokens and Factory Dependencies
+
+Use `createToken<T>()` so `register` and `resolve` infer types automatically. For factories, wrap `dependencies` with `deps()` to type the factory arguments:
+
+```typescript
+import { Container, createToken, deps } from "@brushy/di";
+
+const LOGGER = createToken<Logger>("LOGGER");
+const USER_SERVICE = createToken<UserService>("USER_SERVICE");
+
+const container = new Container();
+
+container.register(LOGGER, { useClass: Logger });
+
+container.register(USER_SERVICE, {
+  useFactory: (logger) => new UserService(logger),
+  dependencies: deps([LOGGER]), // logger: Logger
+  lifecycle: "scoped",
+});
+
+const userService = container.resolve(USER_SERVICE); // UserService - no manual generic
+```
+
+Legacy tokens (`string` / `Symbol`) still work but need an explicit generic: `container.resolve<UserService>("USER_SERVICE")`.
+
 ## API
 
 ### Dependency Registration

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { Container, server } from "../index";
 
 describe("Server Module", () => {
@@ -13,7 +13,7 @@ describe("Server Module", () => {
     vi.restoreAllMocks();
     try {
       server.clearRequestScope();
-    } catch (error) {}
+    } catch (_error) {}
   });
 
   describe("Main Methods", () => {
@@ -90,7 +90,7 @@ describe("Server Module", () => {
       container.register("USER_SERVICE", { useValue: userService });
       server.setServerContainer(container);
 
-      async function getUserHandler(req: any, res: any) {
+      async function getUserHandler(_req: any, res: any) {
         const service = server.resolve<UserService>("USER_SERVICE");
         const user = await service.getUser(1);
         res.json(user);
@@ -126,7 +126,7 @@ describe("Server Module", () => {
       container.register("POST_SERVICE", { useValue: postService });
       server.setServerContainer(container);
 
-      async function postsHandler(req: any, res: any) {
+      async function postsHandler(_req: any, res: any) {
         const service = server.resolve<PostService>("POST_SERVICE");
         const posts = await service.getPosts();
         res.status(200).json(posts);
@@ -161,7 +161,7 @@ describe("Server Module", () => {
       container.register("ERROR_SERVICE", { useValue: errorService });
       server.setServerContainer(container);
 
-      async function errorHandler(req: any, res: any) {
+      async function errorHandler(_req: any, res: any) {
         try {
           const service = server.resolve<ErrorService>("ERROR_SERVICE");
           await service.throwError();

@@ -2,6 +2,100 @@
 
 O `@brushy/di` fornece várias funções utilitárias para facilitar o uso do sistema de injeção de dependências em diferentes contextos.
 
+## Tokens tipados
+
+Use `createToken<T>()` para criar tokens com inferência automática de tipos em `register`, `resolve`, `inject` e `useInject`.
+
+### Importação
+
+```typescript
+import { createToken, Container } from "@brushy/di";
+```
+
+### Uso básico
+
+```typescript
+interface AuthService {
+  login(email: string): Promise<void>;
+}
+
+class AuthServiceImpl implements AuthService {
+  async login(email: string) {
+    console.log(email);
+  }
+}
+
+const AUTH = createToken<AuthService>("AUTH");
+const container = new Container();
+
+container.register(AUTH, { useClass: AuthServiceImpl });
+
+// Tipo inferido automaticamente - sem genérico manual
+const auth = container.resolve(AUTH);
+await auth.login("user@example.com");
+```
+
+### Classe como token
+
+```typescript
+container.register(AuthServiceImpl, { useClass: AuthServiceImpl });
+const auth = container.resolve(AuthServiceImpl); // tipo: AuthServiceImpl
+```
+
+### defineModule
+
+```typescript
+import { defineModule } from "@brushy/di";
+
+const appModule = defineModule({
+  auth: { useClass: AuthServiceImpl },
+  logger: { useValue: console },
+});
+
+appModule.register(container);
+
+const auth = resolve(appModule.tokens.auth); // AuthService
+```
+
+Tokens legados (`Symbol` / `string`) continuam funcionando, mas exigem genérico manual: `resolve<MyType>(TOKEN)`.
+
+## Escopo de Requisição (AsyncLocalStorage)
+
+Em Node.js, `@brushy/di` vincula o escopo ativo da requisição HTTP com `AsyncLocalStorage`. Dependências scoped são resolvidas automaticamente dentro desse escopo.
+
+### Importação
+
+```typescript
+import {
+  runInRequestScope,
+  runInRequestScopeAsync,
+  brushyRequestScope,
+  isRequestScopeSupported,
+  server,
+} from "@brushy/di";
+```
+
+### Middleware Express
+
+```typescript
+app.use(server.brushyRequestScope());
+// resolve() / inject.resolve() usam o escopo ativo - sem argumento scope manual
+```
+
+### Scripts e testes
+
+```typescript
+runInRequestScope(() => {
+  const svc = resolve(USER_SERVICE);
+});
+
+await runInRequestScopeAsync(async () => {
+  await resolveAsync(DATABASE);
+});
+```
+
+Use `isRequestScopeSupported()` para detectar ALS em Node.js. Em React Native, passe `scope` explícito em `InjectOptions` ou use o contexto de `BrushyDIProvider`.
+
 ## resolve
 
 A função `resolve` permite resolver dependências de forma global, sem precisar acessar diretamente o container.

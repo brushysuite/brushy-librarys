@@ -1,0 +1,69 @@
+{
+  "name": "@brushy/di-react",
+  "version": "2.0.0",
+  "description": "React and React Native bindings for @brushy/di-core",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "sideEffects": false,
+  "react-native": "./dist/index.mjs",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "clean": "rm -rf dist .turbo node_modules",
+    "check-types": "tsc --noEmit && tsc -p tsconfig.test.json",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "dependency-injection",
+    "di",
+    "react",
+    "react-native"
+  ],
+  "author": "Gustavo Franco <contact@gfrancodev.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/brushysuite/brushy-librarys.git",
+    "directory": "packages/di-react"
+  },
+  "homepage": "https://brushysuite.gfrancodev.com/docs/di",
+  "dependencies": {
+    "@brushy/di-core": "*"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^7.0.1",
+    "@types/react": "19.3.0",
+    "@swc/core": "^1.16.2",
+    "@vitest/coverage-v8": "^5.0.0",
+    "jsdom": "^30.0.1",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "tsup": "^8.5.1",
+    "typescript": "5.9.3",
+    "unplugin-swc": "^1.6.0",
+    "vitest": "^5.0.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  }
+}

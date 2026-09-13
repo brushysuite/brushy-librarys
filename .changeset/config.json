@@ -2,10 +2,19 @@
   "$schema": "https://unpkg.com/@changesets/config@3.1.1/schema.json",
   "changelog": "@changesets/cli/changelog",
   "commit": false,
-  "fixed": [],
   "linked": [],
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
-  "ignore": ["**/apps/**"]
-} 
+  "fixed": [
+    ["@brushy/di", "@brushy/di-core", "@brushy/di-react", "@brushy/di-monitor", "@brushy/di-otel"],
+    ["@brushy/storage", "@brushy/storage-react"]
+  ],
+  "ignore": [
+    "@brushy/di-bench",
+    "@brushy-examples/vite",
+    "@brushy-examples/expo",
+    "@brushy-examples/express",
+    "@brushy-examples/fastify"
+  ]
+}

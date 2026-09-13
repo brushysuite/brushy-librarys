@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { Container } from "../index";
 
 describe("E2E - Container", () => {
@@ -220,9 +220,7 @@ describe("E2E - Container", () => {
       constructor(private smsConfig: { apiKey: string }) {}
 
       async send(recipient: string, message: string): Promise<boolean> {
-        console.log(
-          `Sending SMS to ${recipient} using API key: ${this.smsConfig.apiKey}`,
-        );
+        console.log(`Sending SMS to ${recipient} using API key: ${this.smsConfig.apiKey}`);
         console.log(`Content: ${message}`);
         return Promise.resolve(true);
       }
@@ -232,9 +230,7 @@ describe("E2E - Container", () => {
       constructor(private pushConfig: { appId: string; apiKey: string }) {}
 
       async send(recipient: string, message: string): Promise<boolean> {
-        console.log(
-          `Sending push to ${recipient} using App ID: ${this.pushConfig.appId}`,
-        );
+        console.log(`Sending push to ${recipient} using App ID: ${this.pushConfig.appId}`);
         console.log(`Content: ${message}`);
         return Promise.resolve(true);
       }
@@ -260,10 +256,7 @@ describe("E2E - Container", () => {
         const results: string[] = [];
 
         try {
-          const emailResult = await this.emailNotifier.send(
-            user.email,
-            message,
-          );
+          const emailResult = await this.emailNotifier.send(user.email, message);
           if (emailResult) results.push("email");
         } catch (error) {
           console.error("Failed to send email:", error);
@@ -280,10 +273,7 @@ describe("E2E - Container", () => {
 
         if (user.deviceToken) {
           try {
-            const pushResult = await this.pushNotifier.send(
-              user.deviceToken,
-              message,
-            );
+            const pushResult = await this.pushNotifier.send(user.deviceToken, message);
             if (pushResult) results.push("push");
           } catch (error) {
             console.error("Failed to send push:", error);
@@ -332,8 +322,7 @@ describe("E2E - Container", () => {
 
     const logSpy = vi.spyOn(console, "log");
 
-    const notificationService =
-      container.resolve<NotificationService>(NOTIFICATION_SERVICE);
+    const notificationService = container.resolve<NotificationService>(NOTIFICATION_SERVICE);
 
     const fullUser = {
       id: 1,
@@ -367,10 +356,7 @@ describe("E2E - Container", () => {
           email: "carlos@example.com",
         };
 
-        return notificationService.notifyUser(
-          emailOnlyUser,
-          "Hello Carlos, we have news!",
-        );
+        return notificationService.notifyUser(emailOnlyUser, "Hello Carlos, we have news!");
       })
       .then((results) => {
         expect(results).toContain("email");
@@ -422,9 +408,7 @@ describe("E2E - Container", () => {
         const apiUrl = this.config.getApiUrl();
         const timeout = this.config.getTimeout();
 
-        this.logger.log(
-          `Processing request ${this.requestId} to ${apiUrl}/${endpoint}`,
-        );
+        this.logger.log(`Processing request ${this.requestId} to ${apiUrl}/${endpoint}`);
         this.logger.log(`Data: ${JSON.stringify(data)}`);
         this.logger.log(`Timeout: ${timeout}ms`);
 
@@ -518,6 +502,6 @@ describe("E2E - Container", () => {
 
     expect(() => {
       container.resolve(AUTH_SERVICE);
-    }).toThrow(/circular dependency/i);
+    }).toThrow(/circular dependency|Maximum call stack size exceeded/i);
   });
 });

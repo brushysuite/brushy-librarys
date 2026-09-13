@@ -1,0 +1,45 @@
+---
+title: "DependencyError"
+description: "DI error types and troubleshooting."
+---
+
+## `DependencyError`
+
+Thrown when resolution fails, most commonly an unregistered token.
+
+```typescript
+import { DependencyError } from "@brushy/di-core";
+
+try {
+  container.resolve(UNKNOWN_TOKEN);
+} catch (error) {
+  if (error instanceof DependencyError) {
+    console.error(error.message);
+    // "Token not registered: Symbol(UNKNOWN)"
+  }
+}
+```
+
+| Property | Value |
+|----------|-------|
+| `name` | `"BrushyDependencyError"` |
+| `message` | Human-readable reason |
+
+In development (`IS_DEV`), errors are also logged through the internal `Logger`.
+
+## Common messages
+
+| Message | Fix |
+|---------|-----|
+| `Token not registered: …` | Register the token or check parent container import |
+| `No container found. Use registerContainer() or setDefaultContainer()` | Call `inject.setGlobalContainer` or `server.setServerContainer` |
+| `No server container defined. Use server.setServerContainer() first.` | Bootstrap server before `server.resolve` |
+| `No global container defined. Use inject.setGlobalContainer() first.` | Bootstrap before `inject.resolve` |
+
+## Circular dependencies
+
+The resolver detects dependency cycles and throws with a descriptive `DependencyError` chain. Use `container.observe` or [monitor](/di/monitor/overview) to trace which token triggered the cycle.
+
+## Container `error` events
+
+When observers are attached, failed resolves emit `error` events before re-throwing. See [Container events](/di/di-core/events).

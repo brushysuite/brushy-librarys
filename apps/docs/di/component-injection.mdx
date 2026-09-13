@@ -1,0 +1,184 @@
+---
+title: "React Component Injection"
+---
+
+# React Component Injection
+
+`@brushy/di` supports **component injection**: register UI by token on the same `Container` used for services, then resolve with `useInjectComponent` in your shell (themes, white-label, A/B).
+
+## Tokens: Symbol only (never strings)
+
+Use **`createToken("…")`** or **`Symbol("…")`**. Never use plain strings. At runtime, `createToken` returns `Symbol(description)`; each token is unique and avoids collisions between modules or libraries.
+
+```typescript
+// ✅ Good: createToken (Symbol + inference from register / useValue)
+const SIDEBAR = createToken("SIDEBAR");
+
+// ✅ OK: raw Symbol when you do not need createToken helpers
+const SIDEBAR = Symbol("SIDEBAR");
+
+// ❌ Avoid: strings can collide across packages
+const SIDEBAR = "SIDEBAR";
+```
+
+Prefer **`createToken`** over raw `Symbol` so `container.register` and `useInjectComponent` infer types from the registered component.
+
+## Recommended: register on the Container
+
+Register React components like any other provider with **`useValue`** on the container. No separate registration API is required.
+
+### Declarative bootstrap
+
+```typescript
+import { Container, createToken } from "@brushy/di/core";
+import { AcmeSidebar } from "../themes/acme/acme-sidebar";
+import { AcmeHeader } from "../themes/acme/acme-header";
+
+const SIDEBAR = createToken("SIDEBAR");
+const HEADER = createToken("HEADER");
+
+export const container = new Container({
+  name: "app",
+  providers: [
+    { provide: SIDEBAR, useValue: AcmeSidebar },
+    { provide: HEADER, useValue: AcmeHeader },
+  ],
+});
+
+export { SIDEBAR, HEADER };
+```
+
+### Imperative registration
+
+`container.register` returns a typed token. Props flow to `useInjectComponent` without extra generics:
+
+```tsx
+const container = new Container();
+
+const BUTTON = container.register(createToken("BUTTON"), {
+  useValue: PrimaryButton,
+});
+
+function Toolbar() {
+  const Button = useInjectComponent(BUTTON);
+  return <Button variant="primary">Save</Button>;
+}
+```
+
+Equivalent form:
+
+```typescript
+container.register(BUTTON, { useValue: PrimaryButton });
+```
+
+### Type inference (no manual generics required)
+
+You **do not** need `createToken<React.ComponentType<ButtonProps>>("BUTTON")` in most cases. When you register with `useValue`, TypeScript infers the component type from the implementation. This is the same pattern used in `@brushy/di-react` tests:
+
+```tsx
+const BUTTON = container.register(createToken("BUTTON"), {
+  useValue: MockComponent,
+});
+
+const Button = useInjectComponent(BUTTON);
+// Button props are inferred from MockComponent
+return <Button label="Hello" />;
+```
+
+Add explicit token generics only when you need a contract before the implementation exists (e.g. shared `tokens.ts` consumed by multiple theme packages).
+
+## useInjectComponent
+
+Resolves a component from the nearest `BrushyDIProvider` container.
+
+### Import
+
+```typescript
+import { useInjectComponent, BrushyDIProvider } from "@brushy/di/react";
+```
+
+### With fallback
+
+```tsx
+const Button = useInjectComponent(BUTTON, DefaultButton);
+```
+
+If the token is missing and no fallback is passed, dev builds show an error UI (web DOM by default). On React Native, call `setInjectComponentErrorRenderer` once at bootstrap. See [Getting Started](/di/getting-started).
+
+## Optional helpers
+
+These wrap `container.register`. Prefer the container API above for consistency with the rest of your DI graph.
+
+| API | Use when |
+| --- | --- |
+| `registerComponent(token, component, container?)` | One-off shorthand |
+| `registerComponents(map, container?)` | Batch imperative registration |
+| `createComponentsProvider(map)` | Legacy provider that registers on mount (prefer `BrushyDIProvider` + container bootstrap) |
+
+## Complete example: extensible UI shell
+
+```tsx
+import { useState } from "react";
+import { Container, createToken } from "@brushy/di/core";
+import { BrushyDIProvider, useInjectComponent } from "@brushy/di/react";
+
+const DefaultButton = ({
+  children,
+  variant = "default",
+  ...props
+}: React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: string }) => (
+  <button className={`btn btn-${variant}`} {...props}>
+    {children}
+  </button>
+);
+
+const DefaultCard = ({
+  title,
+  children,
+}: {
+  title?: string;
+  children?: React.ReactNode;
+}) => (
+  <div className="card">
+    {title ? <div className="card-header">{title}</div> : null}
+    <div className="card-body">{children}</div>
+  </div>
+);
+
+export const container = new Container({ name: "ui" });
+
+const BUTTON = container.register(createToken("BUTTON"), {
+  useValue: DefaultButton,
+});
+const CARD = container.register(createToken("CARD"), { useValue: DefaultCard });
+
+function AppShell() {
+  const Button = useInjectComponent(BUTTON);
+  const Card = useInjectComponent(CARD);
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="app">
+      <Button variant="primary" onClick={() => setOpen(true)}>
+        Open
+      </Button>
+      <Card title="Example">Content injected from the container.</Card>
+    </div>
+  );
+}
+
+export function App() {
+  return (
+    <BrushyDIProvider container={container}>
+      <AppShell />
+    </BrushyDIProvider>
+  );
+}
+```
+
+To swap a theme, replace component imports in `providers` or `container.import` a child container. See [Best Practices](/di/best-practices).
+
+## Server Components
+
+- Register components on the container during bootstrap (server or client).
+- `useInjectComponent` runs in Client Components; pair with `@brushy/di/core` on the server for services.

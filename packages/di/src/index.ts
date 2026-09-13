@@ -1,15 +1,21 @@
-export { Container } from "./core/container";
-export { server } from "./lib/tools/server";
-export { resolve } from "./lib/tools/resolve";
-export { cache } from "./lib/tools/cache";
-export { monitor } from "./lib/tools/monitor";
-export { inject } from "./lib/tools/inject";
-export { useInject } from "./lib/tools/use-inject";
-export { useLazyInject } from "./lib/tools/use-lazy-inject";
-export {
-  useInjectComponent,
-  registerComponent,
-  createComponentsProvider,
-} from "./lib/tools/inject-component";
-export { BrushyDIProvider } from "./lib/web/index";
-export type { Token, Lifecycle } from "./lib/types";
+/**
+ * Umbrella entrypoint for `@brushy/di` (core + react + monitor).
+ *
+ * Re-exports {@link https://www.npmjs.com/package/@brushy/di-core | @brushy/di-core},
+ * {@link https://www.npmjs.com/package/@brushy/di-react | @brushy/di-react}, and
+ * {@link https://www.npmjs.com/package/@brushy/di-monitor | @brushy/di-monitor}.
+ *
+ * For OpenTelemetry helpers, use the `@brushy/di/otel` subpath.
+ *
+ * @example
+ * ```ts
+ * import { Container, useInject, BrushyDIProvider } from "@brushy/di";
+ * ```
+ *
+ * @packageDocumentation
+ */
+
+export type { Lifecycle } from "@brushy/di-core";
+export * from "@brushy/di-core";
+export { ContainerMonitor, monitor } from "@brushy/di-monitor";
+export * from "@brushy/di-react";

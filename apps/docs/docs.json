@@ -1,0 +1,440 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "maple",
+  "name": "Brushy Suite",
+  "description": "Official docs for Brushy Suite: typed dependency injection (@brushy/di), isomorphic storage (@brushy/storage), React bindings, benchmarks, and example apps. Install from npm.",
+  "seo": {
+    "indexing": "navigable",
+    "metatags": {
+      "canonical": "https://brushysuite.gfrancodev.com",
+      "og:site_name": "Brushy Suite",
+      "og:type": "website",
+      "og:url": "https://brushysuite.gfrancodev.com",
+      "og:description": "TypeScript DI and storage libraries for React, React Native, and Node.js. Install @brushy/di and @brushy/storage from npm.",
+      "twitter:card": "summary_large_image",
+      "twitter:title": "Brushy Suite",
+      "twitter:description": "Dependency injection and storage for TypeScript. Docs, examples, and npm packages."
+    },
+    "organization": {
+      "id": "https://brushysuite.gfrancodev.com/#organization",
+      "name": "Brushy Suite",
+      "url": "https://brushysuite.gfrancodev.com",
+      "logo": "https://brushysuite.gfrancodev.com/apple-touch-icon.png",
+      "sameAs": [
+        "https://github.com/brushysuite/brushy-librarys",
+        "https://www.npmjs.com/org/brushy"
+      ]
+    }
+  },
+  "colors": {
+    "primary": "#1048CA",
+    "light": "#4778EA",
+    "dark": "#0E1629"
+  },
+  "background": {
+    "color": {
+      "light": "#F7F9FB",
+      "dark": "#11141C"
+    }
+  },
+  "fonts": {
+    "family": "Inter",
+    "heading": {
+      "family": "Inter",
+      "weight": 600
+    },
+    "body": {
+      "family": "Inter",
+      "weight": 400
+    }
+  },
+  "styling": {
+    "codeblocks": {
+      "theme": {
+        "light": "github-light",
+        "dark": "github-dark"
+      }
+    }
+  },
+  "appearance": {
+    "default": "system",
+    "strict": false
+  },
+  "favicon": {
+    "light": "/favicon-32x32.png",
+    "dark": "/favicon-32x32.png"
+  },
+  "logo": {
+    "light": "/apple-touch-icon.png",
+    "dark": "/apple-touch-icon.png",
+    "href": "https://brushysuite.gfrancodev.com"
+  },
+  "icons": {
+    "library": "lucide"
+  },
+  "contextual": {
+    "options": ["copy", "mcp", "add-mcp", "cursor", "vscode", "chatgpt", "claude"],
+    "display": "header"
+  },
+  "footer": {
+    "socials": {
+      "github": "https://github.com/brushysuite/brushy-librarys",
+      "website": "https://brushysuite.gfrancodev.com"
+    },
+    "links": [
+      {
+        "header": "npm packages",
+        "items": [
+          {
+            "label": "@brushy/di",
+            "href": "https://www.npmjs.com/package/@brushy/di"
+          },
+          {
+            "label": "@brushy/di-core",
+            "href": "https://www.npmjs.com/package/@brushy/di-core"
+          },
+          {
+            "label": "@brushy/di-react",
+            "href": "https://www.npmjs.com/package/@brushy/di-react"
+          },
+          {
+            "label": "@brushy/storage",
+            "href": "https://www.npmjs.com/package/@brushy/storage"
+          },
+          {
+            "label": "@brushy/storage-react",
+            "href": "https://www.npmjs.com/package/@brushy/storage-react"
+          }
+        ]
+      },
+      {
+        "header": "Resources",
+        "items": [
+          {
+            "label": "Getting started",
+            "href": "https://brushysuite.gfrancodev.com/getting-started/introduction"
+          },
+          {
+            "label": "Examples",
+            "href": "https://brushysuite.gfrancodev.com/examples/overview"
+          },
+          {
+            "label": "DI benchmarks",
+            "href": "https://brushysuite.gfrancodev.com/di/benchmarks"
+          },
+          {
+            "label": "Agent skill",
+            "href": "https://brushysuite.gfrancodev.com/SKILL.md"
+          },
+          {
+            "label": "llms.txt",
+            "href": "https://brushysuite.gfrancodev.com/llms.txt"
+          }
+        ]
+      }
+    ]
+  },
+  "navigation": {
+    "languages": [
+      {
+        "language": "en",
+        "default": true,
+        "banner": {
+          "content": "Portuguese (pt-BR) available for key pages. Use the language selector in the header.",
+          "dismissible": true
+        },
+        "navbar": {
+          "links": [
+            {
+              "type": "github",
+              "href": "https://github.com/brushysuite/brushy-librarys"
+            },
+            {
+              "label": "@brushy/di",
+              "href": "https://www.npmjs.com/package/@brushy/di",
+              "icon": "package"
+            },
+            {
+              "label": "@brushy/storage",
+              "href": "https://www.npmjs.com/package/@brushy/storage",
+              "icon": "database"
+            }
+          ],
+          "primary": {
+            "type": "button",
+            "label": "Install @brushy/di",
+            "href": "https://www.npmjs.com/package/@brushy/di"
+          }
+        },
+        "tabs": [
+          {
+            "tab": "Getting started",
+            "icon": "rocket",
+            "groups": [
+              {
+                "group": "Overview",
+                "pages": ["index", "getting-started/introduction"]
+              }
+            ]
+          },
+          {
+            "tab": "@brushy/di",
+            "icon": "box",
+            "groups": [
+              {
+                "group": "Introduction",
+                "pages": [
+                  "di/overview",
+                  "di/entrypoints",
+                  "di/introduction",
+                  "di/getting-started"
+                ]
+              },
+              {
+                "group": "@brushy/di-core",
+                "pages": [
+                  "di/di-core/overview",
+                  "di/di-core/tokens-providers",
+                  "di/di-core/lifecycle",
+                  "di/di-core/scoped-containers",
+                  "di/di-core/request-scope",
+                  "di/di-core/modules",
+                  "di/di-core/resolve-inject",
+                  "di/di-core/promise-cache",
+                  "di/di-core/events",
+                  "di/di-core/container-registry",
+                  "di/di-core/debug",
+                  "di/di-core/errors"
+                ]
+              },
+              {
+                "group": "Guides",
+                "pages": [
+                  "di/container",
+                  "di/server",
+                  "di/utilities",
+                  "di/best-practices",
+                  "di/benchmarks"
+                ]
+              },
+              {
+                "group": "@brushy/di-monitor",
+                "pages": ["di/monitor/overview", "di/monitor/api-reference"]
+              },
+              {
+                "group": "React",
+                "pages": ["di/react-hooks", "di/component-injection"]
+              },
+              {
+                "group": "Migration",
+                "pages": ["di/migration-v2"]
+              }
+            ]
+          },
+          {
+            "tab": "@brushy/storage",
+            "icon": "database",
+            "groups": [
+              {
+                "group": "Overview",
+                "pages": [
+                  "storage/overview",
+                  "storage/getting-started",
+                  "storage/configuration",
+                  "storage/api-reference"
+                ]
+              },
+              {
+                "group": "Features",
+                "pages": [
+                  "storage/ttl",
+                  "storage/events",
+                  "storage/persist",
+                  "storage/cache-bus",
+                  "storage/errors",
+                  "storage/runtime"
+                ]
+              },
+              {
+                "group": "@brushy/storage-react",
+                "pages": ["storage/react-hooks"]
+              },
+              {
+                "group": "Migration",
+                "pages": ["storage/migration"]
+              }
+            ]
+          },
+          {
+            "tab": "Examples",
+            "icon": "code",
+            "groups": [
+              {
+                "group": "Overview",
+                "pages": ["examples/overview"]
+              },
+              {
+                "group": "Example projects",
+                "pages": [
+                  "examples/vite",
+                  "examples/expo",
+                  "examples/express",
+                  "examples/fastify"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "language": "pt-BR",
+        "banner": {
+          "content": "Tradução parcial. Páginas sem versão pt-BR exibem conteúdo em inglês.",
+          "dismissible": true
+        },
+        "navbar": {
+          "links": [
+            {
+              "type": "github",
+              "href": "https://github.com/brushysuite/brushy-librarys"
+            },
+            {
+              "label": "@brushy/di",
+              "href": "https://www.npmjs.com/package/@brushy/di",
+              "icon": "package"
+            },
+            {
+              "label": "@brushy/storage",
+              "href": "https://www.npmjs.com/package/@brushy/storage",
+              "icon": "database"
+            }
+          ],
+          "primary": {
+            "type": "button",
+            "label": "Instalar @brushy/di",
+            "href": "https://www.npmjs.com/package/@brushy/di"
+          }
+        },
+        "tabs": [
+          {
+            "tab": "Primeiros passos",
+            "icon": "rocket",
+            "groups": [
+              {
+                "group": "Visão geral",
+                "pages": ["pt-BR/index", "pt-BR/getting-started/introduction"]
+              }
+            ]
+          },
+          {
+            "tab": "@brushy/di",
+            "icon": "box",
+            "groups": [
+              {
+                "group": "Introdução",
+                "pages": [
+                  "pt-BR/di/overview",
+                  "di/entrypoints",
+                  "di/introduction",
+                  "pt-BR/di/getting-started"
+                ]
+              },
+              {
+                "group": "@brushy/di-core",
+                "pages": [
+                  "di/di-core/overview",
+                  "di/di-core/tokens-providers",
+                  "di/di-core/lifecycle",
+                  "di/di-core/scoped-containers",
+                  "di/di-core/request-scope",
+                  "di/di-core/modules",
+                  "di/di-core/resolve-inject",
+                  "di/di-core/promise-cache",
+                  "di/di-core/events",
+                  "di/di-core/container-registry",
+                  "di/di-core/debug",
+                  "di/di-core/errors"
+                ]
+              },
+              {
+                "group": "Guias",
+                "pages": [
+                  "di/container",
+                  "di/server",
+                  "di/utilities",
+                  "di/best-practices",
+                  "di/benchmarks"
+                ]
+              },
+              {
+                "group": "@brushy/di-monitor",
+                "pages": ["di/monitor/overview", "di/monitor/api-reference"]
+              },
+              {
+                "group": "React",
+                "pages": ["di/react-hooks", "di/component-injection"]
+              },
+              {
+                "group": "Migração",
+                "pages": ["di/migration-v2"]
+              }
+            ]
+          },
+          {
+            "tab": "@brushy/storage",
+            "icon": "database",
+            "groups": [
+              {
+                "group": "Visão geral",
+                "pages": [
+                  "pt-BR/storage/overview",
+                  "storage/getting-started",
+                  "storage/configuration",
+                  "storage/api-reference"
+                ]
+              },
+              {
+                "group": "Recursos",
+                "pages": [
+                  "storage/ttl",
+                  "storage/events",
+                  "storage/persist",
+                  "storage/cache-bus",
+                  "storage/errors",
+                  "storage/runtime"
+                ]
+              },
+              {
+                "group": "@brushy/storage-react",
+                "pages": ["storage/react-hooks"]
+              },
+              {
+                "group": "Migração",
+                "pages": ["storage/migration"]
+              }
+            ]
+          },
+          {
+            "tab": "Exemplos",
+            "icon": "code",
+            "groups": [
+              {
+                "group": "Visão geral",
+                "pages": ["pt-BR/examples/overview"]
+              },
+              {
+                "group": "Projetos de exemplo",
+                "pages": [
+                  "pt-BR/examples/vite",
+                  "pt-BR/examples/expo",
+                  "pt-BR/examples/express",
+                  "pt-BR/examples/fastify"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

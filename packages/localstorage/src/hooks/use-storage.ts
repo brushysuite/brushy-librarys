@@ -1,6 +1,6 @@
-import { useState, useCallback } from "react";
-import { LocalStorage } from "../lib/localstorage";
+import { useCallback, useState } from "react";
 import type { StorageOptions } from "../core/types";
+import { LocalStorage } from "../lib/localstorage";
 
 /**
  * Hook for managing data in localStorage with support for compression and field updates.
@@ -42,11 +42,7 @@ import type { StorageOptions } from "../core/types";
  * }
  * ```
  */
-export function useStorage<T>(
-  key: string,
-  initialValue: T,
-  options: StorageOptions = {},
-) {
+export function useStorage<T>(key: string, initialValue: T, options: StorageOptions = {}) {
   const storage = new LocalStorage();
 
   /**
@@ -66,20 +62,17 @@ export function useStorage<T>(
     (newValue: T | ((prev: T) => T)) => {
       setValue((prev) => {
         const resolvedValue =
-          typeof newValue === "function"
-            ? (newValue as (prev: T) => T)(prev)
-            : newValue;
+          typeof newValue === "function" ? (newValue as (prev: T) => T)(prev) : newValue;
 
         storage.set(key, resolvedValue, {
           ...options,
           compress:
-            options.compress ??
-            (resolvedValue && JSON.stringify(resolvedValue).length > 1024),
+            options.compress ?? (resolvedValue && JSON.stringify(resolvedValue).length > 1024),
         });
         return resolvedValue;
       });
     },
-    [key, options],
+    [key, options, storage.set],
   );
 
   /**
@@ -94,13 +87,12 @@ export function useStorage<T>(
         storage.set(key, updatedValue, {
           ...options,
           compress:
-            options.compress ??
-            (updatedValue && JSON.stringify(updatedValue).length > 1024),
+            options.compress ?? (updatedValue && JSON.stringify(updatedValue).length > 1024),
         });
         return updatedValue;
       });
     },
-    [key, options],
+    [key, options, storage.set],
   );
 
   /**
@@ -109,7 +101,7 @@ export function useStorage<T>(
   const remove = useCallback(() => {
     storage.remove(key);
     setValue(initialValue);
-  }, [key, initialValue]);
+  }, [key, initialValue, storage.remove]);
 
   return {
     value,

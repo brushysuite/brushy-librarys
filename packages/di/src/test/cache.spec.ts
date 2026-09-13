@@ -1,8 +1,8 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { Container, cache } from "../index";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { type Container, cache } from "../index";
 
 describe("Cache", () => {
-  let container: Container;
+  let _container: Container;
 
   beforeEach(() => {
     cache.clear();
@@ -33,9 +33,7 @@ describe("Cache", () => {
   });
 
   it("should cache with different parameter types", async () => {
-    const fetchData = vi
-      .fn()
-      .mockImplementation((id) => Promise.resolve({ id }));
+    const fetchData = vi.fn().mockImplementation((id) => Promise.resolve({ id }));
 
     await cache.promise("string-key", () => fetchData("string"));
 
@@ -61,11 +59,11 @@ describe("Cache", () => {
 
     try {
       await cache.promise("error-key", () => fetchError());
-    } catch (error) {}
+    } catch (_error) {}
 
     try {
       await cache.promise("error-key", () => fetchError());
-    } catch (error) {}
+    } catch (_error) {}
 
     expect(fetchError).toHaveBeenCalledTimes(2);
   });

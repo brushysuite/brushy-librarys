@@ -1,0 +1,114 @@
+---
+title: "Overview"
+sidebarTitle: "@brushy/di-core"
+description: "Zero-React dependency injection for Node, browser, and React Native."
+---
+
+`@brushy/di-core` is the framework-agnostic engine behind `@brushy/di`. It has no React dependency and runs in Node.js, browsers, workers, and React Native.
+
+```bash
+npm install @brushy/di-core
+```
+
+## Quick start
+
+```typescript
+import { Container, createToken } from "@brushy/di-core";
+
+const LOGGER = createToken<{ log: (msg: string) => void }>("LOGGER");
+
+const container = new Container();
+container.register(LOGGER, {
+  useValue: { log: console.log },
+});
+
+container.resolve(LOGGER).log("ready");
+```
+
+## Public exports
+
+### Container
+
+| Export | Description |
+|--------|-------------|
+| `Container` | Register and resolve dependencies |
+| `ScopedContainer` | Explicit scope bucket for manual isolation |
+| `ContainerRegistry` | Multi-container / scope registry |
+| `ROOT_SCOPE` | Sentinel scope constant |
+
+### Tokens & providers
+
+| Export | Description |
+|--------|-------------|
+| `createToken` | Typed `Symbol` tokens |
+| `deps` | Tuple helper for factory dependency inference |
+| `defineModule` | Feature modules with inferred tokens |
+
+### Resolution facades
+
+| Export | Description |
+|--------|-------------|
+| `resolve` | Resolve via global `containerRegistry` |
+| `inject` | Global container API (set + resolve) |
+| `server` | Server singleton container + middleware |
+
+### Request scope
+
+| Export | Description |
+|--------|-------------|
+| `runInRequestScope` | Sync ALS-bound scope (Node) |
+| `runInRequestScopeAsync` | Async ALS-bound scope |
+| `brushyRequestScope` | Express/Connect middleware |
+| `getActiveScope` | Current scope object |
+| `isRequestScopeSupported` | `true` when AsyncLocalStorage is available |
+
+### Caching & promises
+
+| Export | Description |
+|--------|-------------|
+| `PromiseCache` | Async method deduplication |
+| `promiseCache` | Global promise cache singleton |
+| `cache` | General-purpose TTL cache utility |
+
+### Bootstrap & debug
+
+| Export | Description |
+|--------|-------------|
+| `createBrushyApp` | Container + `defineModule` shortcut |
+| `enableBrushyDebug` | Expose `globalThis.__BRUSHY_DI__` in dev |
+| `getBrushyDebug` | Read debug API |
+
+### Types & errors
+
+| Export | Description |
+|--------|-------------|
+| `DependencyError` | Missing token / container errors |
+| `Lifecycle` | `"singleton" \| "transient" \| "scoped" \| "immutable"` |
+| `ProviderConfig`, `InjectionToken`, … | Provider and token types |
+
+### Constants
+
+| Export | Description |
+|--------|-------------|
+| `IS_DEV`, `isDev`, `isNodeDev` | Environment helpers |
+
+## Subpath exports
+
+For aggressive tree-shaking, di-core also publishes focused entry points:
+
+```typescript
+import { Container } from "@brushy/di-core/container";
+import { resolve } from "@brushy/di-core/resolve";
+import { inject } from "@brushy/di-core/inject";
+import { server } from "@brushy/di-core/server";
+import { runInRequestScope } from "@brushy/di-core/request-scope";
+```
+
+## Documentation map
+
+- [Tokens & providers](/di/di-core/tokens-providers)
+- [Lifecycle](/di/di-core/lifecycle)
+- [Request scope](/di/di-core/request-scope)
+- [Modules](/di/di-core/modules)
+- [Container](/di/container): full Container API
+- [Server](/di/server): `server` facade

@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
-import { LocalStorage } from "../localstorage";
 import * as lzString from "lz-string";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { LocalStorage } from "../localstorage";
 
 /**
  * Nota sobre cobertura de código:
@@ -66,7 +66,7 @@ vi.mock("lz-string", () => {
   return {
     compress: vi.fn((value: string) => {
       // Simulando compressão (na verdade só adicionando um prefixo)
-      return "compressed:" + value;
+      return `compressed:${value}`;
     }),
     decompress: vi.fn((value: string) => {
       // Simulando descompressão
@@ -168,9 +168,7 @@ describe("LocalStorage - Testes Simples", () => {
 
     // Mockando Object.keys para retornar as chaves com o prefixo correto
     const originalKeys = Object.keys;
-    Object.keys = vi
-      .fn()
-      .mockReturnValue(["@brushy/storage:key1", "@brushy/storage:key2"]);
+    Object.keys = vi.fn().mockReturnValue(["@brushy/storage:key1", "@brushy/storage:key2"]);
 
     storage.clear();
 
@@ -254,21 +252,20 @@ describe("LocalStorage - Testes Simples", () => {
       hobbies: Array(100)
         .fill("hobby")
         .map((h, i) => `${h}${i}`),
-      description:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. ".repeat(50),
+      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. ".repeat(50),
     };
 
     // Salvando sem compressão
-    storage.set(key + "1", value);
+    storage.set(`${key}1`, value);
 
     // Salvando com compressão
-    storage.set(key + "2", value, { compress: true });
+    storage.set(`${key}2`, value, { compress: true });
 
     // Verificando que a função compress foi chamada
     expect(lzString.compress).toHaveBeenCalled();
 
     // O valor recuperado deve ser igual ao original
-    const result = storage.get(key + "2");
+    const result = storage.get(`${key}2`);
     expect(result).toEqual(value);
   });
 
@@ -302,7 +299,7 @@ describe("LocalStorage - Testes Simples", () => {
     const key = "testKey";
 
     // Salvando um valor inválido diretamente no localStorage
-    mockLocalStorage.setItem("@brushy/storage:" + key, "invalid json");
+    mockLocalStorage.setItem(`@brushy/storage:${key}`, "invalid json");
 
     const result = storage.get(key);
 
@@ -357,7 +354,7 @@ describe("LocalStorage - Testes Simples", () => {
       });
 
     // Salvando diretamente no localStorage
-    mockLocalStorage.setItem("@brushy/storage:" + key, invalidCompressedValue);
+    mockLocalStorage.setItem(`@brushy/storage:${key}`, invalidCompressedValue);
 
     // Configurando o mock para lançar um erro
     vi.mocked(lzString.decompress).mockImplementationOnce(() => {
@@ -430,7 +427,7 @@ describe("LocalStorage - Testes Simples", () => {
   // Teste para verificar o comportamento quando o ambiente não tem localStorage
   it("deve lançar erro quando o ambiente não tem localStorage", () => {
     // Criando um módulo temporário para testar o comportamento
-    const originalModule = vi.importActual("../localstorage");
+    const _originalModule = vi.importActual("../localstorage");
 
     // Verificando se o construtor lança erro
     expect(() => {
@@ -441,9 +438,7 @@ describe("LocalStorage - Testes Simples", () => {
           "[LocalStorage] This library requires an environment with localStorage support.",
         );
       }
-    }).toThrow(
-      "[LocalStorage] This library requires an environment with localStorage support.",
-    );
+    }).toThrow("[LocalStorage] This library requires an environment with localStorage support.");
   });
 
   // Teste para verificar o comportamento quando o item expirou
@@ -470,7 +465,7 @@ describe("LocalStorage - Testes Simples", () => {
     expect(storage.get(key)).toBeNull();
 
     // Verificando que o item não existe mais no localStorage
-    expect(mockLocalStorage.getItem("@brushy/storage:" + key)).toBeNull();
+    expect(mockLocalStorage.getItem(`@brushy/storage:${key}`)).toBeNull();
 
     // Restaurando Date.now
     Date.now = originalNow;
@@ -509,9 +504,7 @@ describe("LocalStorage - Testes Simples", () => {
 
     // Verificando que o aviso foi logado
     expect(console.warn).toHaveBeenCalledWith(
-      expect.stringContaining(
-        "[LocalStorage] Compression failed, storing uncompressed:",
-      ),
+      expect.stringContaining("[LocalStorage] Compression failed, storing uncompressed:"),
       expect.any(Error),
     );
 
@@ -533,13 +526,11 @@ describe("LocalStorage - Testes Simples", () => {
     });
 
     // Tentando recuperar o valor
-    const result = storage.get(key);
+    const _result = storage.get(key);
 
     // Verificando que o aviso foi logado
     expect(console.warn).toHaveBeenCalledWith(
-      expect.stringContaining(
-        "[LocalStorage] Decompression failed, using original value:",
-      ),
+      expect.stringContaining("[LocalStorage] Decompression failed, using original value:"),
       expect.any(Error),
     );
   });
@@ -600,9 +591,7 @@ describe("LocalStorage - Testes Simples", () => {
     storage.set(key, value);
 
     // Configurando o mock para retornar null
-    vi.mocked(lzString.decompress).mockReturnValueOnce(
-      null as unknown as string,
-    );
+    vi.mocked(lzString.decompress).mockReturnValueOnce(null as unknown as string);
 
     // Tentando recuperar o valor
     const result = storage.get(key);
@@ -677,7 +666,7 @@ describe("LocalStorage - Testes Simples", () => {
     const key = "invalidJSONTTLKey";
 
     // Salvando um valor inválido diretamente no localStorage
-    mockLocalStorage.setItem("@brushy/storage:" + key, "invalid json");
+    mockLocalStorage.setItem(`@brushy/storage:${key}`, "invalid json");
 
     // Verificando que getTTL retorna null e loga o erro
     expect(storage.getTTL(key)).toBeNull();

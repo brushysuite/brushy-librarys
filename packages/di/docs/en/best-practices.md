@@ -2,18 +2,40 @@
 
 This guide presents the best practices for using `@brushy/di` efficiently and in an organized manner.
 
+For package choice and framework setup (Express, Next.js, React Native), start with [Getting Started](./getting-started.md).
+
 ## Token Organization
 
 ### Use Symbols for Tokens
 
-Prefer using `Symbol` for tokens instead of strings, as they guarantee uniqueness and avoid collisions:
+Prefer **`createToken("…")`** or **`Symbol("…")`**. Never use plain strings. Strings can collide when two modules use the same name; **`createToken` returns `Symbol(description)` at runtime**, so every token is unique.
 
 ```typescript
-// ✅ Good: Use Symbol
+// ✅ Good: createToken (Symbol + type inference)
+const USER_SERVICE = createToken("USER_SERVICE");
+
+// ✅ OK: raw Symbol
 const USER_SERVICE = Symbol("USER_SERVICE");
 
-// ❌ Avoid: Using string
+// ❌ Avoid: string tokens
 const USER_SERVICE = "USER_SERVICE";
+```
+
+### Use `createToken` for Type Inference
+
+`createToken` is the recommended form of Symbol token: same collision safety, plus inference in `register`, `resolve`, `useInject`, factory `dependencies`, and `useInjectComponent` when registering with `useValue`:
+
+```typescript
+import { createToken, deps } from "@brushy/di";
+
+const LOGGER = createToken<Logger>("LOGGER");
+const USER_SERVICE = createToken<UserService>("USER_SERVICE");
+
+container.register(USER_SERVICE, {
+  useFactory: (logger) => new UserService(logger),
+  dependencies: deps([LOGGER]),
+  lifecycle: "scoped",
+});
 ```
 
 ### Centralize Token Definition
@@ -105,12 +127,20 @@ container.register(APP_STORE, {
 ### Clean Up Resources Properly
 
 ```typescript
-// In web applications, clean up the request scope after each request
+// Node.js - recommended: ALS middleware (cleans up on finish/close)
+import { server } from "@brushy/di";
+app.use(server.brushyRequestScope());
+
+// Or wrap non-HTTP work
+import { runInRequestScope } from "@brushy/di";
+runInRequestScope(() => {
+  const svc = container.resolve(REQUEST_CONTEXT);
+});
+
+// Manual cleanup when ALS is not available
 app.use((req, res, next) => {
-  // Process request
   next();
-  // After response is sent
-  container.clearRequestScope();
+  res.on("finish", () => container.clearRequestScope());
 });
 
 // Use garbage collector to clean up unused instances
@@ -158,6 +188,35 @@ function UserList() {
 }
 ```
 
+### Component injection (UI)
+
+Register swappable UI on the **same container** as services. Prefer `new Container({ providers: [{ provide, useValue }] })` or `container.register(createToken("…"), { useValue: Component })`. Resolve in the shell with `useInjectComponent`:
+
+```tsx
+// ✅ Good: container registration + hook (types inferred from useValue)
+const container = new Container({ name: "app" });
+
+const SIDEBAR = container.register(createToken("SIDEBAR"), {
+  useValue: AcmeSidebar,
+});
+
+function AppShell() {
+  const Sidebar = useInjectComponent(SIDEBAR);
+  return <Sidebar onNavigate={navigate} />;
+}
+
+// ❌ Avoid: registerComponent helpers when you already use a container graph
+registerComponent(SIDEBAR, AcmeSidebar);
+
+// ❌ Avoid: string tokens (use createToken / Symbol instead)
+const SIDEBAR = "SIDEBAR";
+
+// ❌ Avoid: redundant explicit generics when useValue carries the type
+const SIDEBAR = createToken<React.ComponentType<SidebarProps>>("SIDEBAR");
+```
+
+Explicit `createToken<T>()` is optional. Use it only when the token contract must exist before the implementation (shared `tokens.ts`). See [Component Injection](./component-injection.md).
+
 ## Performance
 
 ### Promise Caching
@@ -188,17 +247,14 @@ function UserProfile({ userId }) {
 
 ### Lazy Loading
 
-Use `useLazyInject` to load heavy dependencies only when needed:
+Use `useInjectLazy` to load heavy dependencies only when needed:
 
 ```tsx
 function ReportPage() {
-  const [reportService, loadReportService] = useLazyInject(REPORT_SERVICE);
+  const reportService = useInjectLazy(REPORT_SERVICE);
 
   const generateReport = () => {
-    loadReportService();
-    if (reportService) {
-      reportService.generate();
-    }
+    reportService.generate();
   };
 
   return (
