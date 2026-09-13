@@ -18,7 +18,7 @@ function run(cmd) {
 }
 
 run('git config user.name "github-actions[bot]"');
-run('git config user.email "github-actions[bot]@users.noreply.github.com');
+run('git config user.email "github-actions[bot]@users.noreply.github.com"');
 
 for (const file of PUBLISHED) {
   run(`git add ${file}`);
