@@ -44,19 +44,19 @@ jobs:
         run: pnpm run test:examples
 
       - name: Size limit
-        run: pnpm run size-limit --if-present
+        run: pnpm run size-limit
 
       - name: Publint
-        run: pnpm run publint --if-present
+        run: pnpm run publint
 
       - name: React Native smoke
         run: node scripts/check-react-native.mjs
 
       - name: Dependency boundaries
-        run: pnpm run check:boundaries --if-present
+        run: pnpm run check:boundaries
 
       - name: Bench smoke
-        run: pnpm run bench:quick --if-present
+        run: pnpm run bench:quick
         env:
           NODE_OPTIONS: --max-old-space-size=4096
 
