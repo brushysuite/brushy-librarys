@@ -62,5 +62,7 @@ jobs:
 
       - name: Validate Mintlify docs
         run: |
-          pnpm --filter @brushy/docs run validate
-          pnpm --filter @brushy/docs run broken-links
+          cd apps/docs
+          pnpm install --ignore-workspace --frozen-lockfile
+          pnpm run validate
+          pnpm run broken-links

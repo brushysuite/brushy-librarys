@@ -45,9 +45,10 @@ Test MCP from the docs header: **Connect to Cursor** or **Copy MCP server URL**.
 On every push/PR to `main`, CI runs:
 
 ```bash
-pnpm install --frozen-lockfile
-pnpm --filter @brushy/docs run validate
-pnpm --filter @brushy/docs run broken-links
+cd apps/docs
+pnpm install --ignore-workspace --frozen-lockfile
+pnpm run validate
+pnpm run broken-links
 ```
 
 Run the same locally before merging doc changes.
@@ -55,8 +56,9 @@ Run the same locally before merging doc changes.
 ## Local preview
 
 ```bash
-pnpm install --frozen-lockfile
-pnpm run docs:dev
+cd apps/docs
+pnpm install --ignore-workspace --frozen-lockfile
+pnpm run dev
 ```
 
 Opens Mintlify dev server (default `http://localhost:3000`).

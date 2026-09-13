@@ -28,8 +28,8 @@
     "example:expo": "pnpm --filter @brushy-examples/expo start",
     "example:express": "pnpm --filter @brushy-examples/express run dev",
     "example:fastify": "pnpm --filter @brushy-examples/fastify run dev",
-    "docs:dev": "pnpm --filter @brushy/docs run dev",
-    "docs:validate": "pnpm --filter @brushy/docs run validate",
+    "docs:dev": "pnpm --dir apps/docs run dev",
+    "docs:validate": "pnpm --dir apps/docs run validate",
     "check-types:examples": "turbo run check-types --filter='@brushy-examples/vite' --filter='@brushy-examples/expo' --filter='@brushy-examples/express' --filter='@brushy-examples/fastify'",
     "test:examples": "turbo run test --filter='@brushy-examples/*'"
   },
