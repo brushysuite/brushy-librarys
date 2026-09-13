@@ -44,7 +44,7 @@
   },
   "homepage": "https://brushysuite.gfrancodev.com/docs/di",
   "dependencies": {
-    "@brushy/di-core": "*"
+    "@brushy/di-core": "workspace:*"
   },
   "peerDependencies": {
     "react": ">=18.0.0"

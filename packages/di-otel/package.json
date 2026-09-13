@@ -33,7 +33,7 @@
   "author": "Gustavo Franco <contact@gfrancodev.com>",
   "license": "MIT",
   "dependencies": {
-    "@brushy/di-core": "*"
+    "@brushy/di-core": "workspace:*"
   },
   "peerDependencies": {
     "@opentelemetry/api": ">=1.0.0"
@@ -44,6 +44,7 @@
     }
   },
   "devDependencies": {
+    "@types/node": "^22.20.2",
     "@opentelemetry/api": "^1.9.1",
     "@swc/core": "^1.16.2",
     "tsup": "^8.5.1",

@@ -44,7 +44,7 @@
   },
   "homepage": "https://brushysuite.gfrancodev.com/docs/di",
   "dependencies": {
-    "@brushy/di-core": "*"
+    "@brushy/di-core": "workspace:*"
   },
   "devDependencies": {
     "@swc/core": "^1.16.2",

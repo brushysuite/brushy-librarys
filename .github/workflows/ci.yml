@@ -16,51 +16,53 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
+          cache: pnpm
 
-      - run: npm ci
+      - run: pnpm install --frozen-lockfile
 
       - name: Lint and format
-        run: npm run lint
+        run: pnpm run lint
 
       - name: Check types
-        run: npm run check-types -- --filter='@brushy/di*' --filter='@brushy/storage*'
+        run: pnpm run check-types -- --filter='@brushy/di*' --filter='@brushy/storage*'
 
       - name: Check example types
-        run: npm run check-types:examples
+        run: pnpm run check-types:examples
 
       - name: Test
-        run: npm run test -- --filter='@brushy/di*' --filter='@brushy/storage*'
+        run: pnpm run test -- --filter='@brushy/di*' --filter='@brushy/storage*'
 
       - name: Build
-        run: npm run build-packages
+        run: pnpm run build-packages
 
       - name: Test examples
-        run: npm run test:examples
+        run: pnpm run test:examples
 
       - name: Size limit
-        run: npm run size-limit --if-present
+        run: pnpm run size-limit --if-present
 
       - name: Publint
-        run: npm run publint --if-present
+        run: pnpm run publint --if-present
 
       - name: React Native smoke
         run: node scripts/check-react-native.mjs
 
       - name: Dependency boundaries
-        run: npm run check:boundaries --if-present
+        run: pnpm run check:boundaries --if-present
 
       - name: Bench smoke
-        run: npm run bench:quick --if-present
+        run: pnpm run bench:quick --if-present
         env:
           NODE_OPTIONS: --max-old-space-size=4096
 
       - name: Validate Mintlify docs
         run: |
-          cd apps/docs
-          npm ci
-          npm run validate
-          npm run broken-links
+          pnpm --filter @brushy/docs run validate
+          pnpm --filter @brushy/docs run broken-links

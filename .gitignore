@@ -53,3 +53,5 @@ yarn-error.log*
 # Package manager configs
 .npmrc
 .yarnrc.yml
+package-lock.json
+**/package-lock.json

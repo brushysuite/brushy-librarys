@@ -99,13 +99,13 @@ npm install @brushy/di @brushy/storage
 ```bash
 git clone https://github.com/brushysuite/brushy-librarys.git
 cd brushy-librarys
-npm ci
+pnpm install --frozen-lockfile
 
-npm run build-packages
-npm run test -- --filter='@brushy/di*'
-npm run test:coverage
-npm run check-types
-npm run publint
+pnpm run build-packages
+pnpm run test -- --filter='@brushy/di*'
+pnpm run test:coverage
+pnpm run check-types
+pnpm run publint
 ```
 
 See [Contributing](CONTRIBUTING.md) for pull requests and releases.

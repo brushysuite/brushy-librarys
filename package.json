@@ -18,18 +18,18 @@
     "size-limit": "size-limit",
     "publint": "publint packages/di-core packages/di-react packages/di-monitor packages/di-otel packages/di packages/storage packages/storage-react",
     "check:boundaries": "depcruise packages/di-core/src packages/di-react/src packages/di-monitor/src packages/di-otel/src --config .dependency-cruiser.cjs",
-    "bench": "npm run bench --workspace=@brushy/di-bench",
-    "bench:quick": "npm run bench:quick --workspace=@brushy/di-bench",
-    "bench:report": "npm run bench:report --workspace=@brushy/di-bench",
-    "changeset": "npx changeset",
-    "version-packages": "npx changeset version",
-    "release": "npm run build-packages && changeset publish",
-    "example:vite": "npm run dev --workspace=@brushy-examples/vite",
-    "example:expo": "npm start --workspace=@brushy-examples/expo",
-    "example:express": "npm run dev --workspace=@brushy-examples/express",
-    "example:fastify": "npm run dev --workspace=@brushy-examples/fastify",
-    "docs:dev": "npm run dev --prefix apps/docs",
-    "docs:validate": "npm run validate --prefix apps/docs",
+    "bench": "pnpm --filter @brushy/di-bench run bench",
+    "bench:quick": "pnpm --filter @brushy/di-bench run bench:quick",
+    "bench:report": "pnpm --filter @brushy/di-bench run bench:report",
+    "changeset": "pnpm exec changeset",
+    "version-packages": "pnpm exec changeset version",
+    "release": "pnpm run build-packages && pnpm exec changeset publish",
+    "example:vite": "pnpm --filter @brushy-examples/vite run dev",
+    "example:expo": "pnpm --filter @brushy-examples/expo start",
+    "example:express": "pnpm --filter @brushy-examples/express run dev",
+    "example:fastify": "pnpm --filter @brushy-examples/fastify run dev",
+    "docs:dev": "pnpm --filter @brushy/docs run dev",
+    "docs:validate": "pnpm --filter @brushy/docs run validate",
     "check-types:examples": "turbo run check-types --filter='@brushy-examples/vite' --filter='@brushy-examples/expo' --filter='@brushy-examples/express' --filter='@brushy-examples/fastify'",
     "test:examples": "turbo run test --filter='@brushy-examples/*'"
   },
@@ -53,49 +53,41 @@
   "engines": {
     "node": ">=22"
   },
-  "packageManager": "npm@10.9.9",
-  "workspaces": [
-    "packages/*",
-    "examples/*"
-  ],
+  "packageManager": "pnpm@9.15.9",
+  "pnpm": {
+    "overrides": {
+      "typescript": "5.9.3",
+      "tinybench": "6.2.0",
+      "vitest": "^5.0.0",
+      "glob": "^10.5.0",
+      "form-data": "^4.0.6",
+      "esbuild": "0.28.2",
+      "brace-expansion": "^2.1.4",
+      "minimatch": "^9.0.9",
+      "js-yaml": "^4.3.1",
+      "lodash": "^4.18.1",
+      "postcss": "^8.5.26",
+      "yaml": "^2.9.0",
+      "flatted": "^3.4.4",
+      "nanoid": "^3.3.18",
+      "ajv": "^8.20.0",
+      "tmp": "^0.2.7",
+      "@tootallnate/once": "^2.0.1",
+      "on-headers": "^1.1.0",
+      "@types/react": "19.3.0",
+      "react": "19.3.0",
+      "react-dom": "19.3.0",
+      "@brushy-examples/expo>react": "19.2.3",
+      "@brushy-examples/expo>@types/react": "~19.2.4",
+      "@brushy-examples/expo>react-native": "0.86.3",
+      "@mintlify/previewing>react": "19.3.0",
+      "@mintlify/previewing>react-dom": "19.3.0",
+      "@mintlify/cli>react": "19.3.0",
+      "@mintlify/cli>react-dom": "19.3.0"
+    }
+  },
   "dependencies": {
     "@testing-library/dom": "^10.4.1"
-  },
-  "overrides": {
-    "typescript": "5.9.3",
-    "tinybench": "6.2.0",
-    "vitest": "^5.0.0",
-    "glob": "^10.5.0",
-    "form-data": "^4.0.6",
-    "esbuild": "0.28.2",
-    "brace-expansion": "^2.1.4",
-    "minimatch": "^9.0.9",
-    "js-yaml": "^4.3.1",
-    "lodash": "^4.18.1",
-    "postcss": "^8.5.26",
-    "yaml": "^2.9.0",
-    "flatted": "^3.4.4",
-    "nanoid": "^3.3.18",
-    "ajv": "^8.20.0",
-    "tmp": "^0.2.7",
-    "@tootallnate/once": "^2.0.1",
-    "on-headers": "^1.1.0",
-    "@types/react": "19.3.0",
-    "react": "19.3.0",
-    "react-dom": "19.3.0",
-    "@brushy-examples/expo": {
-      "react": "19.2.3",
-      "@types/react": "~19.2.4",
-      "react-native": "0.86.3"
-    },
-    "@mintlify/previewing": {
-      "react": "19.3.0",
-      "react-dom": "19.3.0"
-    },
-    "@mintlify/cli": {
-      "react": "19.3.0",
-      "react-dom": "19.3.0"
-    }
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,json}": "biome check --write --no-errors-on-unmatched"

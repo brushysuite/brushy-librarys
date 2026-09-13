@@ -6,15 +6,15 @@
   "type": "module",
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "bench": "npm run build -w @brushy/di-core && npm run build && node --max-old-space-size=8192 --import reflect-metadata dist/bench.js",
-    "bench:quick": "npm run build -w @brushy/di-core && npm run build && BENCH_TIME_MS=1000 BENCH_RUNS=1 node --max-old-space-size=4096 --import reflect-metadata dist/bench.js",
-    "bench:report": "npm run bench",
+    "bench": "pnpm --filter @brushy/di-core run build && pnpm run build && node --max-old-space-size=8192 --import reflect-metadata dist/bench.js",
+    "bench:quick": "pnpm --filter @brushy/di-core run build && pnpm run build && BENCH_TIME_MS=1000 BENCH_RUNS=1 node --max-old-space-size=4096 --import reflect-metadata dist/bench.js",
+    "bench:report": "pnpm run bench",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "prebench": "npm run build -w @brushy/di-core && npm run build"
+    "prebench": "pnpm --filter @brushy/di-core run build && pnpm run build"
   },
   "dependencies": {
-    "@brushy/di-core": "*",
+    "@brushy/di-core": "workspace:*",
     "awilix": "^13.0.5",
     "inversify": "^8.2.3",
     "reflect-metadata": "^0.2.2",
@@ -22,6 +22,7 @@
     "tinybench": "^6.2.0"
   },
   "devDependencies": {
+    "@types/node": "^22.20.2",
     "@vitest/coverage-v8": "^5.0.0",
     "@swc/core": "^1.16.2",
     "typescript": "5.9.3",

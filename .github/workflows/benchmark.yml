@@ -25,15 +25,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
+          cache: pnpm
 
-      - run: npm ci
+      - run: pnpm install --frozen-lockfile
 
       - name: Run full benchmark suite
-        run: npm run bench --workspace=@brushy/di-bench
+        run: pnpm --filter @brushy/di-bench run bench
         env:
           NODE_OPTIONS: --max-old-space-size=8192
 

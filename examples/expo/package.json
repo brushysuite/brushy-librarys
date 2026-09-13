@@ -9,10 +9,10 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@brushy/di-core": "*",
-    "@brushy/di-react": "*",
-    "@brushy/storage": "*",
-    "@brushy/storage-react": "*",
+    "@brushy/di-core": "workspace:*",
+    "@brushy/di-react": "workspace:*",
+    "@brushy/storage": "workspace:*",
+    "@brushy/storage-react": "workspace:*",
     "expo": "~57.0.22",
     "expo-asset": "~57.0.17",
     "lucide-react-native": "^1.45.0",

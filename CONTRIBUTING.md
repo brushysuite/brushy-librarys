@@ -3,18 +3,18 @@
 ## Development
 
 ```bash
-npm ci
-npm run build-packages
-npm run lint
-npm run test -- --filter='@brushy/di*' --filter='@brushy/storage*'
+pnpm install --frozen-lockfile
+pnpm run build-packages
+pnpm run lint
+pnpm run test -- --filter='@brushy/di*' --filter='@brushy/storage*'
 ```
 
 Lint and format use [Biome](https://biomejs.dev/) at the repo root:
 
 ```bash
-npm run lint        # check lint + format
-npm run lint:fix    # auto-fix safe issues
-npm run format      # format all files
+pnpm run lint        # check lint + format
+pnpm run lint:fix    # auto-fix safe issues
+pnpm run format      # format all files
 ```
 
 ## Packages
@@ -31,13 +31,13 @@ npm run format      # format all files
 
 ## Examples
 
-The [`examples/`](examples/README.md) folder contains private demo apps (`@brushy-examples/*`). They are not published to npm. Run `npm run build-packages` before trying an example.
+The [`examples/`](examples/README.md) folder contains private demo apps (`@brushy-examples/*`). They are not published to npm. Run `pnpm run build-packages` before trying an example.
 
 ## Pull Requests
 
 1. Branch from `main`
-2. Run `npm run check-types` and tests locally
-3. Add a changeset: `npm run changeset`
+2. Run `pnpm run check-types` and tests locally
+3. Add a changeset: `pnpm run changeset`
 4. Keep PRs focused - one concern per PR
 
 ## Releases
@@ -46,5 +46,5 @@ Releases use [Changesets](https://github.com/changesets/changesets). After mergi
 
 Local commands (for debugging only):
 
-- `npm run version-packages` — apply pending changesets
-- `npm run release` — build and publish (requires npm auth)
+- `pnpm run version-packages` — apply pending changesets
+- `pnpm run release` — build and publish (requires npm auth)

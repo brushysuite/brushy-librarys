@@ -11,10 +11,10 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@brushy/di-core": "*",
-    "@brushy/di-react": "*",
-    "@brushy/storage": "*",
-    "@brushy/storage-react": "*",
+    "@brushy/di-core": "workspace:*",
+    "@brushy/di-react": "workspace:*",
+    "@brushy/storage": "workspace:*",
+    "@brushy/storage-react": "workspace:*",
     "@tailwindcss/vite": "^4.3.3",
     "lucide-react": "^1.45.0",
     "react": "19.3.0",

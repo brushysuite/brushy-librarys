@@ -10,9 +10,5 @@
   },
   "devDependencies": {
     "mintlify": "^4.2.355"
-  },
-  "overrides": {
-    "react": "19.3.0",
-    "react-dom": "19.3.0"
   }
 }
