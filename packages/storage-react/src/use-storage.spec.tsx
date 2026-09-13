@@ -12,9 +12,7 @@ describe("useStorage", () => {
   it("initializes with initial value when key is empty", () => {
     const storage = createStorage({ id: "hook-init" });
     const { result } = renderHook(() => useStorage("token", null as string | null), {
-      wrapper: ({ children }) => (
-        <StorageProvider storage={storage}>{children}</StorageProvider>
-      ),
+      wrapper: ({ children }) => <StorageProvider storage={storage}>{children}</StorageProvider>,
     });
 
     expect(result.current.value).toBeNull();
@@ -23,9 +21,7 @@ describe("useStorage", () => {
   it("updates value", () => {
     const storage = createStorage({ id: "hook-set" });
     const { result } = renderHook(() => useStorage("count", 0), {
-      wrapper: ({ children }) => (
-        <StorageProvider storage={storage}>{children}</StorageProvider>
-      ),
+      wrapper: ({ children }) => <StorageProvider storage={storage}>{children}</StorageProvider>,
     });
 
     act(() => {
@@ -38,9 +34,7 @@ describe("useStorage", () => {
   it("supports functional updates without stale closure", () => {
     const storage = createStorage({ id: "hook-fn" });
     const { result } = renderHook(() => useStorage("count", 0), {
-      wrapper: ({ children }) => (
-        <StorageProvider storage={storage}>{children}</StorageProvider>
-      ),
+      wrapper: ({ children }) => <StorageProvider storage={storage}>{children}</StorageProvider>,
     });
 
     act(() => {
@@ -54,9 +48,7 @@ describe("useStorage", () => {
   it("removes value and falls back to initial", () => {
     const storage = createStorage({ id: "hook-remove" });
     const { result } = renderHook(() => useStorage("token", "initial"), {
-      wrapper: ({ children }) => (
-        <StorageProvider storage={storage}>{children}</StorageProvider>
-      ),
+      wrapper: ({ children }) => <StorageProvider storage={storage}>{children}</StorageProvider>,
     });
 
     act(() => {
@@ -74,15 +66,11 @@ describe("useStorage", () => {
     const storage = createStorage({ id: "hook-sync" });
 
     const { result: a } = renderHook(() => useStorage("shared", 0), {
-      wrapper: ({ children }) => (
-        <StorageProvider storage={storage}>{children}</StorageProvider>
-      ),
+      wrapper: ({ children }) => <StorageProvider storage={storage}>{children}</StorageProvider>,
     });
 
     const { result: b } = renderHook(() => useStorage("shared", 0), {
-      wrapper: ({ children }) => (
-        <StorageProvider storage={storage}>{children}</StorageProvider>
-      ),
+      wrapper: ({ children }) => <StorageProvider storage={storage}>{children}</StorageProvider>,
     });
 
     act(() => {

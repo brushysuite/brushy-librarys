@@ -1,10 +1,5 @@
 import { composeBuses, createBroadcastBus, getRegistryChannel } from "./bus";
-import {
-  persistGet,
-  persistRemove,
-  persistSet,
-  resolvePersist,
-} from "./persist";
+import { persistGet, persistRemove, persistSet, resolvePersist } from "./persist";
 import { expireAtFromTtlSeconds, parseTtlToSeconds } from "./ttl";
 import type {
   CacheEvent,
@@ -338,9 +333,7 @@ class BrushyStorage implements Storage {
     const normalized = normalizeKey(key);
     const prev = this.get<T>(key);
     const next =
-      typeof updater === "function"
-        ? (updater as (prev: T | undefined) => T)(prev)
-        : updater;
+      typeof updater === "function" ? (updater as (prev: T | undefined) => T)(prev) : updater;
     this.set(normalized, next, options?.ttl);
     return next;
   }

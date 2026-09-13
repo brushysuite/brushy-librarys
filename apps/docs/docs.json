@@ -183,12 +183,7 @@
             "groups": [
               {
                 "group": "Introduction",
-                "pages": [
-                  "di/overview",
-                  "di/entrypoints",
-                  "di/introduction",
-                  "di/getting-started"
-                ]
+                "pages": ["di/overview", "di/entrypoints", "di/introduction", "di/getting-started"]
               },
               {
                 "group": "@brushy/di-core",
@@ -275,12 +270,7 @@
               },
               {
                 "group": "Example projects",
-                "pages": [
-                  "examples/vite",
-                  "examples/expo",
-                  "examples/express",
-                  "examples/fastify"
-                ]
+                "pages": ["examples/vite", "examples/expo", "examples/express", "examples/fastify"]
               }
             ]
           }

@@ -100,7 +100,11 @@ describe("createStorage", () => {
     cache.set("theme", "dark");
     cache.close();
 
-    const reloaded = createStorage({ id: "test-persist-reload", persist: "local", prefix: "@test:" });
+    const reloaded = createStorage({
+      id: "test-persist-reload",
+      persist: "local",
+      prefix: "@test:",
+    });
     expect(reloaded.get("theme")).toBe("dark");
     reloaded.close();
   });

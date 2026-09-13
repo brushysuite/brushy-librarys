@@ -121,9 +121,7 @@ export function deserializeEnvelope<T>(raw: string): { value: T; expired: boolea
     }
 
     const expired =
-      parsed.ttl !== undefined &&
-      parsed.ttl > 0 &&
-      Date.now() - parsed.ts > parsed.ttl * 1000;
+      parsed.ttl !== undefined && parsed.ttl > 0 && Date.now() - parsed.ts > parsed.ttl * 1000;
 
     return { value: parsed.value as T, expired };
   } catch {

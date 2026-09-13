@@ -1,5 +1,5 @@
 import { createStorage, type Storage, type StorageOptions } from "@brushy/storage";
-import { createContext, useContext, type ReactNode } from "react";
+import { createContext, type ReactNode, useContext } from "react";
 
 const defaultStorage = createStorage({ id: "@brushy:default" });
 

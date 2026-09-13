@@ -75,6 +75,14 @@
       }
     },
     {
+      "includes": ["examples/vite/**/*.css"],
+      "css": {
+        "parser": {
+          "tailwindDirectives": true
+        }
+      }
+    },
+    {
       "includes": ["**/*.{spec,test}.{ts,tsx}"],
       "linter": {
         "rules": {
