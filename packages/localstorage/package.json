@@ -1,6 +1,6 @@
 {
   "name": "@brushy/localstorage",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Deprecated. Use @brushy/storage and @brushy/storage-react instead",
   "deprecated": "Use @brushy/storage. See https://github.com/brushysuite/brushy-librarys/tree/main/packages/storage",
   "main": "./dist/index.js",
