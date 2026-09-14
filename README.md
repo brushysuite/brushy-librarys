@@ -1,13 +1,13 @@
-# Brushy Suite
-
 <div align="center">
+  <img src="apps/docs/apple-touch-icon.png" alt="Brushy Suite" width="128" />
+  <h1>Brushy Suite</h1>
   <p>A high-level library suite for modern JavaScript/TypeScript development</p>
+  <br />
+  [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+  [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)](https://www.typescriptlang.org/)
+  [![Turborepo](https://img.shields.io/badge/Built%20With-Turborepo-blueviolet.svg)](https://turbo.build/)
+  [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 </div>
-
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.8-blue.svg)](https://www.typescriptlang.org/)
-[![Turborepo](https://img.shields.io/badge/Built%20With-Turborepo-blueviolet.svg)](https://turbo.build/)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
 ## Overview
 
