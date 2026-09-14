@@ -32,9 +32,5 @@ if (!diff) {
   process.exit(0);
 }
 
-run("git", [
-  "commit",
-  "-m",
-  "chore(di-bench): update published benchmark results [skip ci]",
-]);
+run("git", ["commit", "-m", "chore(di-bench): update published benchmark results [skip ci]"]);
 run("git", ["push"]);
