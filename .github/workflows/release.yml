@@ -34,10 +34,8 @@ jobs:
 
       - name: Configure npm auth for pnpm
         run: |
-          cat > .npmrc <<EOF
-          @brushy:registry=https://registry.npmjs.org/
-          //registry.npmjs.org/:_authToken=${NPM_TOKEN}
-          EOF
+          echo "@brushy:registry=https://registry.npmjs.org/" > .npmrc
+          echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> .npmrc
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
