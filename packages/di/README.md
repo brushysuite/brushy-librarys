@@ -1,21 +1,20 @@
-# @brushy/di
-
 <div align="center">
-
-[![Coverage - Statements](https://img.shields.io/badge/Coverage%20Statements-99.5%25-brightgreen.svg)](coverage)
-[![Coverage - Branches](https://img.shields.io/badge/Coverage%20Branches-98.73%25-brightgreen.svg)](coverage)
-[![Coverage - Functions](https://img.shields.io/badge/Coverage%20Functions-100%25-brightgreen.svg)](coverage)
-[![Coverage - Lines](https://img.shields.io/badge/Coverage%20Lines-99.5%25-brightgreen.svg)](coverage)
-
-[![npm downloads](https://img.shields.io/npm/dm/@brushy/di.svg)](https://www.npmjs.com/package/@brushy/di)
-[![npm bundle size](https://img.shields.io/bundlephobia/minzip/@brushy/di)](https://bundlephobia.com/package/@brushy/di)
-[![npm version](https://img.shields.io/npm/v/@brushy/di.svg)](https://www.npmjs.com/package/@brushy/di)
-
+  <img src="../../apps/docs/apple-touch-icon.png" alt="Brushy Suite" width="128" />
+  <h1>@brushy/di</h1>
+  <p>Typed dependency injection for Node.js, browsers, React, and React Native</p>
+  <br />
+  [![Coverage - Statements](https://img.shields.io/badge/Coverage%20Statements-99.5%25-brightgreen.svg)](coverage)
+  [![Coverage - Branches](https://img.shields.io/badge/Coverage%20Branches-98.73%25-brightgreen.svg)](coverage)
+  [![Coverage - Functions](https://img.shields.io/badge/Coverage%20Functions-100%25-brightgreen.svg)](coverage)
+  [![Coverage - Lines](https://img.shields.io/badge/Coverage%20Lines-99.5%25-brightgreen.svg)](coverage)
+  [![npm downloads](https://img.shields.io/npm/dm/@brushy/di.svg)](https://www.npmjs.com/package/@brushy/di)
+  [![npm bundle size](https://img.shields.io/bundlephobia/minzip/@brushy/di)](https://bundlephobia.com/package/@brushy/di)
+  [![npm version](https://img.shields.io/npm/v/@brushy/di.svg)](https://www.npmjs.com/package/@brushy/di)
 </div>
 
-Umbrella package for **Brushy DI v2.0**: typed dependency injection for Node.js, browsers, React, and React Native. Re-exports `@brushy/di-core`, `@brushy/di-react`, and `@brushy/di-monitor` from one install. OpenTelemetry lives in `@brushy/di/otel` (subpath only).
+Umbrella package for **Brushy DI v2.0**: re-exports `@brushy/di-core`, `@brushy/di-react`, and `@brushy/di-monitor` from one install. OpenTelemetry lives in `@brushy/di/otel` (subpath only).
 
-**Documentation:** [brushysuite.gfrancodev.com/docs/di](https://brushysuite.gfrancodev.com/docs/di) · [Examples](https://github.com/brushysuite/brushy-librarys/tree/main/examples)
+**Documentation:** [brushysuite.gfrancodev.com](https://brushysuite.gfrancodev.com/di/overview) · [Examples](https://brushysuite.gfrancodev.com/examples/overview) · [GitHub](https://github.com/brushysuite/brushy-librarys)
 
 ## Features
 
@@ -30,21 +29,21 @@ Umbrella package for **Brushy DI v2.0**: typed dependency injection for Node.js,
 
 | Package | Role |
 | --- | --- |
-| `@brushy/di` | Umbrella (core + react + monitor; otel via subpath) |
-| `@brushy/di-core` | Container, tokens, lifecycles, request scope, server facade |
-| `@brushy/di-react` | React / React Native hooks and component injection |
-| `@brushy/di-monitor` | Container event monitoring and stats |
-| `@brushy/di-otel` | OpenTelemetry resolve tracing (optional) |
+| [`@brushy/di`](https://www.npmjs.com/package/@brushy/di) | Umbrella (core + react + monitor; otel via subpath) |
+| [`@brushy/di-core`](https://www.npmjs.com/package/@brushy/di-core) | Container, tokens, lifecycles, request scope, server facade |
+| [`@brushy/di-react`](https://www.npmjs.com/package/@brushy/di-react) | React / React Native hooks and component injection |
+| [`@brushy/di-monitor`](https://www.npmjs.com/package/@brushy/di-monitor) | Container event monitoring and stats |
+| [`@brushy/di-otel`](https://www.npmjs.com/package/@brushy/di-otel) | OpenTelemetry resolve tracing (optional) |
 
 ### Related Brushy libraries
 
 | Package | Role |
 | --- | --- |
-| `@brushy/storage` | Isomorphic cache (NodeCache-style DX, optional browser persist) |
-| `@brushy/storage-react` | React hooks for storage (`useStorage`) |
-| `@brushy/localstorage` | **Deprecated.** Use `@brushy/storage` + `@brushy/storage-react` |
+| [`@brushy/storage`](https://www.npmjs.com/package/@brushy/storage) | Isomorphic cache (NodeCache-style DX, optional browser persist) |
+| [`@brushy/storage-react`](https://www.npmjs.com/package/@brushy/storage-react) | React hooks for storage (`useStorage`) |
+| [`@brushy/localstorage`](https://www.npmjs.com/package/@brushy/localstorage) | **Deprecated.** Use `@brushy/storage` + `@brushy/storage-react` |
 
-Examples combine DI with `@brushy/storage` ([Vite](https://github.com/brushysuite/brushy-librarys/tree/main/examples/vite), [Express](https://github.com/brushysuite/brushy-librarys/tree/main/examples/express)).
+Examples combine DI with `@brushy/storage` ([Vite](https://brushysuite.gfrancodev.com/examples/vite), [Express](https://brushysuite.gfrancodev.com/examples/express)).
 
 ## Installation
 
@@ -65,7 +64,7 @@ npm install @brushy/di react
 | Monitor (optional) | `npm install @brushy/di-monitor` |
 | OpenTelemetry (optional) | `npm install @brushy/di-otel @opentelemetry/api` |
 
-Granular install: `@brushy/di-core` + `@brushy/di-react`. Setup guide: [Getting Started](https://brushysuite.gfrancodev.com/docs/di/getting-started).
+Granular install: `@brushy/di-core` + `@brushy/di-react`. Setup guide: [Getting Started](https://brushysuite.gfrancodev.com/di/getting-started).
 
 ## Quick start
 
@@ -139,7 +138,7 @@ import { monitor } from "@brushy/di/monitor";
 import { traceContainer } from "@brushy/di/otel"; // not re-exported from main entry
 ```
 
-Runtime guide: [Package entrypoints](https://brushysuite.gfrancodev.com/docs/di/entrypoints).
+Runtime guide: [Package entrypoints](https://brushysuite.gfrancodev.com/di/entrypoints).
 
 ## Benchmark
 
@@ -174,18 +173,18 @@ xychart-beta
 
 `request_scope`: tsyringe and inversify have no native request scope (N/A). Bars are scaled per row (Brushy = 10 blocks).
 
-Full numbers and methodology: [Benchmarks docs](https://brushysuite.gfrancodev.com/docs/di/benchmarks) · [`BENCHMARK.md`](../di-bench/results/BENCHMARK.md) · [`METHODOLOGY.md`](../di-bench/METHODOLOGY.md)
+Full numbers and methodology: [Benchmarks docs](https://brushysuite.gfrancodev.com/di/benchmarks) · [`BENCHMARK.md`](../di-bench/results/BENCHMARK.md) · [`METHODOLOGY.md`](../di-bench/METHODOLOGY.md)
 
 ## Example projects
 
-Runnable demos on GitHub: [examples/](https://github.com/brushysuite/brushy-librarys/tree/main/examples)
+Runnable demos: [examples overview](https://brushysuite.gfrancodev.com/examples/overview) · [GitHub `examples/`](https://github.com/brushysuite/brushy-librarys/tree/main/examples)
 
 | Example | Stack | Highlights |
 | --- | --- | --- |
-| [vite](https://github.com/brushysuite/brushy-librarys/tree/main/examples/vite) | Vite + React | `useInject`, `@brushy/storage-react` |
-| [expo](https://github.com/brushysuite/brushy-librarys/tree/main/examples/expo) | Expo + RN | same + RN error renderer |
-| [express](https://github.com/brushysuite/brushy-librarys/tree/main/examples/express) | Express | `brushyRequestScope`, scoped services |
-| [fastify](https://github.com/brushysuite/brushy-librarys/tree/main/examples/fastify) | Fastify | `runInRequestScopeAsync` |
+| [vite](https://brushysuite.gfrancodev.com/examples/vite) | Vite + React | `useInject`, `@brushy/storage-react` |
+| [expo](https://brushysuite.gfrancodev.com/examples/expo) | Expo + RN | same + RN error renderer |
+| [express](https://brushysuite.gfrancodev.com/examples/express) | Express | `brushyRequestScope`, scoped services |
+| [fastify](https://brushysuite.gfrancodev.com/examples/fastify) | Fastify | `runInRequestScopeAsync` |
 
 ## Migration from v1
 
@@ -203,11 +202,11 @@ import { Container, createToken } from "@brushy/di-core";
 import { useInject, BrushyDIProvider } from "@brushy/di-react";
 ```
 
-Breaking changes: `useLazyInject` → `useInjectLazy`; typed tokens via `createToken` (avoid string tokens). Full guide: [Migration v2](https://brushysuite.gfrancodev.com/docs/di/migration-v2).
+Breaking changes: `useLazyInject` → `useInjectLazy`; typed tokens via `createToken` (avoid string tokens). Full guide: [Migration v2](https://brushysuite.gfrancodev.com/di/migration-v2).
 
 ## Documentation
 
-[Overview](https://brushysuite.gfrancodev.com/docs/di/overview) · [Getting Started](https://brushysuite.gfrancodev.com/docs/di/getting-started) · [Container](https://brushysuite.gfrancodev.com/docs/di/container) · [Server](https://brushysuite.gfrancodev.com/docs/di/server) · [React hooks](https://brushysuite.gfrancodev.com/docs/di/react-hooks) · [Component injection](https://brushysuite.gfrancodev.com/docs/di/component-injection) · [Best practices](https://brushysuite.gfrancodev.com/docs/di/best-practices) · [Benchmarks](https://brushysuite.gfrancodev.com/docs/di/benchmarks) · [Monitor](https://brushysuite.gfrancodev.com/docs/di/monitor/overview)
+[Overview](https://brushysuite.gfrancodev.com/di/overview) · [Getting Started](https://brushysuite.gfrancodev.com/di/getting-started) · [Container](https://brushysuite.gfrancodev.com/di/container) · [Server](https://brushysuite.gfrancodev.com/di/server) · [React hooks](https://brushysuite.gfrancodev.com/di/react-hooks) · [Component injection](https://brushysuite.gfrancodev.com/di/component-injection) · [Best practices](https://brushysuite.gfrancodev.com/di/best-practices) · [Benchmarks](https://brushysuite.gfrancodev.com/di/benchmarks) · [Monitor](https://brushysuite.gfrancodev.com/di/monitor/overview)
 
 Related: [`@brushy/di-core`](../di-core/README.md) · [`@brushy/di-react`](../di-react/README.md) · [`@brushy/di-monitor`](../di-monitor/README.md) · [`@brushy/di-otel`](../di-otel/README.md) · [`@brushy/storage`](../storage/README.md)
 

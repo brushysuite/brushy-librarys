@@ -13,6 +13,8 @@
 
 The Brushy Suite is a collection of high-level libraries for modern JavaScript/TypeScript development. The focus is robust, well-tested tools with intuitive APIs.
 
+**Documentation:** [brushysuite.gfrancodev.com](https://brushysuite.gfrancodev.com) · [GitHub](https://github.com/brushysuite/brushy-librarys)
+
 ## Libraries
 
 ### @brushy/di (v2.0.0)
@@ -26,17 +28,19 @@ Published packages (`@brushy/di*` have 100% test coverage in CI):
 
 | Package | Role |
 | --- | --- |
-| `@brushy/di` | Umbrella (core + react + monitor + otel) |
-| `@brushy/di-core` | Node, browser, RN without React |
-| `@brushy/di-react` | React / React Native hooks |
-| `@brushy/di-monitor` | Optional observability |
-| `@brushy/di-otel` | Optional OpenTelemetry tracing |
+| [`@brushy/di`](https://www.npmjs.com/package/@brushy/di) | Umbrella (core + react + monitor + otel) |
+| [`@brushy/di-core`](https://www.npmjs.com/package/@brushy/di-core) | Node, browser, RN without React |
+| [`@brushy/di-react`](https://www.npmjs.com/package/@brushy/di-react) | React / React Native hooks |
+| [`@brushy/di-monitor`](https://www.npmjs.com/package/@brushy/di-monitor) | Optional observability |
+| [`@brushy/di-otel`](https://www.npmjs.com/package/@brushy/di-otel) | Optional OpenTelemetry tracing |
 
 **Docs**
 
-- [Documentation site](apps/docs) (Mintlify: run `npm run docs:dev`)
-- [Getting Started](apps/docs/getting-started/introduction.mdx)
-- [Migration v2](apps/docs/di/migration-v2.mdx) (upgrade from 1.x)
+- [Documentation site](https://brushysuite.gfrancodev.com)
+- [Getting Started](https://brushysuite.gfrancodev.com/getting-started/introduction)
+- [DI overview](https://brushysuite.gfrancodev.com/di/overview)
+- [Migration v2](https://brushysuite.gfrancodev.com/di/migration-v2) (upgrade from 1.x)
+- [DI benchmarks](https://brushysuite.gfrancodev.com/di/benchmarks)
 - [CHANGELOG](packages/di/CHANGELOG.md) (full release notes)
 - [Package README](packages/di/README.md) (examples, benchmark)
 
@@ -56,22 +60,24 @@ import { Container } from '@brushy/di/core';
 import { useInject, BrushyDIProvider } from '@brushy/di/react';
 ```
 
-`@brushy/di-bench` (private) provides Tier 1 comparative benchmarks vs tsyringe, InversifyJS, and awilix. Published results: [`packages/di-bench/results/BENCHMARK.md`](packages/di-bench/results/BENCHMARK.md) (updated by CI).
+`@brushy/di-bench` (private) provides Tier 1 comparative benchmarks vs tsyringe, InversifyJS, and awilix. Published results: [DI benchmarks](https://brushysuite.gfrancodev.com/di/benchmarks) · [`packages/di-bench/results/BENCHMARK.md`](packages/di-bench/results/BENCHMARK.md) (updated by CI).
 
 ### @brushy/storage (v2.0.0)
 
-Isomorphic cache primitive for the Brushy suite: NodeCache DX on the server, optional `localStorage` persist on the web. React hooks: `@brushy/storage-react`.
+[![npm version](https://img.shields.io/npm/v/@brushy/storage.svg)](https://www.npmjs.com/package/@brushy/storage)
+
+Isomorphic cache primitive for the Brushy suite: NodeCache DX on the server, optional `localStorage` persist on the web. React hooks: [`@brushy/storage-react`](https://www.npmjs.com/package/@brushy/storage-react).
 
 ```bash
 npm install @brushy/storage
 npm install @brushy/storage-react react
 ```
 
-See [packages/storage/README.md](packages/storage/README.md). `@brushy/localstorage` is **deprecated**.
+See [packages/storage/README.md](packages/storage/README.md) · [Storage docs](https://brushysuite.gfrancodev.com/storage/overview). [`@brushy/localstorage`](https://www.npmjs.com/package/@brushy/localstorage) is **deprecated** — migrate via [storage migration guide](https://brushysuite.gfrancodev.com/storage/migration).
 
 ## Examples
 
-Runnable demos for Vite, Expo, Express, and Fastify live in [`examples/`](examples/README.md). They show recommended DI patterns (`createToken`, `Container`, request scope, React hooks).
+Runnable demos for Vite, Expo, Express, and Fastify: [examples overview](https://brushysuite.gfrancodev.com/examples/overview) · [`examples/`](examples/README.md). They show recommended DI patterns (`createToken`, `Container`, request scope, React hooks).
 
 ```bash
 npm run build-packages

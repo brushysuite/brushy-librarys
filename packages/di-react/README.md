@@ -1,6 +1,14 @@
-# @brushy/di-react
+<div align="center">
+  <img src="../../apps/docs/apple-touch-icon.png" alt="Brushy Suite" width="128" />
+  <h1>@brushy/di-react</h1>
+  <p>React and React Native bindings for Brushy DI</p>
+  <br />
+  [![npm version](https://img.shields.io/npm/v/@brushy/di-react.svg)](https://www.npmjs.com/package/@brushy/di-react)
+</div>
 
 React and React Native bindings for [`@brushy/di-core`](../di-core/README.md). Part of the [@brushy/di 2.0](../di/README.md) umbrella.
+
+**Documentation:** [React hooks](https://brushysuite.gfrancodev.com/di/react-hooks) · [Component injection](https://brushysuite.gfrancodev.com/di/component-injection)
 
 ## Installation
 
@@ -171,6 +179,6 @@ Types: `BrushyDIProviderProps`, `InjectComponentErrorRenderer`, `InjectOptions`.
 | [`@brushy/di`](../di/README.md) | Umbrella install |
 | [`@brushy/di-core`](../di-core/README.md) | Container, tokens, request scope |
 
-- [React hooks guide](https://brushysuite.gfrancodev.com/docs/di/react-hooks)
-- [Component injection](https://brushysuite.gfrancodev.com/docs/di/component-injection)
-- [Example projects](../../examples/README.md)
+- [React hooks guide](https://brushysuite.gfrancodev.com/di/react-hooks)
+- [Component injection](https://brushysuite.gfrancodev.com/di/component-injection)
+- [Example projects](https://brushysuite.gfrancodev.com/examples/overview)

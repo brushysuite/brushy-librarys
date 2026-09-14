@@ -1,4 +1,10 @@
-# @brushy/localstorage (deprecated)
+<div align="center">
+  <img src="../../apps/docs/apple-touch-icon.png" alt="Brushy Suite" width="128" />
+  <h1>@brushy/localstorage</h1>
+  <p><strong>Deprecated</strong> — use @brushy/storage instead</p>
+  <br />
+  [![npm version](https://img.shields.io/npm/v/@brushy/localstorage.svg)](https://www.npmjs.com/package/@brushy/localstorage)
+</div>
 
 > **This package is deprecated.** Use [`@brushy/storage`](../storage/README.md) and [`@brushy/storage-react`](../storage-react/README.md) instead.
 
@@ -23,9 +29,10 @@ npm install @brushy/storage @brushy/storage-react react
 | `updateFields(patch)` | `set(prev => ({ ...prev, ...patch }))` |
 | Tuple return `[value, set, remove]` | Object `{ value, set, remove }` |
 
-v1 on-disk envelope is **not** read automatically. See the [migration guide](https://brushysuite.gfrancodev.com/docs/storage/migration).
+v1 on-disk envelope is **not** read automatically. See the [migration guide](https://brushysuite.gfrancodev.com/storage/migration).
 
 ## Docs
 
-- [@brushy/storage](../storage/README.md)
-- [@brushy/storage-react](../storage-react/README.md)
+- [@brushy/storage](https://www.npmjs.com/package/@brushy/storage) · [README](../storage/README.md)
+- [@brushy/storage-react](https://www.npmjs.com/package/@brushy/storage-react) · [README](../storage-react/README.md)
+- [Storage overview](https://brushysuite.gfrancodev.com/storage/overview)

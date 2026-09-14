@@ -1,8 +1,14 @@
-# @brushy/di-otel
+<div align="center">
+  <img src="../../apps/docs/apple-touch-icon.png" alt="Brushy Suite" width="128" />
+  <h1>@brushy/di-otel</h1>
+  <p>OpenTelemetry resolve tracing for Brushy DI</p>
+  <br />
+  [![npm version](https://img.shields.io/npm/v/@brushy/di-otel.svg)](https://www.npmjs.com/package/@brushy/di-otel)
+</div>
 
-OpenTelemetry hooks for resolve tracing in [@brushy/di-core](https://www.npmjs.com/package/@brushy/di-core).
+OpenTelemetry hooks for resolve tracing in [`@brushy/di-core`](https://www.npmjs.com/package/@brushy/di-core).
 
-Part of the [@brushy/di 2.0.0](../di/CHANGELOG.md) umbrella release.
+Part of the [@brushy/di 2.0](../di/README.md) umbrella release.
 
 ## Install
 
@@ -66,6 +72,7 @@ Options: `tracerName` (default `@brushy/di`), `attributeToken` (add `di.token` a
 
 ## Related
 
-- [@brushy/di-monitor](../di-monitor/README.md) for in-process event logging
-- [Full DI documentation](https://brushysuite.gfrancodev.com/docs/di)
+- [`@brushy/di-monitor`](../di-monitor/README.md) for in-process event logging
+- [`@brushy/di-core`](../di-core/README.md) · [`@brushy/di`](../di/README.md)
+- [DI overview](https://brushysuite.gfrancodev.com/di/overview)
 - [Changelog](./CHANGELOG.md) · [Umbrella release notes](../di/CHANGELOG.md)

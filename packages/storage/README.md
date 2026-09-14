@@ -1,6 +1,14 @@
-# @brushy/storage
+<div align="center">
+  <img src="../../apps/docs/apple-touch-icon.png" alt="Brushy Suite" width="128" />
+  <h1>@brushy/storage</h1>
+  <p>Isomorphic memory-first cache with NodeCache-style DX</p>
+  <br />
+  [![npm version](https://img.shields.io/npm/v/@brushy/storage.svg)](https://www.npmjs.com/package/@brushy/storage)
+</div>
 
 Isomorphic memory-first cache with NodeCache-style DX, optional browser persist, TTL, events, and an invalidation bus for multi-runtime Brushy apps.
+
+**Documentation:** [brushysuite.gfrancodev.com](https://brushysuite.gfrancodev.com/storage/overview) · React hooks: [`@brushy/storage-react`](../storage-react/README.md)
 
 ## Install
 
@@ -86,6 +94,8 @@ See [packages/storage-react/README.md](../storage-react/README.md). Hooks use `u
 
 ## Migration from `@brushy/localstorage`
 
+[`@brushy/localstorage`](https://www.npmjs.com/package/@brushy/localstorage) is **deprecated**. Migrate to this package:
+
 | v1 (`@brushy/localstorage`) | v2 (`@brushy/storage`) |
 | --- | --- |
 | `new LocalStorage(prefix)` | `createStorage({ prefix, persist: "local" })` |
@@ -98,8 +108,11 @@ v1 on-disk envelope is **not** read automatically.
 
 ## Docs
 
-- [Storage documentation](https://brushysuite.gfrancodev.com/docs/storage)
-- [Migration from localstorage](https://brushysuite.gfrancodev.com/docs/storage/migration)
+- [Storage overview](https://brushysuite.gfrancodev.com/storage/overview)
+- [Getting started](https://brushysuite.gfrancodev.com/storage/getting-started)
+- [API reference](https://brushysuite.gfrancodev.com/storage/api-reference)
+- [Migration from localstorage](https://brushysuite.gfrancodev.com/storage/migration)
+- [`@brushy/storage-react`](../storage-react/README.md)
 
 ## License
 

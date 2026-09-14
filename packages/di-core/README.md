@@ -1,6 +1,13 @@
-# @brushy/di-core
+<div align="center">
+  <img src="../../apps/docs/apple-touch-icon.png" alt="Brushy Suite" width="128" />
+  <h1>@brushy/di-core</h1>
+  <p>Zero-React dependency injection for Node.js, browsers, and React Native</p>
+  <br />
+  [![npm version](https://img.shields.io/npm/v/@brushy/di-core.svg)](https://www.npmjs.com/package/@brushy/di-core)
+  [![npm bundle size](https://img.shields.io/bundlephobia/minzip/@brushy/di-core)](https://bundlephobia.com/package/@brushy/di-core)
+</div>
 
-Zero-React dependency injection for Node.js, browsers, and React Native. Part of the [@brushy/di 2.0](../di/README.md) umbrella.
+Part of the [@brushy/di 2.0](../di/README.md) umbrella. **Documentation:** [brushysuite.gfrancodev.com](https://brushysuite.gfrancodev.com/di/di-core/overview)
 
 ## Install
 
@@ -87,6 +94,7 @@ const USER_SERVICE = usersModule.tokens.userService;
 
 ## Docs and examples
 
-- [Full documentation](https://brushysuite.gfrancodev.com/docs/di)
-- [Server utilities](https://brushysuite.gfrancodev.com/docs/di/server)
-- [Example projects](../../examples/README.md) (Express, Fastify, Vite, Expo)
+- [DI core overview](https://brushysuite.gfrancodev.com/di/di-core/overview)
+- [Server utilities](https://brushysuite.gfrancodev.com/di/server)
+- [Request scope](https://brushysuite.gfrancodev.com/di/di-core/request-scope)
+- [Example projects](https://brushysuite.gfrancodev.com/examples/overview) (Express, Fastify, Vite, Expo)
