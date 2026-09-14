@@ -2,9 +2,11 @@
   <img src="../../apps/docs/apple-touch-icon.png" alt="Brushy Suite" width="128" />
   <h1>@brushy/di-monitor</h1>
   <p>Container event monitoring and stats for Brushy DI</p>
-  <br />
-  [![npm version](https://img.shields.io/npm/v/@brushy/di-monitor.svg)](https://www.npmjs.com/package/@brushy/di-monitor)
 </div>
+
+<p align="center">
+  <a href="https://www.npmjs.com/package/@brushy/di-monitor"><img src="https://img.shields.io/npm/v/@brushy/di-monitor.svg" alt="npm version" /></a>
+</p>
 
 Container monitoring utilities for [`@brushy/di-core`](https://www.npmjs.com/package/@brushy/di-core). Observe register, resolve, and error events with optional console logging and stats.
 

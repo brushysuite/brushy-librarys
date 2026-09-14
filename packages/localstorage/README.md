@@ -2,9 +2,11 @@
   <img src="../../apps/docs/apple-touch-icon.png" alt="Brushy Suite" width="128" />
   <h1>@brushy/localstorage</h1>
   <p><strong>Deprecated</strong> — use @brushy/storage instead</p>
-  <br />
-  [![npm version](https://img.shields.io/npm/v/@brushy/localstorage.svg)](https://www.npmjs.com/package/@brushy/localstorage)
 </div>
+
+<p align="center">
+  <a href="https://www.npmjs.com/package/@brushy/localstorage"><img src="https://img.shields.io/npm/v/@brushy/localstorage.svg" alt="npm version" /></a>
+</p>
 
 > **This package is deprecated.** Use [`@brushy/storage`](../storage/README.md) and [`@brushy/storage-react`](../storage-react/README.md) instead.
 

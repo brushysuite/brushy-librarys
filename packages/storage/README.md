@@ -2,9 +2,11 @@
   <img src="../../apps/docs/apple-touch-icon.png" alt="Brushy Suite" width="128" />
   <h1>@brushy/storage</h1>
   <p>Isomorphic memory-first cache with NodeCache-style DX</p>
-  <br />
-  [![npm version](https://img.shields.io/npm/v/@brushy/storage.svg)](https://www.npmjs.com/package/@brushy/storage)
 </div>
+
+<p align="center">
+  <a href="https://www.npmjs.com/package/@brushy/storage"><img src="https://img.shields.io/npm/v/@brushy/storage.svg" alt="npm version" /></a>
+</p>
 
 Isomorphic memory-first cache with NodeCache-style DX, optional browser persist, TTL, events, and an invalidation bus for multi-runtime Brushy apps.
 

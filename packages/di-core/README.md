@@ -2,10 +2,12 @@
   <img src="../../apps/docs/apple-touch-icon.png" alt="Brushy Suite" width="128" />
   <h1>@brushy/di-core</h1>
   <p>Zero-React dependency injection for Node.js, browsers, and React Native</p>
-  <br />
-  [![npm version](https://img.shields.io/npm/v/@brushy/di-core.svg)](https://www.npmjs.com/package/@brushy/di-core)
-  [![npm bundle size](https://img.shields.io/bundlephobia/minzip/@brushy/di-core)](https://bundlephobia.com/package/@brushy/di-core)
 </div>
+
+<p align="center">
+  <a href="https://www.npmjs.com/package/@brushy/di-core"><img src="https://img.shields.io/npm/v/@brushy/di-core.svg" alt="npm version" /></a>
+  <a href="https://bundlephobia.com/package/@brushy/di-core"><img src="https://img.shields.io/bundlephobia/minzip/@brushy/di-core" alt="npm bundle size" /></a>
+</p>
 
 Part of the [@brushy/di 2.0](../di/README.md) umbrella. **Documentation:** [brushysuite.gfrancodev.com](https://brushysuite.gfrancodev.com/di/di-core/overview)
 

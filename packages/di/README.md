@@ -2,15 +2,17 @@
   <img src="../../apps/docs/apple-touch-icon.png" alt="Brushy Suite" width="128" />
   <h1>@brushy/di</h1>
   <p>Typed dependency injection for Node.js, browsers, React, and React Native</p>
-  <br />
-  [![Coverage - Statements](https://img.shields.io/badge/Coverage%20Statements-99.5%25-brightgreen.svg)](coverage)
-  [![Coverage - Branches](https://img.shields.io/badge/Coverage%20Branches-98.73%25-brightgreen.svg)](coverage)
-  [![Coverage - Functions](https://img.shields.io/badge/Coverage%20Functions-100%25-brightgreen.svg)](coverage)
-  [![Coverage - Lines](https://img.shields.io/badge/Coverage%20Lines-99.5%25-brightgreen.svg)](coverage)
-  [![npm downloads](https://img.shields.io/npm/dm/@brushy/di.svg)](https://www.npmjs.com/package/@brushy/di)
-  [![npm bundle size](https://img.shields.io/bundlephobia/minzip/@brushy/di)](https://bundlephobia.com/package/@brushy/di)
-  [![npm version](https://img.shields.io/npm/v/@brushy/di.svg)](https://www.npmjs.com/package/@brushy/di)
 </div>
+
+<p align="center">
+  <a href="coverage"><img src="https://img.shields.io/badge/Coverage%20Statements-99.5%25-brightgreen.svg" alt="Coverage - Statements" /></a>
+  <a href="coverage"><img src="https://img.shields.io/badge/Coverage%20Branches-98.73%25-brightgreen.svg" alt="Coverage - Branches" /></a>
+  <a href="coverage"><img src="https://img.shields.io/badge/Coverage%20Functions-100%25-brightgreen.svg" alt="Coverage - Functions" /></a>
+  <a href="coverage"><img src="https://img.shields.io/badge/Coverage%20Lines-99.5%25-brightgreen.svg" alt="Coverage - Lines" /></a>
+  <a href="https://www.npmjs.com/package/@brushy/di"><img src="https://img.shields.io/npm/dm/@brushy/di.svg" alt="npm downloads" /></a>
+  <a href="https://bundlephobia.com/package/@brushy/di"><img src="https://img.shields.io/bundlephobia/minzip/@brushy/di" alt="npm bundle size" /></a>
+  <a href="https://www.npmjs.com/package/@brushy/di"><img src="https://img.shields.io/npm/v/@brushy/di.svg" alt="npm version" /></a>
+</p>
 
 Umbrella package for **Brushy DI v2.0**: re-exports `@brushy/di-core`, `@brushy/di-react`, and `@brushy/di-monitor` from one install. OpenTelemetry lives in `@brushy/di/otel` (subpath only).
 

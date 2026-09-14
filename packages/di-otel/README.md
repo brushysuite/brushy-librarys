@@ -2,9 +2,11 @@
   <img src="../../apps/docs/apple-touch-icon.png" alt="Brushy Suite" width="128" />
   <h1>@brushy/di-otel</h1>
   <p>OpenTelemetry resolve tracing for Brushy DI</p>
-  <br />
-  [![npm version](https://img.shields.io/npm/v/@brushy/di-otel.svg)](https://www.npmjs.com/package/@brushy/di-otel)
 </div>
+
+<p align="center">
+  <a href="https://www.npmjs.com/package/@brushy/di-otel"><img src="https://img.shields.io/npm/v/@brushy/di-otel.svg" alt="npm version" /></a>
+</p>
 
 OpenTelemetry hooks for resolve tracing in [`@brushy/di-core`](https://www.npmjs.com/package/@brushy/di-core).
 

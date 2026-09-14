@@ -2,9 +2,11 @@
   <img src="../../apps/docs/apple-touch-icon.png" alt="Brushy Suite" width="128" />
   <h1>@brushy/storage-react</h1>
   <p>React hooks for @brushy/storage with useSyncExternalStore</p>
-  <br />
-  [![npm version](https://img.shields.io/npm/v/@brushy/storage-react.svg)](https://www.npmjs.com/package/@brushy/storage-react)
 </div>
+
+<p align="center">
+  <a href="https://www.npmjs.com/package/@brushy/storage-react"><img src="https://img.shields.io/npm/v/@brushy/storage-react.svg" alt="npm version" /></a>
+</p>
 
 React bindings for [`@brushy/storage`](../storage/README.md). Uses `useSyncExternalStore` for persisted values (no `useEffect` sync).
 
