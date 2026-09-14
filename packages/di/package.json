@@ -59,8 +59,7 @@
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
-    "prepublishOnly": "npm run build",
-    "publish": "npm publish --access public"
+    "prepublishOnly": "npm run build"
   },
   "keywords": [
     "dependency-injection",
