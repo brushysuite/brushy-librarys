@@ -1,0 +1,56 @@
+{
+  "name": "@brushy/rpa",
+  "version": "0.1.0",
+  "description": "Lightweight headless RPA engine",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": ["dist", "README.md"],
+  "sideEffects": false,
+  "scripts": {
+    "prebuild": "rm -rf dist",
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "lint": "eslint src/",
+    "check-types": "tsc --noEmit",
+    "format": "prettier . --write",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "keywords": [
+    "rpa",
+    "automation",
+    "headless",
+    "dom",
+    "typescript"
+  ],
+  "author": "Gustavo Franco <contact@gfrancodev.com>",
+  "license": "MIT",
+  "homepage": "https://gfrancodev.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/brushysuite/brushy-librarys.git",
+    "directory": "packages/rpa"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "dependencies": {
+    "axios": "^1.6.2",
+    "canvas": "^2.11.2",
+    "css-tree": "^2.3.1",
+    "ffmpeg-static": "^5.1.0",
+    "happy-dom": "^14.6.1",
+    "js-yaml": "^4.1.0",
+    "pixelmatch": "^5.3.0",
+    "vm2": "^3.9.16",
+    "tesseract.js": "^4.0.2",
+    "yoga-layout": "^1.10.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.8.0",
+    "vitest": "^3.0.8"
+  }
+}
